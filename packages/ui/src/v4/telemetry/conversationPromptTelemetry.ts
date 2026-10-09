@@ -1,8 +1,4 @@
-import {
-  SHUCODE_AGENT_PROVIDER,
-  type PlanIdentitySnapshot,
-  type ShucodeProvider,
-} from "@shucode/shared";
+import { SHUCODE_AGENT_PROVIDER, type ShucodeProvider } from "@shucode/shared";
 import { buildPromptTelemetryExtraDetail } from "@/lib/messageTelemetry.js";
 import { encodeCustomModelValue } from "@/lib/shucodeCustomModelValue.js";
 import {
@@ -44,7 +40,6 @@ export function buildV4ConversationPromptTelemetryExtraDetail(params: {
   modelName?: string | null;
   askMode?: string | null;
   providerBaseURL?: string | null;
-  planIdentitySnapshot?: PlanIdentitySnapshot | null;
 }): Record<string, string> {
   const agentProvider = params.agentProvider ?? SHUCODE_AGENT_PROVIDER;
   const base = buildPromptTelemetryExtraDetail({
@@ -52,7 +47,6 @@ export function buildV4ConversationPromptTelemetryExtraDetail(params: {
     modelName: resolveLegacyConversationModelValue(params),
     provider: agentProvider,
     providerBaseURL: params.providerBaseURL,
-    planIdentitySnapshot: params.planIdentitySnapshot,
   });
   return {
     ...base,

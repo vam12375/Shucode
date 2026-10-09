@@ -1,34 +1,11 @@
 import { AppUsagePanel } from "@/settings/usage-stats/AppUsagePanel.js";
-import {
-  CodingPlanUsagePanel,
-  type CodingPlanUsageSource,
-} from "@/settings/usage-stats/CodingPlanUsagePanel.js";
 
-export type UsageStatsSectionTab = "app" | "codingPlan" | `codingPlan:${string}`;
-
-export function UsageStatsSection({
-  activeTab,
-  providerSourcesLoading,
-  workspaceIdentity,
-  workspacePath,
-  selectedCodingPlanSource,
-}: {
-  activeTab: UsageStatsSectionTab;
-  providerSourcesLoading: boolean;
-  workspaceIdentity?: string;
-  workspacePath?: string;
-  selectedCodingPlanSource?: CodingPlanUsageSource | null;
-}) {
-  if (activeTab === "app") {
-    return <AppUsagePanel />;
-  }
-
-  return (
-    <CodingPlanUsagePanel
-      loadingSources={providerSourcesLoading}
-      workspaceIdentity={workspaceIdentity}
-      workspacePath={workspacePath}
-      selectedSource={selectedCodingPlanSource}
-    />
-  );
+/**
+ * 使用统计分区。
+ *
+ * 二开定制：官方套餐（编程套餐 / 团队套餐 / Start Plan）用量来源已下线，
+ * 本页只保留「应用用量」，不再有套餐来源 tab。
+ */
+export function UsageStatsSection() {
+  return <AppUsagePanel />;
 }

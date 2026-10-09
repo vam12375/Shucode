@@ -2,7 +2,8 @@ import type { ShucodeOffPeakTask } from "@shucode/shared";
 import type { IntlInstance } from "@/i18n/IntlProvider.js";
 import type { OffPeakTakeNumberAvailabilityStatus } from "@/store/offPeakTaskStore.js";
 
-export type OffPeakCreateBlockReason = "plan" | "quota" | "unavailable";
+/** 二开定制：官方套餐门控已下线，创建禁用只区分「服务端不可用」与「取号额度用尽」。 */
+export type OffPeakCreateBlockReason = "quota" | "unavailable";
 
 /** 闲时创建禁用原因属于长提示，不能沿用通用短 Tooltip 的单行布局。 */
 export const OFF_PEAK_CREATE_TOOLTIP_CLASSNAME =
@@ -13,18 +14,15 @@ export function resolveOffPeakCreateBlockReason({
   availabilityStatus,
   canTakeNumber,
   grayEnabled,
-  noPlan,
 }: {
   availabilityStatus: OffPeakTakeNumberAvailabilityStatus;
   canTakeNumber: boolean | undefined;
   grayEnabled: boolean;
-  noPlan: boolean;
 }): OffPeakCreateBlockReason | null {
   if (!grayEnabled) return null;
   if (availabilityStatus === "loading" || availabilityStatus === "error") {
     return "unavailable";
   }
-  if (noPlan) return "plan";
   if (availabilityStatus !== "ready") return "unavailable";
   return canTakeNumber === true ? null : "quota";
 }

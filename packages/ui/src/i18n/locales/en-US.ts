@@ -1,15 +1,5 @@
 /** English translations */
 const enUS: Record<string, string> = {
-  "startPlan.recommendation.subagentDescription":
-    "Your Start Plan has quota available for {model}. Switch this subagent’s model to the Start Plan?",
-  "startPlan.recommendation.preferenceSaveFailed":
-    "Could not save “Don’t ask again”. Continuing with your choice for this operation.",
-  "startPlan.recommendation.title": "Start Plan quota available",
-  "startPlan.recommendation.description":
-    "Your Start Plan still has quota for {model}. Would you like to use it?",
-  "startPlan.recommendation.switch": "Switch plan",
-  "startPlan.recommendation.decline": "Not now",
-  "startPlan.recommendation.dismiss": "Don’t show again",
   "occupationOnboarding.stepMode": "UI mode",
   "occupationOnboarding.modeTitle": "Choose your UI mode",
   "occupationOnboarding.modeDescription": "How would you like Shucode to show its work?",
@@ -135,8 +125,6 @@ const enUS: Record<string, string> = {
   "bashOutput.error.read_failed": "Could not read the output file",
   "bashOutput.error.query_failed": "Could not connect to the task runtime",
 
-  "purchase.entry.loading": "Loading plans…",
-  "purchase.entry.retry": "Could not load plans. Retry",
   "bots.runtime.deliveryFailed": "Bot reply delivery failed",
   "bots.runtime.deliveryFailedDescription":
     "The message could not be delivered. Share the details below for troubleshooting. This notice clears after the next successful send.",
@@ -163,12 +151,6 @@ const enUS: Record<string, string> = {
   "offPeak.chatCreated.open": "Go to idle-time tasks",
   "settings.computerUse.disabledToast":
     "Computer Use is disabled. Existing conversations require a Shucode restart to take effect.",
-  "settings.modelProvider.connectionUnavailableNotice": "The current plan is unavailable.",
-  "settings.modelProvider.switchConnection": "Switch to “{connection}”",
-  "settings.modelProvider.connectionSuggestionStale":
-    "Plan availability has changed. Please select a connection in model settings.",
-  "settings.modelProvider.connectionSwitchFailed":
-    "Could not switch plans. The original connection is unchanged. Please retry.",
   "settings.modelProvider.connectionUnavailable":
     "The selected connection is unavailable. Please choose another connection.",
   "settings.modelProvider.navigationUnavailable":
@@ -866,12 +848,6 @@ const enUS: Record<string, string> = {
   "login.description": "Connect your account to start using Shucode",
   "login.oauth.activeProviderHint":
     "Current active provider: {provider}. Signing in again replaces the current identity.",
-  "login.oauth.loadingProviders": "Loading account providers...",
-  "login.oauth.noProviders":
-    "No account providers are available right now. Please try again later.",
-  "login.oauth.button": "Continue with {provider}",
-  "login.oauth.button.zai": "Connect to Z.ai",
-  "login.oauth.button.bigmodel": "Connect to BigModel",
   "login.oauth.regionTag.zai": "Global",
   "login.oauth.regionTag.bigmodel": "CN",
   "login.oauth.waiting": "Waiting for {provider} authentication...",
@@ -2793,28 +2769,10 @@ const enUS: Record<string, string> = {
   "settings.modelProvider.connectionMode.codingPlanBadge": "Individual",
   "settings.modelProvider.connectionMode.startPlanBadge": "Free",
   "settings.modelProvider.connectionMode.teamPlanBadge": "Team",
-  "settings.modelProvider.connectionMode.loadFailed": "Connection settings failed",
   "settings.modelProvider.connectionMode.noAvailablePlan": "No available plan",
-  "settings.modelProvider.accountProviderConfigMissing":
-    "The account provider configuration is unavailable. Refresh and try again.",
-  "settings.modelProvider.startPlan.login": "Log in",
-  "settings.modelProvider.startPlan.status.loginRequired": "Log in to view and use your Start Plan",
-  "settings.modelProvider.startPlan.status.expired": "Start Plan expired",
-  "settings.modelProvider.startPlan.status.noPlan": "No available Start Plan",
-  "settings.modelProvider.startPlan.status.loginExpired":
-    "Your login has expired. Please log in again.",
   "settings.modelProvider.startPlan.title": "{provider} - Coding Plan",
   "settings.modelProvider.startPlan.meta.today": "Today",
   "settings.modelProvider.startPlan.meta.tomorrow": "Tomorrow",
-  "settings.modelProvider.startPlan.quotaSectionTitle": "Trial plan",
-  "settings.modelProvider.startPlan.eligibleNewUser": "New User",
-  "settings.modelProvider.startPlan.preview.unit.tokens": "tokens",
-  "settings.modelProvider.startPlan.preview.period.daily": "{unit} per day",
-  "settings.modelProvider.startPlan.preview.entitlementSummary.daily": "Daily quota · {details}",
-  "settings.modelProvider.startPlan.preview.entitlementSummary.generic": "Quota · {details}",
-  "settings.modelProvider.startPlan.preview.entitlementGroup.single": "{model} {quota}",
-  "settings.modelProvider.startPlan.preview.entitlementGroup.each": "{models} {quota} each",
-  "settings.modelProvider.startPlan.balance.title": "Today's balance",
   "settings.modelProvider.startPlan.balance.remaining": "{value} tokens remaining",
   "settings.modelProvider.startPlan.balance.used": "{value} used",
   "settings.modelProvider.startPlan.highlight.trial.label": "Trial period",
@@ -2832,27 +2790,7 @@ const enUS: Record<string, string> = {
   "settings.modelProvider.startPlan.compatibility":
     "Supports BYOK and BYOA. Base URL, API format, and API Key are maintained by Shucode automatically.",
   "settings.modelProvider.codingPlan.title": "{provider} - Coding Plan",
-  "settings.modelProvider.codingPlan.webview.title": "Upgrade Plan",
-  "settings.modelProvider.codingPlan.webview.authInjectFailed":
-    "Couldn't sign you into the plan page. Please retry.",
-  "settings.modelProvider.codingPlan.webview.retry": "Retry",
-  "settings.modelProvider.codingPlan.webview.loadFailed": "The plan page failed to load.",
-  "settings.modelProvider.codingPlan.webview.openWebsite": "Buy on the official website",
   "settings.modelProvider.codingPlan.status.loginRequired": "Not signed in",
-  "settings.modelProvider.codingPlan.status.disconnected": "Not connected",
-  "settings.modelProvider.codingPlan.status.checking": "Checking",
-  "settings.modelProvider.codingPlan.status.notPurchased":
-    "Not subscribed, enabled after subscription",
-  "settings.modelProvider.codingPlan.status.purchased": "Subscribed",
-  "settings.modelProvider.codingPlan.status.unavailable": "Fetch failed",
-  "settings.modelProvider.codingPlan.status.teamExpired":
-    "Team plan expired. Contact your team administrator.",
-  "settings.modelProvider.codingPlan.status.teamUnavailable":
-    "Team plan not assigned. Contact your team admin.",
-  "settings.modelProvider.codingPlan.status.unsupported": "Not supported yet",
-  "settings.modelProvider.codingPlan.bigmodel.unregisteredHint":
-    "This BigModel account is not registered yet. Register first.",
-  "settings.modelProvider.codingPlan.bigmodel.registerAction": "Register",
   "settings.modelProvider.codingPlan.description.disconnected":
     "Connect to view Coding Plan entitlements.",
   "settings.modelProvider.codingPlan.description.checking":
@@ -2861,25 +2799,17 @@ const enUS: Record<string, string> = {
     "No active Coding Plan was found for the current API key or account.",
   "settings.modelProvider.codingPlan.description.purchased":
     "Coding Plan is active and can be used by this provider.",
-  "settings.modelProvider.codingPlan.description.credentialFailed":
-    "Failed to retrieve your plan. Please sign in again and retry.",
   "settings.modelProvider.codingPlan.description.unavailable":
     "Could not verify Coding Plan entitlement. Connect again and retry.",
   "settings.modelProvider.codingPlan.description.unsupported":
     "This provider does not support Coding Plan status checks yet.",
   "settings.modelProvider.codingPlan.login": "Sign in to {provider}",
-  "settings.modelProvider.codingPlan.connect": "Connect to {provider}",
   "settings.modelProvider.codingPlan.purchaseLoginRequiredShort": "Sign in to purchase",
   "settings.modelProvider.codingPlan.purchaseConnectRequiredShort": "Connect to purchase",
-  "settings.modelProvider.codingPlan.disconnect": "Unlink",
-  "settings.modelProvider.codingPlan.subscribe": "Subscribe",
-  "settings.modelProvider.codingPlan.upgrade": "Upgrade",
-  "settings.modelProvider.codingPlan.renew": "Renew",
   "settings.modelProvider.codingPlan.currentPlan": "Current",
   "settings.modelProvider.codingPlan.purchased": "Purchased",
   "settings.modelProvider.codingPlan.startPlan.expiredBadge": "Expired",
   "settings.modelProvider.codingPlan.startPlan.expiredAction": "Ended",
-  "settings.modelProvider.codingPlan.cancelUpgrade": "Back",
   "settings.modelProvider.codingPlan.purchase.title": "Upgrade Coding Plan",
   "settings.modelProvider.codingPlan.purchase.pricingTitle": "Pricing",
   "settings.modelProvider.codingPlan.purchase.pricingDescription":
@@ -2890,18 +2820,9 @@ const enUS: Record<string, string> = {
   "settings.modelProvider.codingPlan.purchase.paymentTitle": "Payment",
   "settings.modelProvider.codingPlan.purchase.personal": "Individuals",
   "settings.modelProvider.codingPlan.purchase.team": "Teams",
-  "settings.modelProvider.codingPlan.purchase.individualsSectionTitle": "For Individuals",
   "settings.modelProvider.codingPlan.purchase.teamsSectionTitle": "For Teams",
-  "settings.modelProvider.codingPlan.purchaseBanner.startPlanTitle": "Start Plan",
   "settings.modelProvider.codingPlan.purchaseBanner.startPlanDescription":
     "Try platform GLM flagship model quota for free.",
-  "settings.modelProvider.codingPlan.purchaseBanner.personalTitle": "For Individuals",
-  "settings.modelProvider.codingPlan.purchaseBanner.personalDescription":
-    "For individual developers with dedicated Coding Plan quota.",
-  "settings.modelProvider.codingPlan.purchaseBanner.temporarilySoldOut": "Temporarily sold out",
-  "settings.modelProvider.codingPlan.purchaseBanner.teamTitle": "For Teams",
-  "settings.modelProvider.codingPlan.purchaseBanner.teamDescription":
-    "For team collaboration with seats and centralized billing.",
   "settings.modelProvider.codingPlan.purchaseBanner.teamStandardDescription":
     "For small teams that need shared quota and seat management.",
   "settings.modelProvider.codingPlan.purchaseBanner.teamAdvancedDescription":
@@ -2909,11 +2830,7 @@ const enUS: Record<string, string> = {
   "settings.modelProvider.codingPlan.purchase.choosePlan": "Choose a plan",
   "settings.modelProvider.codingPlan.purchase.choosePlanDescription":
     "Compare plan capacity first. Billing cycle and final payment are confirmed next.",
-  "settings.modelProvider.codingPlan.purchase.selectPlan": "Select",
-  "settings.modelProvider.codingPlan.purchase.select": "Select",
   "settings.modelProvider.codingPlan.purchase.selected": "Selected",
-  "settings.modelProvider.codingPlan.purchase.fromPrice": "{price}+",
-  "settings.modelProvider.codingPlan.purchase.fromPriceSuffix": "",
   "settings.modelProvider.codingPlan.purchase.previewLoading": "Calculating payment amount",
   "settings.modelProvider.codingPlan.purchase.previewLoadingDescription":
     "Please wait. Confirmation and payment use the same payment details.",
@@ -2969,22 +2886,13 @@ const enUS: Record<string, string> = {
   "settings.modelProvider.codingPlan.purchase.teamMemberNoticeDescription":
     "Add yourself or other members on the BigModel team plan management page. Once assigned, the team quota will be available in Shucode.",
   "settings.modelProvider.codingPlan.purchase.manageTeamPlan": "Manage team plan",
-  "settings.modelProvider.codingPlan.manage": "Manage",
-  "settings.modelProvider.planCard.codingPlan": "Coding Plan",
-  "settings.modelProvider.planCard.startPlan": "Start Plan",
   "settings.modelProvider.planCard.usage.fiveHour": "5h usage",
   "settings.modelProvider.planCard.usage.week": "1w usage",
-  "settings.modelProvider.planCard.usage.totalTokens": "Total tokens",
   "settings.modelProvider.codingPlan.recheck": "Recheck",
   "settings.modelProvider.codingPlan.checkingPlans": "Checking...",
   "settings.modelProvider.codingPlan.switchAccount": "Switch account",
   "settings.modelProvider.codingPlan.useApiKeyProvider": "Use API key",
   "settings.modelProvider.codingPlan.nextResetAt": "Quota resets {date}",
-  "settings.modelProvider.codingPlan.renewsAt": "Renews {date}",
-  "settings.modelProvider.codingPlan.expiresAt": "Expires {date}",
-  "settings.modelProvider.startPlan.pendingUntil": "Pending {date}",
-  "settings.modelProvider.startPlan.refreshEntitlement": "Refresh access",
-  "settings.modelProvider.startPlan.expiresAt": "Expires {date}",
   "settings.modelProvider.codingPlan.openApiKeyProvider": "Open BigModel - API key",
   "settings.modelProvider.codingPlan.plansTitle": "Coding Plan",
   "settings.modelProvider.codingPlan.audience.personal": "Individuals",
@@ -3417,11 +3325,8 @@ const enUS: Record<string, string> = {
   "settings.modelProvider.newProviderName": "New provider",
   "settings.modelProvider.modelsPlaceholder": "One model name per line",
   "settings.modelProvider.modelsCount": "{count} models",
-  "settings.modelProvider.presetTitle": "Providers",
   "settings.usage.sectionTitle": "Usage stats",
   "settings.usage.sectionDescription": "Built from local app session history.",
-  "settings.usage.tab.appUsage": "App usage",
-  "settings.usage.tab.codingPlan": "Individual Plan",
   "settings.usage.sectionDescriptionRemote":
     "Synced from the selected provider monitor API for real token and tool usage.",
   "settings.usage.remoteTokenHint": "From the selected provider model-usage API",
@@ -3459,42 +3364,6 @@ const enUS: Record<string, string> = {
   "settings.usage.entitlementExpires": "Expires {date}",
   "settings.usage.entitlementResetTime": "Next reset",
   "settings.usage.entitlementTokenUsage": "5-hour prompt pool used {percent}",
-  "settings.usage.quotaTitle": "Quota remaining",
-  "codingPlan.quotaReset.openDialog": "Get {count} reset quotas",
-  "codingPlan.quotaReset.countdown.daysHours": "{days}d {hours}h",
-  "codingPlan.quotaReset.countdown.daysOnly": "{days}d",
-  "codingPlan.quotaReset.countdown.hoursMinutes": "{hours}h {minutes}m",
-  "codingPlan.quotaReset.countdown.hoursOnly": "{hours}h",
-  "codingPlan.quotaReset.countdown.minutesSeconds": "{minutes}m {seconds}s",
-  "codingPlan.quotaReset.dialog.title": "Resettable quota",
-  "codingPlan.quotaReset.dialog.remaining": "Remaining quota",
-  "codingPlan.quotaReset.dialog.resettable": "Available resets",
-  "codingPlan.quotaReset.dialog.fiveHour": "5-hour quota reset",
-  "codingPlan.quotaReset.dialog.week": "Weekly quota reset",
-  "codingPlan.quotaReset.dialog.expiresIn": "Expires in {time}",
-  "codingPlan.quotaReset.dialog.expiresInSoonest": "Soonest expires in {time}",
-  "codingPlan.quotaReset.dialog.itemCount": "×{count}",
-  "codingPlan.quotaReset.opportunity": "{count} reset available",
-  "codingPlan.quotaReset.expiresIn": "Expires in {time}",
-  "codingPlan.quotaReset.contextReminder.available": "{count} reset available",
-  "codingPlan.quotaReset.contextReminder.expiresIn": "Reset expires in",
-  "codingPlan.quotaReset.contextReminder.dismiss": "Dismiss reminder",
-  "codingPlan.quotaReset.reset": "Reset",
-  "codingPlan.quotaReset.resetAria": "Reset 5-hour quota",
-  "codingPlan.quotaReset.resetAriaWeek": "Reset weekly quota",
-  "codingPlan.quotaReset.success": "Reset successful",
-  "codingPlan.quotaReset.failed": "Reset failed. Please try again.",
-  "codingPlan.quotaReset.processing": "Resetting 5-hour quota…",
-  "codingPlan.quotaReset.processingWeek": "Resetting weekly quota…",
-  "codingPlan.quotaReset.done": "5-hour quota reset",
-  "codingPlan.quotaReset.doneWeek": "Weekly quota reset",
-  "codingPlan.quotaReset.completed": "Reset",
-  "codingPlan.quotaReset.completedAt": "Reset at {time}",
-  "settings.usage.trendsTitle": "Usage trends",
-  "settings.usage.entitlementFiveHourUsage": "5-hour remaining",
-  "settings.usage.entitlementWeeklyUsage": "Weekly remaining",
-  "settings.usage.entitlementMonthlyMcpUsage": "Tool calls",
-  "settings.usage.entitlementServerMcpUsage": "Shucode MCP",
   "settings.usage.entitlementResetAt": "Resets {time}",
   "settings.usage.entitlementUsageDetails": "Tool usage detail",
   "settings.usage.entitlementPromptCap": "5-hour prompt pool",
@@ -3514,69 +3383,16 @@ const enUS: Record<string, string> = {
   "settings.usage.entitlementStatusLoginRequired": "Login required",
   "settings.usage.entitlementStatusNoPlan": "Not subscribed",
   "settings.usage.entitlementStatusNotConfigured": "Not configured",
-  "sidebar.usage.summaryTitle": "Last 30 days",
-  "sidebar.usage.plan.title": "Usage remaining",
-  "sidebar.usage.plan.upgrade": "Upgrade",
-  "sidebar.usage.plan.renew": "Renew",
-  "sidebar.usage.plan.codingPlanTitle": "Coding Plan",
-  "sidebar.usage.plan.audienceIndividual": "Individual",
-  "sidebar.usage.plan.audienceTeam": "Team",
-  "sidebar.usage.plan.open": "More",
-  "sidebar.usage.plan.loading": "Syncing...",
-  "sidebar.usage.plan.unavailable": "No available entitlement data yet.",
-  "sidebar.usage.plan.loginRequired": "Login to view plan usage.",
-  "sidebar.usage.plan.notConfigured": "No connected Coding Plan account found.",
-  "sidebar.usage.plan.noPlanShort": "No plan",
-  "sidebar.usage.plan.remainingShort": "{value} left",
-  "sidebar.usage.plan.planTypeValue": "Plan: {plan}",
-  "sidebar.usage.plan.tokensLimit": "Token quota",
-  "sidebar.usage.plan.timeLimit": "Time quota",
-  "sidebar.usage.plan.otherLimit": "Quota",
-  "sidebar.usage.plan.percentUsed": "{percent}% used",
-  "sidebar.usage.plan.remainingValue": "Remaining",
-  "sidebar.usage.plan.total": "Total",
-  "sidebar.usage.plan.resetAt": "Resets {time}",
-  "sidebar.usage.plan.modelUsage": "Model usage",
-  "sidebar.usage.plan.openStats": "Usage stats",
-  "sidebar.usage.plan.refresh": "Refresh quota",
-  "sidebar.usage.plan.refreshing": "Updating quota",
-  "sidebar.usage.plan.updateFailed": "Possible network issue",
-  "sidebar.usage.plan.updated": "Quota updated",
-  "sidebar.usage.plan.noLimits": "Quota details unavailable.",
-  "sidebar.usage.plan.remaining": "Tool quota remaining",
-  "sidebar.usage.plan.realtime": "Synced from quota api",
-  "sidebar.usage.plan.hidden": "Provider marked this balance as hidden",
-  "sidebar.usage.plan.currentPlan": "Plan level",
-  "sidebar.usage.plan.noPlan": "No active Coding Plan",
-  "sidebar.usage.plan.expires": "Resets",
-  "sidebar.usage.plan.fiveHour": "5 hours",
-  "sidebar.usage.plan.weekly": "Weekly",
-  "sidebar.usage.plan.toolCalls": "Tool calls",
-  "sidebar.usage.plan.mcp": "Shucode MCP",
-  "sidebar.usage.plan.shucodeMcp": "Shucode MCP",
-  "sidebar.usage.plan.shucodeMcpDescription":
-    "Daily aggregate quota for Shucode built-in plugin MCPs",
   "chat.planUsage.title": "Plan usage",
-  "chat.planUsage.titleWithPlan": "{plan} Plan usage",
   "chat.planUsage.providerFallback": "Current provider",
   "chat.planUsage.open": "Details",
-  "chat.planUsage.noPlan":
-    "No active Coding Plan was found for this account. Confirm that the connected account is subscribed.",
   "chat.planUsage.contextWindow": "Current context window",
   "chat.planUsage.contextDetail": "{used} / {total}",
   "chat.planUsage.promptPool": "5-hour prompt pool",
   "chat.planUsage.promptReset": "Resets {time}",
-  "chat.planUsage.weeklyQuota": "Weekly quota",
   "chat.planUsage.weeklyReset": "Resets {time}",
-  "chat.planUsage.toolQuota": "Monthly MCP / tool usage",
   "chat.planUsage.toolRemaining": "{remaining} / {total} remaining · resets {time}",
   "chat.planUsage.toolUsed": "{used} / {total} used · resets {time}",
-  "chat.planUsage.noQuotaLimits":
-    "No Coding Plan quota was found. Confirm that the connected account has an active Coding Plan.",
-  "usage.error.chatPlan.credential":
-    "Unable to read plan quota. Reconnect the Coding Plan account or confirm that the account has an active plan.",
-  "usage.error.chatPlan.generic":
-    "Unable to read plan quota. Try again later or check the provider configuration.",
   "settings.usage.range.all": "All time",
   "settings.usage.range.7d": "Last 7 days",
   "settings.usage.range.30d": "Last 30 days",
@@ -3589,18 +3405,10 @@ const enUS: Record<string, string> = {
   "settings.usage.codingPlanMetric.usage": "Usage",
   "settings.usage.codingPlanSubject.model": "Models",
   "settings.usage.codingPlanSubject.tool": "Tools",
-  "settings.usage.codingPlanLegendTotal": "Total",
-  "settings.usage.healthTitle": "System health",
-  "settings.usage.healthRange.7d": "Last 7 days",
-  "settings.usage.healthProMaxDecode": "Max&Pro peak average decode speed",
-  "settings.usage.healthLiteDecode": "Lite peak average decode speed",
   "settings.usage.refresh": "Refresh",
   "settings.usage.loadingTitle": "Computing usage",
   "settings.usage.appUsageLoadingDescription":
     "Reading local app session history, so it can take a moment.",
-  "settings.usage.codingPlanLoadingDescription":
-    "Reading the selected provider monitor API, so it can take a moment.",
-  "settings.usage.lastRefreshTime": "Last refreshed: {time}",
   "settings.usage.error":
     "Unable to load usage stats. Try again later or check the network and provider configuration.",
   "settings.usage.checkApiKey": "Check account",
@@ -3613,22 +3421,16 @@ const enUS: Record<string, string> = {
   "settings.usage.estimationHint": "Estimated from local session history",
   "settings.usage.totalTokens": "Token usage",
   "settings.usage.tokenUnit": "tokens",
-  "settings.usage.creditUnit": "credits",
   "settings.usage.sessions": "Sessions",
   "settings.usage.messages": "Messages",
   "settings.usage.activeDays": "Active days",
   "settings.usage.favoriteModel": "Favorite model",
   "settings.usage.favoriteModelShare": "{share} share",
   "settings.usage.longestSession": "Longest session",
-  "settings.usage.totalUsageDuration": "Total usage duration",
-  "settings.usage.activityTitle": "Activity",
   "settings.usage.lifetimeTotalTokens": "Total tokens",
   "settings.usage.lifetimePeakTokens": "Peak tokens",
   "settings.usage.currentStreak": "Current streak",
   "settings.usage.longestStreak": "Longest streak",
-  "settings.usage.cacheHitRate": "Cache hit rate",
-  "settings.usage.creditsTotal": "Credits total",
-  "settings.usage.averageDailyCredits": "Average daily credits",
   "settings.usage.peakHour": "Peak hour",
   "settings.usage.peakHourTokens": "{tokens} tokens",
   "settings.usage.unknownModel": "Unknown model",
@@ -3660,16 +3462,10 @@ const enUS: Record<string, string> = {
   "settings.usage.codingPlanNotConfiguredTitle": "Coding Plan is not connected",
   "settings.usage.codingPlanNotConfiguredDescription":
     "Connect a Z.ai or BigModel Coding Plan provider in Model Settings to view plan quota, model usage, and tool usage.",
-  "settings.usage.codingPlanCurrentConnectionTitle": "Current connection is not using Coding Plan",
-  "settings.usage.codingPlanCurrentConnectionDescription":
-    "Switch the workspace model connection to an Individual Plan or Team Plan to view its quota and usage here.",
   "settings.usage.modelChartDescription":
     "{model} currently has the highest share at about {share}.",
   "settings.usage.modelChart.other": "Other models",
   "settings.usage.modelChart.input": "In",
-  "settings.usage.modelChart.cachedInput": "Cached",
-  "settings.usage.modelChart.uncachedInput": "Uncached",
-  "settings.usage.modelChart.output": "Out",
   "settings.usage.modelChart.remoteTokens": "From model-usage api",
   "settings.usage.duration.day": "d",
   "settings.usage.duration.hour": "h",
@@ -3680,7 +3476,6 @@ const enUS: Record<string, string> = {
   "settings.usage.dayLabel.fri": "Fri",
   "settings.modelProvider.presetDescription":
     "Built-in Z.ai and BigModel providers with OAuth-assisted configuration.",
-  "settings.modelProvider.presetEmpty": "Not synced yet. Complete OAuth login first.",
   "settings.modelProvider.customTitle": "Custom providers",
   "settings.modelProvider.refresh": "Refresh",
   "settings.modelProvider.reorderProvider": "Drag to reorder provider",
@@ -5742,8 +5537,6 @@ const enUS: Record<string, string> = {
   "chat.error.dismiss": "Dismiss error",
   "chat.error.retry": "Retry",
   "chat.error.reloginProvider": "Sign in to {provider}",
-  "chat.error.action.relogin": "Sign in again",
-  "chat.error.action.refreshQuota": "Refresh quota",
   "chat.error.action.switchModel": "Switch model",
   "chat.error.action.retryLater": "Try again later",
   "chat.error.copyTraceId": "Copy TraceID",
@@ -5754,39 +5547,24 @@ const enUS: Record<string, string> = {
   "chat.error.collapseDetails": "Hide details",
   "chat.error.feedback": "Report issue",
   "chat.error.feedbackOpened": "Feedback opened with the error context attached",
-  "chat.error.noAvailableModel": "No model available. Upgrade or set a custom model.",
+  "chat.error.noAvailableModel": "No model available. Configure a custom model in settings.",
   "chat.error.sendFailed": "Failed to send. Try again later.",
   "chat.error.modelSettings": "Model settings",
   "chat.error.setModels": "Set",
 
   // Start Plan per-bucket quota reminders
-  "chat.quota.startPlan.bucketDailyLow":
-    "{model} has {percent} of its daily quota remaining ({remaining} tokens).",
-  "chat.quota.startPlan.bucketActivityLow":
-    "{model} has {percent} of its promotional quota remaining ({remaining} tokens).",
-  "chat.quota.startPlan.modelVeryLow":
-    "{model} has {percent} of its plan quota remaining ({remaining} tokens).",
-  "chat.quota.startPlan.modelExhausted":
-    "All available quota for {model} has been used up. Switch models or upgrade your plan.",
   "chat.quota.startPlan.dailyExhausted":
-    "Your Start Plan quota has been used up. Upgrade your plan or wait for the quota to reset.",
+    "Your Start Plan quota has been used up. Switch models or wait for the quota to reset.",
   "chat.quota.startPlan.concurrentLimit":
-    "The system is busy. Please switch models, upgrade your account, or try again later.",
+    "The system is busy. Please switch models or try again later.",
   "chat.quota.startPlan.concurrentLimit.retryExhausted":
-    "The system is busy, and automatic retries have reached the maximum count. Please try again later or upgrade your account.",
-  "chat.quota.startPlan.concurrentLimit.switchModel":
-    "The current model request concurrency limit has been reached. Switch models to continue your current task.",
+    "The system is busy, and automatic retries have reached the maximum count. Please try again later.",
   "chat.quota.mcp.quotaExhausted":
     'Shucode MCP "{server}" has used up today\'s quota. It resets tomorrow.',
   "chat.quota.mcp.codingPlanRequired":
     'No Shucode MCP "{server}" quota. Sign in or get a Coding Plan to use it.',
   "chat.quota.providerLimited":
-    "The current account quota or plan limit has been reached. Upgrade or adjust the plan to continue.",
-  "chat.quota.action.upgrade": "Upgrade",
-  "chat.quota.action.renew": "Renew",
-  "chat.quota.action.switchModel": "Switch model",
-  "chat.quota.action.switchProvider": "Switch provider",
-  "chat.quota.action.refresh": "Refresh quota",
+    "The current account quota or plan limit has been reached. Try again later or switch models.",
 
   // Permissions
   "chat.permission.title": "Permission required",
@@ -5942,7 +5720,7 @@ const enUS: Record<string, string> = {
     "The current model is unavailable. Check whether the current account has been added to the project member list.",
   "shucode.error.providerBusiness.1006": "Your login session has expired. Please sign in again.",
   "shucode.error.providerBusiness.1005":
-    "Today's free plan quota has been used up. Upgrade to continue now, or wait for the quota to reset.",
+    "Today's free plan quota has been used up. Switch models or wait for the quota to reset.",
   "shucode.error.providerBusiness.3006":
     "The current model is not included in this plan. Switch to an allowed model and try again.",
   "shucode.error.providerBusiness.3002":
@@ -5952,11 +5730,11 @@ const enUS: Record<string, string> = {
   "shucode.error.providerBusiness.3007":
     "The request was rejected by the gateway security check. Please try again later or contact support.",
   "shucode.error.providerBusiness.3008":
-    "The system is busy. Please switch models, upgrade your account, or try again later.",
+    "The system is busy. Please switch models or try again later.",
   "shucode.error.providerBusiness.3009":
-    "The system is busy. Please switch models, upgrade your account, or try again later.",
+    "The system is busy. Please switch models or try again later.",
   "shucode.error.providerBusiness.3010":
-    "The system is busy. Please switch models, upgrade your account, or try again later.",
+    "The system is busy. Please switch models or try again later.",
   "shucode.error.providerBusiness.3102":
     "This run exceeded the maximum single-run time. Create a new off-peak task to continue.",
   "shucode.error.modelSuspiciousEmpty":
@@ -6465,7 +6243,6 @@ const enUS: Record<string, string> = {
   "offPeak.discard.title": "Discard Idle-time task draft?",
   "offPeak.discard.description": "Your changes to the current idle-time task will be lost.",
   "offPeak.discard.confirm": "Discard",
-  "offPeak.create.codingPlanOnly": "Coding plan users only",
   "offPeak.create.availabilityUnavailable": "Could not verify availability. Refresh and try again.",
   "offPeak.create.limitReachedAt":
     "Free tier limit reached. You can create another task in {time}.",
@@ -6473,8 +6250,6 @@ const enUS: Record<string, string> = {
   "offPeak.create.remaining.hours": "{hours} hr",
   "offPeak.create.remaining.minutes": "{minutes} min",
   "offPeak.create.remaining.lessThanMinute": "less than 1 min",
-  "offPeak.create.codingPlanToast":
-    "Idle-time tasks are available for Coding Plan subscribers only.",
   "automations.moreIdeas": "Scheduled task template",
   "automations.templates.unavailable": "No templates available",
   "automations.runNow": "Run now",
