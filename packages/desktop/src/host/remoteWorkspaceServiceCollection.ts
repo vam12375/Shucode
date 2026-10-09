@@ -49,11 +49,6 @@ import {
   createOAuthService,
   createOAuthProviderLogoutHandler,
   createAccountProviderCredentialStore,
-  createAccountProviderCredentialService,
-  createAccountProviderRequestAuthService,
-  createAccountRequestAuthService,
-  resolveCurrentAccountAccess,
-  resolveAccountTeamPlanRuntimeApiKey,
   createSettingsSyncService,
   createBotsService,
   createUsageStatsService,
@@ -64,15 +59,11 @@ import {
   createSubagentsService,
   createMemoryService,
   createRemoteConversationShareArtifactSource,
-  OAuthCredentialRepo,
 } from "@shucode/services/node";
 import {
-  BIGMODEL_PROVIDER_ID,
   buildRuntimeShucodeApiUrl,
   DEFAULT_SHUCODE_MODEL_CONTEXT_BUDGET_STRATEGY,
-  type ProviderFamilyDomain,
   type ShucodeSessionRuntimePreferencesResult,
-  ZAI_PROVIDER_ID,
 } from "@shucode/shared";
 import { assertLegacyRemoteWorkspaceRpcContract } from "./legacyRemoteWorkspaceRpcContract.js";
 import {
@@ -115,66 +106,8 @@ export function createRemoteWorkspaceServiceCollection(params: {
   });
   const localBroadcastService = createBroadcastService(params.parentPort);
   let handleOAuthProviderLogout: ReturnType<typeof createOAuthProviderLogoutHandler> | null = null;
-  const localOAuthCredentialRepo = new OAuthCredentialRepo(localCredentialService, {
-    onCorruptOAuthSessionCleared: async (providers) => {
-      // remote workspace host 读写的是本机 OAuth 凭据。
-      // 损坏恢复必须和 local host 一样清理 Start/Coding Plan 派生 provider，避免手机 remote 残留旧 key。
-      await Promise.all(
-        providers.map((provider) => handleOAuthProviderLogout?.(provider) ?? Promise.resolve()),
-      );
-    },
-  });
-  const localAccountProviderCredentialService = createAccountProviderCredentialService({
-    credentialStore: localAccountProviderCredentialStore,
-    async loadOAuthAccessToken(family) {
-      const providerId = family === "zai" ? ZAI_PROVIDER_ID : BIGMODEL_PROVIDER_ID;
-      return (await localOAuthCredentialRepo.loadTokenSet(providerId))?.accessToken ?? null;
-    },
-    // desktop-attached remote 只复用本机已解析或旧存储中的 Key；远端刷新仍由本机正式账号链负责。
-    resolveProviderApiKey: async () => null,
-  });
-  const readLocalAccountProviderSettings = async () => {
-    const settings = await localSettingService.get();
-    return {
-      providerFamilyDomain: settings.providerFamilyDomain ?? null,
-      selections: settings.providerFamilyConnectionSelections ?? {},
-    };
-  };
-  const loadLocalAccountIdentity = async (family: ProviderFamilyDomain) => {
-    const providerId = family === "zai" ? ZAI_PROVIDER_ID : BIGMODEL_PROVIDER_ID;
-    return (await localOAuthCredentialRepo.loadUserProfile(providerId))?.id ?? null;
-  };
-  const localAccountRequestAuthService = createAccountRequestAuthService(
-    createAccountProviderRequestAuthService({
-      resolveCurrentAccountAccess: (access) =>
-        resolveCurrentAccountAccess({
-          access,
-          readSettings: readLocalAccountProviderSettings,
-          loadAccountIdentity: loadLocalAccountIdentity,
-        }),
-      loadOAuthTokenSet: (providerId) => localOAuthCredentialRepo.loadTokenSet(providerId),
-      async loadIndividualPlanApiKey(providerId, family) {
-        const oauthProviderId = family === "zai" ? ZAI_PROVIDER_ID : BIGMODEL_PROVIDER_ID;
-        const accountIdentity = (await localOAuthCredentialRepo.loadUserProfile(oauthProviderId))
-          ?.id;
-        if (!accountIdentity) return null;
-        return localAccountProviderCredentialService.loadCodingPlanApiKey({
-          providerId,
-          family,
-          accountIdentity,
-        });
-      },
-      resolveTeamPlanApiKey: (access) =>
-        resolveAccountTeamPlanRuntimeApiKey({
-          apiClient: localApiClient,
-          credentialService: localCredentialService,
-          access,
-        }),
-    }),
-  );
   const localCodingPlanSubscriptionService = createCodingPlanSubscriptionService({
     apiClient: localApiClient,
-    credentialService: localCredentialService,
   });
   handleOAuthProviderLogout = createOAuthProviderLogoutHandler({
     accountProviderCredentialStore: localAccountProviderCredentialStore,
@@ -352,9 +285,6 @@ export function createRemoteWorkspaceServiceCollection(params: {
     .register(
       IUsageStatsService,
       createUsageStatsService({
-        apiClient: localApiClient,
-        accountRequestAuthService: localAccountRequestAuthService,
-        credentialService: localCredentialService,
         shucodeAgentService: params.connectionServices.shucodeAgentService,
       }),
     )
