@@ -1,0 +1,592 @@
+/* 工作区只投影桌面视觉；面板驻留、虚拟行高、编辑器和终端字号继续由原组件拥有。 */
+:where(html.platform-mac-desktop, html.platform-windows-desktop, html.platform-linux-desktop) {
+  .pk-workspace-shell {
+    background-color: var(--color-background);
+  }
+
+  /* diff surface 使用浅色语义底；对应文本统一采用 foreground，避免把底色当文字色。 */
+  .text-diff-added,
+  .text-\[var\(--color-diff-added\)\] {
+    color: var(--color-diff-added-foreground) !important;
+  }
+
+  .text-diff-removed,
+  .text-\[var\(--color-diff-removed\)\] {
+    color: var(--color-diff-removed-foreground) !important;
+  }
+
+  .pk-conversation-frame,
+  .pk-side-frame,
+  .pk-terminal-frame {
+    border-radius: var(--pk-radius-frame);
+    border-color: var(--color-border);
+    background-color: var(--color-background);
+  }
+
+  .pk-workspace-header,
+  .pk-side-tab-bar {
+    background-color: var(--color-header);
+    border-bottom-color: var(--color-border);
+  }
+
+  .pk-workspace-header[data-workspace-header-variant="draft"] {
+    background-color: var(--color-background);
+    border-bottom-color: transparent;
+  }
+
+  .pk-workspace-title,
+  .pk-panel-title {
+    font-family: var(--font-pixel);
+    font-weight: 400;
+    font-synthesis: none;
+    letter-spacing: 0;
+    line-height: 1.55;
+  }
+
+  .pk-draft-suggestions-title,
+  .pk-draft-suggestion,
+  .pk-draft-suggestion-label,
+  .pk-side-tab,
+  .pk-terminal-tab,
+  [data-testid="workflow-workspace-copy"],
+  .pk-composer-context :is(button, [role="button"]),
+  .pk-composer-toolbar :is(button, [role="button"]) {
+    font-family: var(--font-pixel);
+    font-weight: 400;
+    font-synthesis: none;
+    letter-spacing: 0;
+  }
+
+  .pk-draft-suggestion,
+  [data-testid="workflow-workspace-copy"] {
+    border-radius: var(--pk-radius-control);
+  }
+
+  /* 狭窄分栏不能沿用 w-max 单行，把后面的建议按钮裁在边线外。 */
+  [data-v4-draft-suggested-prompts-group="true"] {
+    width: 100%;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .pk-draft-suggestion {
+    max-width: 100%;
+  }
+
+  /* 桌面问候采用 UI 标题 token；Web 原有宽度测量和动态字号保持原路径。 */
+  .pk-draft-greeting,
+  .pk-draft-greeting-measurement {
+    font-family: var(--font-pixel);
+    font-size: var(--text-ui-xl);
+    font-weight: 400;
+    font-synthesis: none;
+    letter-spacing: 0;
+    line-height: 1.55;
+  }
+
+  /* 终端会缩短会话面板；dvh 留白却仍取整窗高度。草稿必须按自己的定高容器收缩。 */
+  [data-v4-conversation-drop-target="true"][data-session-id="draft"] {
+    container-name: pk-draft-pane;
+    container-type: size;
+  }
+
+  [data-v4-timeline-scroll="true"]:has(.pk-draft-greeting) > div {
+    height: 100%;
+  }
+
+  [data-v4-timeline-scroll="true"]:has(.pk-draft-greeting) > div::before {
+    flex-basis: min(29dvh, 30cqh);
+    min-height: 16px;
+  }
+
+  .pk-draft-empty-state {
+    margin-bottom: clamp(12px, 4cqh, 32px);
+  }
+
+  .pk-draft-watermark {
+    width: min(72vw, 25rem, 70cqh);
+  }
+
+  @container pk-draft-pane (max-height: 520px) {
+    [data-v4-timeline-scroll="true"]:has(.pk-draft-greeting) > div::before {
+      flex-basis: 12cqh;
+      min-height: 12px;
+    }
+
+    .pk-composer-region > .mb-6 {
+      margin-bottom: 12px;
+    }
+
+    .pk-composer-shell {
+      gap: 8px;
+      padding: 8px;
+    }
+
+    .pk-composer-shell [contenteditable="true"] {
+      max-height: min(8rem, 24cqh);
+    }
+
+    [data-v4-draft-suggested-prompts-slot="true"] {
+      max-height: min(8rem, 20cqh);
+      margin-top: 12px;
+      overflow-y: auto;
+    }
+  }
+
+  @container pk-draft-pane (max-height: 380px) {
+    [data-v4-timeline-scroll="true"]:has(.pk-draft-greeting) > div::before,
+    [data-v4-timeline-scroll="true"]:has(.pk-draft-greeting) > div::after {
+      flex-basis: 8px;
+      min-height: 8px;
+    }
+
+    [data-v4-composer-dock="true"] {
+      margin-top: 8px;
+    }
+
+    .pk-draft-empty-state {
+      margin-bottom: 8px;
+    }
+
+    .pk-draft-watermark {
+      display: none;
+    }
+
+    .pk-composer-region > .mb-6 {
+      margin-bottom: 8px;
+    }
+
+    .pk-composer-shell [contenteditable="true"] {
+      min-height: 1.25rem;
+      max-height: min(4rem, 16cqh);
+    }
+
+    [data-v4-draft-suggested-prompts-slot="true"] {
+      max-height: 40px;
+      margin-top: 8px;
+    }
+  }
+
+  @container pk-draft-pane (max-height: 320px) {
+    /* 问候与水印都没有操作；极短分屏优先完整保留输入和发送，而推荐仍可滚动。 */
+    .pk-draft-empty-state {
+      display: none;
+    }
+  }
+
+  .pk-workspace-actions [data-slot="button"] {
+    border-radius: var(--pk-radius-control);
+    box-shadow: none;
+  }
+
+  .pk-side-tab,
+  .pk-terminal-tab {
+    border-radius: var(--pk-radius-control) !important;
+    box-shadow: none;
+    transition-property: background-color, color, border-color;
+  }
+
+  .pk-side-tab:hover,
+  .pk-terminal-tab:hover {
+    background-color: var(--color-hover) !important;
+  }
+
+  .pk-side-tab[data-state="active"],
+  .pk-terminal-tab[data-state="active"] {
+    background-color: var(--color-card) !important;
+    color: var(--color-foreground);
+    box-shadow: inset 0 -2px 0 var(--color-brand);
+  }
+
+  .pk-side-tab-drag {
+    border-color: var(--color-foreground) !important;
+    background-color: var(--color-card) !important;
+    box-shadow: var(--pk-shadow-overlay);
+  }
+
+  .pk-side-launcher-option {
+    border: 1px solid var(--color-border);
+    border-radius: var(--pk-radius-card);
+    background-color: var(--color-card);
+    box-shadow: var(--pk-shadow);
+  }
+
+  .pk-side-launcher-option:hover {
+    border-color: var(--color-border-hover);
+    background-color: var(--color-card-selected);
+  }
+
+  .pk-conversation-row {
+    color: var(--color-foreground);
+  }
+
+  .pk-user-message {
+    border-radius: var(--pk-radius-card);
+    border-color: var(--color-border-hover);
+    background-color: var(--color-card);
+    box-shadow: 2px 2px 0 var(--pk-shadow-color);
+  }
+
+  .pk-assistant-message {
+    line-height: 1.7;
+  }
+
+  .pk-message-attachment,
+  .pk-composer-attachment {
+    border-radius: var(--pk-radius-control);
+    background-color: var(--color-card);
+  }
+
+  .pk-message-attachment::after,
+  .pk-composer-attachment::after {
+    border-radius: inherit;
+  }
+
+  .pk-tool-card {
+    min-width: 0;
+    border: 1px solid var(--color-border);
+    border-radius: var(--pk-radius-card);
+    background-color: var(--color-card);
+    padding: 8px 10px;
+  }
+
+  .pk-tool-summary {
+    min-height: 24px;
+    max-width: 100%;
+  }
+
+  .pk-tool-summary .tool-summary-kind-label {
+    color: var(--color-foreground);
+  }
+
+  /* 分隔线放在内层，避免关闭动画归零后外壳仍残留边框或间距。 */
+  .pk-tool-content-body {
+    border-top: 1px solid var(--color-border);
+    margin-top: 6px;
+  }
+
+  /* running 仍由图标和状态文案表达，桌面纸面不使用渐变扫光。 */
+  .pk-workspace-shell .animated-gradient-text {
+    background: none;
+    color: var(--color-foreground);
+    -webkit-text-fill-color: currentColor;
+    animation: none;
+  }
+
+  .pk-composer-surface {
+    border-radius: var(--pk-radius-card);
+    background-color: transparent;
+    box-shadow: none;
+  }
+
+  .pk-composer-context {
+    background-color: var(--color-panel);
+    border-radius: calc(var(--pk-radius-card) - 1px) calc(var(--pk-radius-card) - 1px) 0 0;
+  }
+
+  .pk-composer-shell {
+    border-radius: var(--pk-radius-card);
+    border-color: var(--color-border-hover);
+    background-color: var(--color-input);
+    box-shadow: var(--pk-shadow);
+  }
+
+  .pk-composer-shell:hover {
+    border-color: var(--color-input-border-hover);
+  }
+
+  /* 草稿上下文和编辑器共享一条外沿；不能把两个独立圆角卡拼成断层或双线。 */
+  .pk-composer-surface:has(> .pk-composer-context) {
+    border: 1px solid var(--color-input-border-hover);
+    background-color: var(--color-input);
+    box-shadow: var(--pk-shadow);
+  }
+
+  .pk-composer-surface:has(> .pk-composer-context):focus-within {
+    border-color: var(--color-input-border-focused);
+    outline: 1px solid var(--color-input-border-focused);
+    outline-offset: -1px;
+  }
+
+  .pk-composer-surface:has(> .pk-composer-context) .pk-composer-shell {
+    border: 0;
+    border-top: 1px solid var(--color-border);
+    border-radius: 0 0 calc(var(--pk-radius-card) - 1px) calc(var(--pk-radius-card) - 1px);
+    box-shadow: none;
+  }
+
+  .pk-composer-surface:has(> .pk-composer-context) .pk-composer-shell:focus-within {
+    outline: none !important;
+    border-top-color: var(--color-border) !important;
+  }
+
+  .pk-composer-toolbar {
+    padding-top: 6px;
+    border-top: 1px solid var(--color-border);
+  }
+
+  .pk-composer-toolbar [data-slot="button"] {
+    border-radius: var(--pk-radius-control);
+  }
+
+  .pk-composer-drop-overlay {
+    border-radius: inherit;
+    backdrop-filter: none;
+  }
+
+  .pk-composer-drop-hint {
+    border-radius: var(--pk-radius-card);
+    border-color: var(--color-brand);
+    background-color: var(--color-card);
+    box-shadow: var(--pk-shadow);
+  }
+
+  .pk-conversation-queue {
+    border-radius: var(--pk-radius-card) var(--pk-radius-card) 0 0;
+    border-color: var(--color-border);
+    background-color: var(--color-panel);
+    backdrop-filter: none;
+  }
+
+  .pk-queue-item {
+    border-radius: var(--pk-radius-item);
+  }
+
+  .pk-queue-item:hover {
+    background-color: var(--color-hover);
+  }
+
+  .pk-conversation-status {
+    border-radius: var(--pk-radius-overlay);
+    border-color: var(--color-popover-border);
+    background-color: var(--color-popover);
+    box-shadow: var(--pk-shadow-overlay);
+    transition-property: padding, background-color;
+  }
+
+  .pk-conversation-pane-badge,
+  .pk-conversation-pane-control {
+    border-radius: var(--pk-radius-control);
+    border-color: var(--color-border);
+    background-color: var(--color-popover);
+    box-shadow: 2px 2px 0 var(--pk-shadow-color);
+  }
+
+  .pk-interaction-card {
+    border-radius: var(--pk-radius-overlay);
+    border-color: var(--color-popover-border);
+    background-color: var(--color-popover);
+    box-shadow: var(--pk-shadow-overlay);
+  }
+
+  .pk-share-confirmation {
+    border-radius: var(--pk-radius-overlay);
+    border-color: var(--color-popover-border);
+    background-color: var(--color-popover);
+    box-shadow: var(--pk-shadow-overlay);
+  }
+
+  .pk-interaction-backdrop {
+    background-color: color-mix(in oklab, var(--color-background) 55%, transparent);
+    backdrop-filter: blur(2px);
+  }
+
+  .pk-interaction-option,
+  .pk-interaction-free-option {
+    border-radius: var(--pk-radius-item);
+  }
+
+  .pk-interaction-option[aria-selected="true"],
+  .pk-interaction-option[aria-checked="true"] {
+    box-shadow: inset 2px 0 0 var(--color-brand);
+  }
+
+  .pk-interaction-free-option:focus-within {
+    outline: 1px solid var(--color-brand);
+    outline-offset: -1px;
+  }
+
+  .pk-interaction-free-option textarea:focus-visible {
+    outline: none !important;
+  }
+
+  .pk-file-summary {
+    border-radius: var(--pk-radius-card);
+    background-color: var(--color-card);
+    border-color: var(--color-border);
+  }
+
+  .pk-preview-pane,
+  .pk-git-pane,
+  .pk-terminal-panel,
+  .pk-side-terminal {
+    background-color: var(--color-background);
+  }
+
+  .pk-preview-toolbar,
+  .pk-git-toolbar,
+  .pk-browser-toolbar {
+    background-color: var(--color-panel);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .pk-preview-toolbar {
+    gap: 16px;
+  }
+
+  .pk-preview-document {
+    background-color: var(--color-card);
+  }
+
+  .pk-plan-document {
+    background-color: var(--color-card);
+  }
+
+  .pk-browser-viewport-toolbar {
+    background-color: var(--color-panel);
+    border-color: var(--color-border);
+  }
+
+  .pk-browser-address {
+    background-color: var(--color-input);
+    border-color: var(--color-input-border);
+    font-family: var(--font-mono);
+  }
+
+  .pk-preview-code-sheet {
+    border-radius: var(--pk-radius-card);
+    border-color: var(--color-border);
+  }
+
+  .pk-git-change-header {
+    border-bottom: 1px solid var(--color-border);
+    background-color: var(--color-card);
+    backdrop-filter: none;
+  }
+
+  .pk-git-change-header:hover,
+  .pk-git-change-header[aria-expanded="true"] {
+    background-color: var(--color-selected);
+  }
+
+  .pk-terminal-toolbar {
+    border-bottom: 1px solid var(--color-border);
+    padding-bottom: 8px;
+  }
+
+  .pk-file-tree-search {
+    background-color: var(--color-input);
+    border-color: var(--color-input-border);
+  }
+
+  /* 固定行高参与文件树虚拟测量，像素选中态只改变色彩和边线。 */
+  .pk-file-tree-row {
+    border-radius: var(--pk-radius-item);
+    box-shadow: none;
+  }
+
+  .pk-file-tree-row:hover {
+    background-color: var(--color-hover);
+  }
+
+  .pk-file-tree-row.border-input-border-focused {
+    border-color: var(--color-brand);
+    background-color: var(--color-selected);
+  }
+
+  .pk-file-tree-sticky {
+    border-radius: var(--pk-radius-item);
+    border-bottom: 1px solid var(--color-border);
+    background-color: var(--color-sidebar);
+  }
+
+  .pk-panel-notice > :first-child {
+    color: var(--color-foreground-subtle);
+  }
+
+  .pk-workflow-run-pane,
+  .pk-workflow-artifact-pane,
+  .pk-workflow-directory {
+    background-color: var(--color-background);
+  }
+
+  .pk-workflow-pane-header {
+    background-color: var(--color-panel);
+    border-bottom-color: var(--color-border);
+  }
+
+  .pk-workflow-directory-row {
+    border-radius: var(--pk-radius-item);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .pk-workflow-directory-row:hover {
+    background-color: var(--color-selected);
+  }
+
+  .pk-workflow-card,
+  .pk-workflow-file-card {
+    border-radius: var(--pk-radius-card);
+    border-color: var(--color-border);
+    background-color: var(--color-card);
+    box-shadow: var(--pk-shadow);
+  }
+
+  .pk-workflow-card[data-workflow-run-status="running"] {
+    border-color: var(--color-warning);
+  }
+
+  .pk-workflow-card[data-workflow-run-status="errored"] {
+    border-color: var(--color-destructive);
+  }
+
+  .pk-workflow-complete {
+    border-color: color-mix(in oklab, var(--color-success) 55%, var(--color-border));
+  }
+
+  .pk-workflow-card-header {
+    min-height: 30px;
+  }
+
+  .pk-workflow-create-card {
+    border: 1px solid var(--color-border);
+    border-radius: var(--pk-radius-card);
+    background-color: var(--color-card);
+    box-shadow: var(--pk-shadow);
+    padding: 6px 12px 10px;
+  }
+
+  .pk-workflow-create-card[data-workflow-card-state="running"] {
+    border-color: var(--color-warning);
+  }
+
+  .pk-workflow-create-card[data-workflow-card-state="errored"] {
+    border-color: var(--color-destructive);
+  }
+
+  .pk-workflow-artifact-frame {
+    border-radius: var(--pk-radius-control);
+    border-color: var(--color-border);
+    background-color: var(--color-panel);
+    box-shadow: 2px 2px 0 var(--pk-shadow-color);
+  }
+
+  .pk-workflow-question {
+    border-radius: var(--pk-radius-control);
+    border: 1px solid
+      color-mix(in oklab, var(--color-interaction-confirmation-foreground) 30%, transparent);
+  }
+
+  .pk-workflow-artifacts-section {
+    background-color: var(--color-panel);
+    border-top-color: var(--color-border);
+  }
+
+  /* 轨道、因果线、头像和灯保留现有几何；这里只让可点内容适配纸面。 */
+  .pk-workflow-timeline .wf-pill-open:focus-visible,
+  .pk-workflow-phase-list .wf-pill-open:focus-visible {
+    outline: 2px solid var(--color-brand);
+    outline-offset: 2px;
+  }
+}

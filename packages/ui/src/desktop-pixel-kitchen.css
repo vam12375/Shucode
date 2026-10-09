@@ -1,0 +1,448 @@
+/* 桌面视觉投影：平台根标记也覆盖 Radix portal，普通 Web 不继承本轮风格。 */
+@font-face {
+  font-family: "Kitchen Pixel";
+  src: url("./assets/pixel-kitchen/fusion-pixel-12.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+html:is(.platform-mac-desktop, .platform-windows-desktop, .platform-linux-desktop) {
+  --font-sans:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei UI",
+    "Microsoft YaHei", "Noto Sans CJK SC", sans-serif;
+  --font-pixel: "Kitchen Pixel", var(--font-sans);
+  --pk-radius-frame: 12px;
+  --pk-radius-card: 10px;
+  --pk-radius-control: 6px;
+  --pk-radius-item: 4px;
+  --pk-radius-overlay: 12px;
+  --radius-xs: 2px;
+  --radius-sm: var(--pk-radius-item);
+  --radius-md: var(--pk-radius-control);
+  --radius-lg: 8px;
+  --radius-xl: var(--pk-radius-card);
+  --radius-2xl: var(--pk-radius-frame);
+  --radius-3xl: 14px;
+  --radius-4xl: 16px;
+  --pk-paper: #f1efdc;
+  --pk-panel: #f8f8e8;
+  --pk-input: #fffdf2;
+  --pk-ink: #17120f;
+  --pk-muted: #716b5d;
+  --pk-line: #c9c4ad;
+  --pk-red: #c91d1f;
+  --pk-selected: #e5e1cb;
+  --pk-shadow-color: #17120f26;
+  --pk-shadow: 3px 3px 0 var(--pk-shadow-color);
+  --pk-shadow-overlay: 5px 5px 0 var(--pk-shadow-color);
+  --pk-dot: color-mix(in oklab, var(--pk-ink) 13%, transparent);
+  --color-background: var(--pk-paper);
+  --color-background-alt: var(--pk-paper);
+  --color-background-win-alt: var(--pk-paper);
+  --color-brand: var(--pk-red);
+  --color-primary: var(--pk-red);
+  --color-primary-foreground: #fffdf2;
+  --color-foreground: var(--pk-ink);
+  --color-foreground-subtle: var(--pk-muted);
+  --color-foreground-subtlest: var(--pk-muted);
+  --color-foreground-inverse: var(--pk-input);
+  --color-border: var(--pk-line);
+  --color-border-hover: var(--pk-ink);
+  --color-accent: #f4e4d6;
+  --color-hover: var(--pk-selected);
+  --color-selected: var(--pk-selected);
+  --color-secondary: var(--pk-selected);
+  --color-header: var(--pk-panel);
+  --color-panel: var(--pk-panel);
+  --color-sidebar: var(--pk-paper);
+  --color-surface: #eae6d1;
+  --color-surface-hover: var(--pk-selected);
+  --color-card: var(--pk-panel);
+  --color-card-selected: var(--pk-selected);
+  --color-card-border: var(--pk-line);
+  --color-popover: var(--pk-input);
+  --color-popover-foreground: var(--pk-ink);
+  --color-popover-header: var(--pk-panel);
+  --color-popover-border: var(--pk-ink);
+  --color-menu: var(--pk-input);
+  --color-menu-hover: var(--pk-selected);
+  --color-input: var(--pk-input);
+  --color-input-focused: var(--pk-input);
+  --color-input-border: var(--pk-line);
+  --color-input-border-hover: var(--pk-ink);
+  --color-input-border-focused: var(--pk-red);
+  --color-tag: var(--pk-selected);
+  --color-tooltip: var(--pk-ink);
+  --color-tooltip-foreground: var(--pk-input);
+  --color-tooltip-tag: #3d362b;
+  --color-tooltip-tag-foreground: #f1efdc;
+  --color-toast: var(--pk-ink);
+  --color-icon-blue: #585898;
+  --color-success: #486641;
+  --color-success-foreground: #fffdf2;
+  --color-warning: #926320;
+  --color-warning-foreground: #fffdf2;
+  --color-destructive: var(--pk-red);
+  --color-destructive-foreground: #fffdf2;
+  --color-diff-added: #e4edda;
+  --color-diff-added-foreground: #35542f;
+  --color-diff-removed: #f6dddd;
+  --color-diff-removed-foreground: #942321;
+  --color-interaction-confirmation-surface: #e4edda;
+  --color-interaction-confirmation-foreground: #35542f;
+  --color-workflow-rule: color-mix(in oklab, var(--pk-ink) 8%, transparent);
+  --color-workflow-trace: color-mix(in oklab, var(--pk-ink) 30%, transparent);
+  --color-workflow-trace-strong: color-mix(in oklab, var(--pk-ink) 65%, transparent);
+  --color-terminal-bg: var(--pk-input);
+  --color-terminal-fg: var(--pk-ink);
+  --color-terminal-cursor: var(--pk-ink);
+  --color-terminal-cursor-accent: var(--pk-input);
+  --animated-gradient-text-strong: var(--pk-ink);
+  --animated-gradient-text-soft: var(--pk-muted);
+  font-family: var(--font-sans);
+  letter-spacing: 0;
+}
+
+html:is(.platform-mac-desktop, .platform-windows-desktop, .platform-linux-desktop).dark {
+  --pk-paper: #211f1b;
+  --pk-panel: #2d2a24;
+  --pk-input: #353128;
+  --pk-ink: #eee9d7;
+  --pk-muted: #b0a792;
+  --pk-line: #575043;
+  --pk-red: #e9796e;
+  --pk-selected: #494133;
+  --pk-shadow-color: #0006;
+  --color-primary-foreground: #211f1b;
+  --color-accent: #4c302d;
+  --color-surface: #353128;
+  --color-tooltip-tag: #494133;
+  --color-tooltip-tag-foreground: #eee9d7;
+  --color-icon-blue: #adb4df;
+  --color-success: #b0c995;
+  --color-success-foreground: #211f1b;
+  --color-warning: #e9c388;
+  --color-warning-foreground: #211f1b;
+  --color-destructive-foreground: #211f1b;
+  --color-diff-added: #354330;
+  --color-diff-added-foreground: #b0c995;
+  --color-diff-removed: #4c302d;
+  --color-diff-removed-foreground: #f1a59b;
+  --color-interaction-confirmation-surface: #354330;
+  --color-interaction-confirmation-foreground: #b0c995;
+}
+
+html.platform-windows-desktop {
+  --font-sans: "Segoe UI", "Microsoft YaHei UI", "Microsoft YaHei", "Noto Sans CJK SC", sans-serif;
+}
+
+html.platform-linux-desktop {
+  --font-sans: "Noto Sans", "Noto Sans CJK SC", "DejaVu Sans", sans-serif;
+}
+
+/* 以下挂点只负责呈现，不向共享 UI 注入平台判断或新增状态。 */
+:where(html.platform-mac-desktop, html.platform-windows-desktop, html.platform-linux-desktop) {
+  .pk-title,
+  .pk-nav-label,
+  [data-slot="dialog-title"],
+  [data-slot="alert-dialog-title"],
+  [data-slot="card-title"] {
+    font-family: var(--font-pixel);
+    font-weight: 400;
+    font-synthesis: none;
+    letter-spacing: 0;
+    line-height: 1.55;
+  }
+
+  [data-slot="button"],
+  [data-slot="select-trigger"],
+  [data-slot="tabs-trigger"],
+  [data-slot="dropdown-menu-item"],
+  [data-slot="dropdown-menu-sub-trigger"],
+  [data-slot="dropdown-menu-checkbox-item"],
+  [data-slot="dropdown-menu-radio-item"],
+  [data-slot="dropdown-menu-label"],
+  [data-slot="context-menu-item"],
+  [data-slot="context-menu-sub-trigger"],
+  [data-slot="context-menu-checkbox-item"],
+  [data-slot="context-menu-radio-item"],
+  [data-slot="select-item"],
+  [data-slot="select-label"],
+  [data-slot="command-item"],
+  .pk-profile-trigger,
+  .pk-sidebar [role="tab"],
+  .pk-sidebar [data-slot="tabs-trigger"] {
+    font-family: var(--font-pixel);
+    font-weight: 400;
+    font-synthesis: none;
+    letter-spacing: 0;
+  }
+
+  /* 操作文字继承同一像素字体；输入和技术标识仍由原独立字体拥有。 */
+  :is(
+      [data-slot="button"],
+      [data-slot="dropdown-menu-item"],
+      [data-slot="dropdown-menu-sub-trigger"]
+    )
+    :is(span, [data-slot="select-value"]):not(.font-mono):not([data-slot^="avatar"]) {
+    font-family: inherit;
+    font-weight: inherit;
+  }
+
+  :is(
+    [data-slot="button"],
+    [data-slot="select-trigger"],
+    [data-slot="select-item"],
+    [data-slot="command-item"]
+  ).font-mono,
+  :is([data-slot="button"], [data-slot="dropdown-menu-item"], [data-slot="command-item"])
+    .font-mono,
+  [data-slot="kbd"],
+  [data-slot="dropdown-menu-shortcut"],
+  [data-slot="context-menu-shortcut"] {
+    font-family: var(--font-mono);
+  }
+
+  /* 连接历史和协议标识属于技术字段值，继续使用原可读字体。 */
+  .pk-connection-history-value,
+  .pk-technical-value {
+    font-family: var(--font-sans);
+  }
+
+  [data-slot="button"],
+  [data-slot="badge"],
+  [data-slot="input"],
+  [data-slot="textarea"],
+  [data-slot="select-trigger"],
+  [data-slot="switch"],
+  [data-slot="switch-thumb"],
+  [data-slot="checkbox"],
+  [data-slot="tabs-list"],
+  [data-slot="tabs-trigger"],
+  [data-slot="kbd"] {
+    border-radius: var(--pk-radius-control);
+    letter-spacing: 0;
+  }
+
+  [data-slot="button"][data-variant="default"],
+  [data-slot="button"][data-variant="outline"] {
+    border-color: var(--pk-ink);
+    box-shadow: 2px 2px 0 var(--pk-shadow-color) !important;
+  }
+
+  [data-slot="button"][data-variant="default"]:hover:not(:disabled) {
+    background-color: color-mix(in oklab, var(--pk-red) 88%, var(--pk-ink));
+  }
+
+  [data-slot="card"] {
+    border-color: var(--pk-line);
+    border-radius: var(--pk-radius-card);
+    box-shadow: var(--pk-shadow);
+  }
+
+  [data-slot="dialog-content"],
+  [data-slot="alert-dialog-content"],
+  [data-slot="popover-content"],
+  [data-slot="dropdown-menu-content"],
+  [data-slot="dropdown-menu-sub-content"],
+  [data-slot="context-menu-content"],
+  [data-slot="context-menu-sub-content"],
+  [data-slot="select-content"],
+  [data-slot="hover-card-content"] {
+    border-radius: var(--pk-radius-overlay) !important;
+    border-color: var(--pk-ink);
+    /* 全局 focus reset 曾清掉浮层阴影；菜单根持焦时也必须维持同一视觉层级。 */
+    box-shadow: var(--pk-shadow-overlay) !important;
+    backdrop-filter: none;
+  }
+
+  [data-slot="dialog-overlay"],
+  [data-slot="alert-dialog-overlay"] {
+    background: color-mix(in oklab, var(--pk-paper) 55%, transparent);
+    backdrop-filter: blur(2px);
+  }
+
+  [data-slot="dropdown-menu-item"],
+  [data-slot="dropdown-menu-checkbox-item"],
+  [data-slot="dropdown-menu-radio-item"],
+  [data-slot="context-menu-item"],
+  [data-slot="select-item"] {
+    border-radius: var(--pk-radius-item);
+    line-height: 1.6;
+  }
+
+  [data-slot="tooltip-content"] {
+    border-radius: var(--pk-radius-control);
+    box-shadow: 2px 2px 0 var(--pk-shadow-color);
+    line-height: 1.6;
+  }
+
+  :is(button, a, [role="button"], [role="tab"], [role="menuitem"]):focus-visible {
+    outline: 2px solid var(--pk-red) !important;
+    outline-offset: 2px;
+  }
+
+  :is([data-slot="input"], [data-slot="textarea"], [data-slot="select-trigger"]):focus-visible {
+    border-color: var(--pk-red);
+    outline: 1px solid var(--pk-red) !important;
+    outline-offset: -1px;
+  }
+
+  :is([data-slot="input-group"], .pk-composer-shell, .pk-search-shell):focus-within {
+    border-color: var(--pk-red);
+    outline: 1px solid var(--pk-red) !important;
+    outline-offset: -1px;
+  }
+
+  :is([data-slot="input-group"], .pk-composer-shell, .pk-search-shell)
+    :is(input, textarea, [contenteditable="true"]):focus-visible {
+    outline: none !important;
+  }
+
+  .pk-window-frame {
+    background-color: var(--pk-paper);
+  }
+
+  .pk-sidebar {
+    background-color: var(--pk-paper);
+    border-right: 1px solid var(--pk-line);
+  }
+
+  .pk-sidebar-chrome {
+    position: relative;
+    border-bottom: 1px solid var(--pk-line);
+  }
+
+  .pk-sidebar-chrome::after {
+    content: "";
+    position: absolute;
+    inset: auto 12px 7px auto;
+    width: 24px;
+    height: 8px;
+    background: repeating-linear-gradient(90deg, var(--pk-dot) 0 4px, transparent 4px 8px);
+    pointer-events: none;
+  }
+
+  .pk-sidebar-nav {
+    gap: 4px;
+    padding: 12px;
+    border-bottom: 1px solid var(--pk-line);
+  }
+
+  .pk-sidebar-nav > [data-slot="button"] {
+    font-family: var(--font-pixel);
+    font-weight: 400;
+    min-height: 34px;
+    height: auto;
+    padding-block: 5px;
+  }
+
+  .pk-sidebar-nav > [data-slot="button"][aria-pressed="true"] {
+    border-color: var(--pk-ink);
+    background-color: var(--pk-selected);
+    box-shadow: 2px 2px 0 var(--pk-shadow-color);
+  }
+
+  .pk-new-task {
+    border: 1px solid var(--pk-ink);
+    border-radius: var(--pk-radius-control);
+    min-height: 36px;
+    height: auto;
+    padding-block: 5px;
+    background-color: var(--pk-panel);
+    box-shadow: 2px 2px 0 var(--pk-shadow-color);
+  }
+
+  .pk-new-task > div {
+    font-family: var(--font-pixel);
+    font-weight: 400;
+    line-height: 1.6;
+  }
+
+  .pk-sidebar-footer {
+    border-top: 1px solid var(--pk-line);
+    padding: 12px;
+    background-color: var(--pk-panel);
+  }
+
+  .pk-workspace-item {
+    padding-inline: 4px;
+  }
+
+  .pk-workspace-row {
+    border-radius: var(--pk-radius-control);
+    border-bottom: 1px solid var(--pk-line);
+    padding-block: 3px;
+  }
+
+  .pk-sidebar-section-title {
+    font-family: var(--font-pixel);
+    font-weight: 400;
+    color: var(--pk-muted);
+  }
+
+  .pk-sidebar [data-slot="tabs-list"] .rounded-full {
+    border-radius: var(--pk-radius-item);
+  }
+
+  .pk-task-row {
+    border-radius: var(--pk-radius-control);
+  }
+
+  .pk-task-row.bg-selected {
+    box-shadow: inset 2px 0 0 var(--pk-red);
+  }
+
+  .pk-command-center {
+    border-radius: var(--pk-radius-overlay);
+    border-color: var(--pk-ink);
+  }
+
+  .pk-search-shell {
+    border-radius: var(--pk-radius-control);
+    border-color: var(--pk-ink);
+  }
+
+  .pk-sidebar-footer [data-slot="avatar"] {
+    border: 1px solid var(--pk-line);
+  }
+
+  .pk-profile-trigger {
+    padding-left: 0;
+    box-shadow: none;
+  }
+
+  .pk-toast {
+    border-radius: var(--pk-radius-card);
+    border-color: var(--pk-ink);
+    background-color: var(--pk-ink);
+    color: var(--pk-input);
+    box-shadow: var(--pk-shadow-overlay) !important;
+    backdrop-filter: none;
+  }
+
+  .pk-toast :is(.text-foreground, .text-foreground-subtle) {
+    color: inherit;
+  }
+
+  .pk-toast-dismiss {
+    color: inherit;
+    background: transparent;
+    border-radius: var(--pk-radius-item);
+  }
+
+  .pk-toast-dismiss:hover {
+    background: color-mix(in oklab, var(--pk-input) 15%, transparent);
+  }
+
+  .pk-toast button:focus-visible {
+    outline-color: var(--pk-input) !important;
+  }
+
+  @media (forced-colors: active) {
+    :is(button, a, input, textarea, [role="button"], [role="tab"]):focus-visible {
+      outline: 2px solid Highlight !important;
+    }
+  }
+}

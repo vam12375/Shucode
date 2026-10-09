@@ -1,0 +1,938 @@
+/* Pixel Kitchen catalog surfaces. The platform ancestor keeps Web/mobile styling unchanged. */
+@keyframes pk-welcome-logo-drop {
+  from {
+    opacity: 0;
+    transform: translateY(-28px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes pk-welcome-logo-bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+@keyframes pk-welcome-stars {
+  0%,
+  55% {
+    opacity: 1;
+  }
+
+  56%,
+  100% {
+    opacity: 0.15;
+  }
+}
+
+@keyframes pk-welcome-letter-pop {
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes pk-welcome-rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.pk-welcome-title-pixel,
+.pk-welcome-entry-label,
+.pk-welcome-entry-hint,
+.pk-welcome-entry-skip {
+  display: none;
+}
+
+.pk-welcome-title-static {
+  display: inline;
+}
+
+.pk-welcome-entry-choice {
+  justify-content: center;
+}
+
+/* 隐藏桌面新增说明后，Web 单按钮入口不应留下 space-y 为隐藏兄弟预留的间距。 */
+html:not(:is(.platform-mac-desktop, .platform-windows-desktop, .platform-linux-desktop))
+  .pk-welcome-entry
+  > div {
+  margin-block: 0;
+}
+
+:where(html.platform-mac-desktop, html.platform-windows-desktop, html.platform-linux-desktop) {
+  .pk-catalog-page {
+    color: var(--pk-ink);
+    font-family: var(--font-sans);
+    letter-spacing: 0;
+  }
+
+  .pk-catalog-page :is(h1, h2, h3) {
+    overflow-wrap: anywhere;
+  }
+
+  .pk-catalog-title,
+  .pk-catalog-title-tabs [role="tab"],
+  .pk-automation-edit h1 {
+    color: var(--pk-ink);
+    font-family: var(--font-pixel);
+    font-size: var(--text-ui-xl);
+    font-weight: 400;
+    letter-spacing: 0;
+    line-height: 1.5;
+  }
+
+  .pk-catalog-title-tabs [role="tab"][aria-selected="false"] {
+    color: var(--pk-muted);
+  }
+
+  .pk-catalog-title-tabs [role="tab"]:hover {
+    color: var(--pk-red);
+  }
+
+  /* 这些操作仍使用原生 button，未经过共享 Button 的 data-slot 字体投影。 */
+  .pk-automation-status-segments > button,
+  .pk-automation-actions > button,
+  .pk-custom-repeat button,
+  .pk-schedule-field button,
+  .pk-automation-edit nav button,
+  .pk-plugin-page [data-testid="plugin-store-group-toggle"],
+  .pk-automation-template > div:first-child,
+  .pk-plugin-example > span:first-of-type,
+  .pk-onboarding-options > button > span.min-w-0 {
+    font-family: var(--font-pixel);
+    font-weight: 400;
+    font-synthesis: none;
+    letter-spacing: 0;
+  }
+
+  /* 模式选项标题是操作标签，其下说明仍是正文；输入、路径和代码不进入上面的选择器。 */
+  .pk-onboarding-options > button > span.min-w-0 > span + span {
+    font-family: var(--font-sans);
+  }
+
+  .pk-automation-controls,
+  .pk-catalog-segments {
+    border-bottom: 1px solid var(--pk-line);
+    padding-bottom: 8px;
+  }
+
+  .pk-automation-segment,
+  .pk-catalog-segment {
+    border: 1px solid transparent;
+    border-radius: var(--pk-radius-control);
+    color: var(--pk-muted);
+    font-family: var(--font-pixel);
+    font-weight: 400;
+    letter-spacing: 0;
+  }
+
+  .pk-automation-segment-active,
+  .pk-catalog-segment[aria-pressed="true"] {
+    border-color: var(--pk-ink);
+    background: var(--pk-selected);
+    box-shadow: 2px 2px 0 var(--pk-shadow-color);
+    color: var(--pk-ink);
+  }
+
+  .pk-automation-segment:hover,
+  .pk-catalog-segment:hover {
+    color: var(--pk-red);
+  }
+
+  .pk-automation-grid {
+    --pk-card-height: calc(var(--text-ui-base) * 6 + 48px);
+    grid-auto-rows: minmax(var(--pk-card-height), auto);
+    min-width: 0;
+    padding-right: 4px;
+    padding-bottom: 4px;
+  }
+
+  .pk-automation-grid.overflow-y-auto {
+    /* 保留原来的八卡滚动门；行高随字号变化，避免 18px 下卡片正文被固定高度裁切。 */
+    max-height: calc(var(--pk-card-height) * 8 + 116px);
+  }
+
+  .pk-automation-status-segments > button {
+    border: 1px solid transparent;
+    border-radius: var(--pk-radius-control);
+    line-height: 1.5;
+  }
+
+  .pk-automation-status-segments > button[aria-pressed="true"] {
+    border-color: var(--pk-line);
+    background: var(--pk-selected);
+  }
+
+  .pk-automation-card-title {
+    line-height: 1.4;
+  }
+
+  .pk-automation-card-body {
+    height: calc(var(--text-ui-base) * 2.9);
+    line-height: 1.45;
+  }
+
+  .pk-automation-card-footer {
+    height: auto;
+    min-height: calc(var(--text-ui-base) * 1.5);
+    line-height: 1.5;
+  }
+
+  .pk-automation-card-footer :is(span, div) {
+    border-radius: var(--pk-radius-item);
+  }
+
+  .pk-automation-template {
+    min-height: calc(var(--text-ui-base) * 6 + 38px);
+  }
+
+  .pk-automation-template :is(p, span, div) {
+    line-height: 1.5;
+  }
+
+  .pk-automation-card,
+  .pk-workflow-card,
+  .pk-automation-template {
+    border-color: var(--pk-ink) !important;
+    border-radius: var(--pk-radius-card) !important;
+    background: var(--pk-panel) !important;
+    box-shadow: var(--pk-shadow);
+  }
+
+  .pk-automation-card:hover,
+  .pk-workflow-card:hover,
+  .pk-automation-template:hover {
+    background: var(--pk-selected) !important;
+  }
+
+  .pk-automation-card.opacity-60:not(.pk-idle-card):hover {
+    /* 定时完成卡原本保持静态弱化，视觉迁移不能把它恢复成活跃 hover 态。 */
+    background: var(--pk-panel) !important;
+  }
+
+  .pk-automation-card [data-slot="badge"],
+  .pk-automation-template [data-slot="badge"] {
+    border-radius: var(--pk-radius-item);
+  }
+
+  .pk-automation-card [data-slot="button"],
+  .pk-automation-template [data-slot="button"],
+  .pk-automation-edit [data-slot="button"] {
+    border-radius: var(--pk-radius-control);
+  }
+
+  .pk-catalog-empty {
+    border-radius: var(--pk-radius-card) !important;
+    border-style: dashed !important;
+    background: var(--pk-panel) !important;
+  }
+
+  .pk-catalog-notice {
+    border: 1px solid var(--pk-line);
+    border-radius: var(--pk-radius-card) !important;
+    background: var(--pk-selected);
+  }
+
+  .pk-automation-edit {
+    max-width: 880px;
+  }
+
+  .pk-automation-create {
+    height: auto;
+    min-height: 32px;
+    overflow: visible;
+    border: 1px solid var(--pk-ink);
+    border-radius: var(--pk-radius-control);
+    box-shadow: var(--pk-shadow);
+  }
+
+  .pk-automation-create [data-slot="button"] {
+    height: auto;
+    min-height: 30px;
+    box-shadow: none;
+    line-height: 1.5;
+  }
+
+  .pk-automation-create [data-slot="button"]:first-child {
+    border-radius: calc(var(--pk-radius-control) - 1px) 0 0 calc(var(--pk-radius-control) - 1px);
+  }
+
+  .pk-automation-create [data-slot="button"]:last-child {
+    border-left: 1px solid var(--pk-ink);
+    border-radius: 0 calc(var(--pk-radius-control) - 1px) calc(var(--pk-radius-control) - 1px) 0;
+  }
+
+  .pk-automation-actions > button {
+    height: auto;
+    min-height: 32px;
+    border: 1px solid var(--pk-ink);
+    border-radius: var(--pk-radius-control);
+    background: var(--pk-panel);
+    box-shadow: 2px 2px 0 var(--pk-shadow-color);
+    color: var(--pk-ink);
+    line-height: 1.5;
+  }
+
+  .pk-automation-actions > button:first-child {
+    background: var(--pk-red);
+    color: var(--color-primary-foreground);
+  }
+
+  .pk-automation-actions > button:hover:not(:disabled) {
+    background: var(--pk-selected);
+    color: var(--pk-ink);
+  }
+
+  .pk-schedule-field {
+    height: auto;
+    min-height: 36px;
+    border-radius: var(--pk-radius-control);
+    padding-block: 6px;
+  }
+
+  .pk-schedule-field :is(button, [data-slot="select-trigger"]) {
+    border-radius: var(--pk-radius-control);
+    line-height: 1.5;
+  }
+
+  .pk-custom-repeat,
+  .pk-catalog-dialog {
+    background: var(--pk-panel);
+    color: var(--pk-ink);
+    border-radius: var(--pk-radius-overlay);
+  }
+
+  .pk-custom-repeat button,
+  .pk-custom-repeat input,
+  .pk-custom-repeat [data-slot="select-trigger"],
+  .pk-catalog-dialog [data-testid="plugin-store-source-row"] {
+    border-radius: var(--pk-radius-control);
+    letter-spacing: 0;
+  }
+
+  .pk-catalog-table {
+    border: 1px solid var(--pk-ink);
+    border-radius: var(--pk-radius-card);
+    background: var(--pk-panel);
+    box-shadow: var(--pk-shadow);
+  }
+
+  .pk-catalog-table :is(th, td) {
+    padding-block: 8px;
+    line-height: 1.5;
+  }
+
+  .pk-catalog-form [data-slot="input"],
+  .pk-catalog-form [data-slot="textarea"],
+  .pk-catalog-form [data-slot="select-trigger"],
+  .pk-login-form [data-slot="input"],
+  .pk-login-form [data-slot="select-trigger"] {
+    border-radius: var(--pk-radius-control);
+    background: var(--pk-input);
+    color: var(--pk-ink);
+  }
+
+  .pk-catalog-form [data-slot="input"]:focus-visible,
+  .pk-catalog-form [data-slot="textarea"]:focus-visible,
+  .pk-catalog-form [data-slot="select-trigger"]:focus-visible,
+  .pk-login-form [data-slot="input"]:focus-visible,
+  .pk-login-form [data-slot="select-trigger"]:focus-visible {
+    border-color: var(--pk-red);
+    outline: 1px solid var(--pk-red) !important;
+    outline-offset: -1px;
+  }
+
+  .pk-plugin-page {
+    max-width: 1120px;
+  }
+
+  .pk-plugin-page [data-testid="plugin-store-title"],
+  .pk-plugin-detail h1 {
+    font-family: var(--font-pixel);
+    font-size: var(--text-ui-xl);
+    font-weight: 400;
+    letter-spacing: 0;
+    line-height: 1.5;
+  }
+
+  .pk-plugin-page [data-testid="plugin-store-installed-strip"] {
+    border: 2px solid var(--pk-ink);
+    background: var(--pk-panel);
+    box-shadow: var(--pk-shadow);
+    border-radius: var(--pk-radius-card);
+    padding: 12px 16px;
+  }
+
+  .pk-plugin-installed-items {
+    scrollbar-color: var(--pk-line) transparent;
+  }
+
+  .pk-plugin-icon {
+    border-radius: var(--pk-radius-card) !important;
+    border: 1px solid var(--pk-line);
+  }
+
+  .pk-plugin-section {
+    border-top: 1px solid var(--pk-line);
+    padding-top: 16px;
+  }
+
+  .pk-plugin-grid {
+    column-gap: 14px;
+    row-gap: 10px;
+  }
+
+  .pk-plugin-card {
+    border: 1px solid var(--pk-line);
+    border-radius: var(--pk-radius-card) !important;
+    background: var(--pk-panel);
+    box-shadow: var(--pk-shadow);
+    padding: 12px !important;
+    min-height: calc(var(--text-ui-base) * 3.2 + 34px);
+  }
+
+  .pk-plugin-card:hover {
+    background: var(--pk-selected);
+  }
+
+  .pk-plugin-card [data-slot="button"],
+  .pk-plugin-card [data-slot="badge"],
+  .pk-plugin-page [data-testid="plugin-store-install"],
+  .pk-plugin-detail [data-testid="plugin-store-try-now"] {
+    border-radius: var(--pk-radius-control);
+  }
+
+  .pk-plugin-description {
+    overflow-wrap: anywhere;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    white-space: normal;
+    line-height: 1.5;
+  }
+
+  .pk-plugin-detail {
+    max-width: 1120px;
+  }
+
+  .pk-plugin-detail-heading {
+    border-bottom: 1px solid var(--pk-line);
+    padding-bottom: 18px;
+  }
+
+  .pk-plugin-detail-heading .pk-plugin-icon {
+    border-radius: var(--pk-radius-card) !important;
+    border: 2px solid var(--pk-red);
+    box-shadow: var(--pk-shadow);
+  }
+
+  .pk-plugin-detail-heading [data-testid="plugin-store-title-actions"] {
+    flex-wrap: wrap;
+  }
+
+  .pk-plugin-detail-heading [data-slot="button"],
+  .pk-plugin-detail [data-slot="button"] {
+    border-radius: var(--pk-radius-control);
+  }
+
+  .pk-plugin-hero {
+    border: 2px solid var(--pk-ink);
+    border-radius: var(--pk-radius-frame) !important;
+    box-shadow: var(--pk-shadow);
+    background: var(--pk-selected);
+    background-image: radial-gradient(circle, var(--pk-dot) 1px, transparent 1.5px);
+    background-size: 8px 8px;
+  }
+
+  .pk-plugin-hero-backdrop {
+    background: transparent;
+  }
+
+  .pk-plugin-hero-backdrop::before,
+  .pk-plugin-hero-backdrop > div {
+    display: none;
+  }
+
+  .pk-plugin-hero [data-testid="plugin-store-hero-overlay"] {
+    background: color-mix(in oklab, var(--pk-ink) 10%, transparent);
+  }
+
+  .pk-plugin-example {
+    border: 1px solid var(--pk-ink);
+    border-radius: var(--pk-radius-card) !important;
+    background: var(--pk-input);
+    box-shadow: var(--pk-shadow);
+    color: var(--pk-ink);
+    backdrop-filter: none;
+    line-height: 1.6;
+  }
+
+  .pk-plugin-example:hover {
+    background: var(--pk-panel);
+  }
+
+  .pk-plugin-example > span:first-of-type {
+    color: var(--pk-muted);
+  }
+
+  .pk-plugin-example > span:last-child {
+    border-radius: var(--pk-radius-item);
+    background: var(--pk-selected);
+  }
+
+  .pk-plugin-components h2,
+  .pk-plugin-section > div > h2 {
+    font-family: var(--font-pixel);
+    font-weight: 400;
+    line-height: 1.5;
+  }
+
+  .pk-plugin-components li > span {
+    border: 1px solid var(--pk-line);
+    border-radius: var(--pk-radius-item);
+  }
+
+  .pk-plugin-components > div:first-child,
+  .pk-plugin-advanced {
+    border-color: var(--pk-line);
+  }
+
+  .pk-plugin-config [data-slot="input"],
+  .pk-plugin-config [data-slot="select-trigger"] {
+    border-radius: var(--pk-radius-control);
+    background: var(--pk-input);
+  }
+
+  .pk-welcome-page,
+  .pk-onboarding-page {
+    background: var(--pk-paper);
+    color: var(--pk-ink);
+  }
+
+  .pk-welcome-page {
+    min-height: 0;
+    overflow-y: auto;
+    align-items: safe center;
+    justify-content: safe center;
+    background-image: radial-gradient(circle, var(--pk-dot) 1px, transparent 1.5px);
+    background-size: 8px 8px;
+  }
+
+  .pk-welcome-backdrop {
+    display: none;
+  }
+
+  .pk-welcome-panel {
+    max-width: 460px;
+    border: 0 !important;
+    border-radius: var(--pk-radius-frame) !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    padding: 32px 16px;
+    gap: 28px;
+  }
+
+  .pk-welcome-header {
+    gap: 20px;
+  }
+
+  .pk-welcome-logo {
+    width: 128px;
+    height: 128px;
+    border-radius: var(--pk-radius-card);
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .pk-welcome-logo > svg {
+    visibility: hidden;
+  }
+
+  .pk-welcome-logo::before {
+    border: 0;
+    border-radius: inherit;
+    background: url("./assets/pixel-kitchen/chef.png") center / contain no-repeat;
+    image-rendering: pixelated;
+    filter: drop-shadow(4px 4px 0 var(--pk-shadow-color));
+  }
+
+  .pk-welcome-page .pk-welcome-logo::before {
+    animation:
+      pk-welcome-logo-drop 0.5s steps(4) both,
+      pk-welcome-logo-bob 1.2s steps(2) 0.5s infinite;
+  }
+
+  .pk-welcome-logo::after {
+    content: "";
+    position: absolute;
+    top: 12px;
+    right: -10px;
+    width: 6px;
+    height: 6px;
+    background: var(--pk-red);
+    box-shadow:
+      -130px 30px 0 var(--color-icon-blue),
+      9px 62px 0 var(--pk-red);
+  }
+
+  .pk-welcome-page .pk-welcome-logo::after {
+    animation: pk-welcome-stars 1.4s steps(2) infinite;
+  }
+
+  .pk-welcome-actions {
+    border: 2px solid var(--pk-ink);
+    background: var(--pk-panel);
+    box-shadow: var(--pk-shadow-overlay);
+    border-radius: var(--pk-radius-frame);
+    padding: 24px;
+  }
+
+  .pk-welcome-header h1 {
+    font-size: var(--text-ui-xl);
+    line-height: 1.5;
+    color: var(--pk-red);
+    text-shadow: 2px 2px 0 color-mix(in oklab, var(--pk-red) 14%, transparent);
+  }
+
+  .pk-welcome-title-static {
+    display: none;
+  }
+
+  .pk-welcome-title-pixel {
+    display: inline-block;
+  }
+
+  .pk-welcome-page .pk-welcome-letter {
+    display: inline-block;
+    opacity: 0;
+    animation: pk-welcome-letter-pop 0.28s steps(2, end) forwards;
+    animation-delay: calc(300ms + (var(--pk-letter-index) * 65ms));
+  }
+
+  .pk-welcome-header p {
+    line-height: 1.6;
+  }
+
+  .pk-welcome-page .pk-welcome-header > div > p {
+    animation: pk-welcome-rise 0.5s steps(4) 0.7s both;
+  }
+
+  .pk-welcome-page .pk-welcome-actions {
+    animation: pk-welcome-rise 0.2s steps(3) 0.85s both;
+  }
+
+  .pk-welcome-page .pk-welcome-actions:focus-within {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+
+  .pk-welcome-entry-label {
+    display: block;
+    color: var(--pk-red);
+    font-family: var(--font-pixel);
+    font-weight: 400;
+    letter-spacing: 0;
+    line-height: 1.5;
+  }
+
+  .pk-welcome-entry-hint {
+    display: block;
+    font-family: var(--font-sans);
+    letter-spacing: 0;
+    line-height: 1.5;
+  }
+
+  .pk-welcome-entry-skip {
+    display: inline-flex;
+  }
+
+  .pk-welcome-entry-choice {
+    justify-content: flex-start;
+    border-color: var(--pk-ink);
+    border-radius: var(--pk-radius-control) !important;
+    background: var(--pk-panel);
+    color: var(--pk-ink);
+    text-align: left;
+    box-shadow: 2px 2px 0 var(--pk-shadow-color) !important;
+  }
+
+  .pk-welcome-entry-choice::before {
+    width: 0;
+    height: 0;
+    margin-right: 8px;
+    border-top: 4px solid transparent;
+    border-bottom: 4px solid transparent;
+    border-left: 6px solid currentColor;
+    content: "";
+    opacity: 0;
+  }
+
+  .pk-welcome-entry-choice:hover:not(:disabled),
+  .pk-welcome-entry-choice:focus-visible:not(:disabled) {
+    border-color: var(--pk-ink);
+    background: var(--pk-red);
+    color: var(--pk-input);
+  }
+
+  .pk-welcome-entry-choice:hover:not(:disabled)::before,
+  .pk-welcome-entry-choice:focus-visible:not(:disabled)::before {
+    opacity: 1;
+  }
+
+  .pk-welcome-entry-choice:active:not(:disabled) {
+    transform: translate(2px, 2px);
+    box-shadow: none !important;
+  }
+
+  .pk-welcome-panel h1,
+  .pk-login-form h2,
+  .pk-onboarding-page h1,
+  .pk-onboarding-page h2 {
+    font-family: var(--font-pixel);
+    font-weight: 400;
+    letter-spacing: 0;
+  }
+
+  .pk-welcome-panel [data-slot="button"],
+  .pk-login-form [data-slot="button"],
+  .pk-onboarding-page [data-slot="button"] {
+    border-radius: var(--pk-radius-control);
+  }
+
+  .pk-login-form [role="alert"] {
+    border-radius: var(--pk-radius-control);
+    border-color: var(--pk-red);
+    background: color-mix(in oklab, var(--pk-red) 12%, var(--pk-panel));
+  }
+
+  .pk-onboarding-art,
+  .pk-onboarding-welcome-art {
+    border: 2px solid var(--pk-ink);
+    border-radius: var(--pk-radius-frame) !important;
+    box-shadow: var(--pk-shadow);
+    background: var(--pk-selected);
+    background-image: radial-gradient(circle, var(--pk-dot) 1px, transparent 1.5px);
+    background-size: 8px 8px;
+  }
+
+  .pk-onboarding-art > :not(.pk-onboarding-hero-content),
+  .pk-onboarding-welcome-art::before,
+  .pk-onboarding-welcome-art > .pointer-events-none {
+    display: none;
+  }
+
+  .pk-onboarding-hero-content {
+    position: relative;
+    color: var(--pk-ink);
+  }
+
+  .pk-onboarding-hero-content :is(h2, p) {
+    white-space: normal;
+    color: var(--pk-ink);
+    letter-spacing: 0;
+  }
+
+  .pk-onboarding-hero-content h2,
+  .pk-onboarding-welcome-art .pk-onboarding-hero-content p:first-child {
+    font-family: var(--font-pixel);
+    font-size: var(--text-ui-xl);
+    font-weight: 400;
+    line-height: 1.5;
+    color: var(--pk-red);
+  }
+
+  .pk-onboarding-hero-content p {
+    font-size: var(--text-ui-base);
+    line-height: 1.7;
+  }
+
+  .pk-onboarding-logo {
+    width: 128px;
+    height: 128px;
+    background: url("./assets/pixel-kitchen/chef.png") center / contain no-repeat;
+    image-rendering: pixelated;
+    filter: drop-shadow(4px 4px 0 var(--pk-shadow-color));
+  }
+
+  .pk-onboarding-logo > * {
+    visibility: hidden;
+  }
+
+  .pk-onboarding-welcome-art .pk-onboarding-hero-content::before {
+    content: "";
+    display: block;
+    width: 112px;
+    height: 112px;
+    margin: 0 auto 24px;
+    background: url("./assets/pixel-kitchen/chef.png") center / contain no-repeat;
+    image-rendering: pixelated;
+    filter: drop-shadow(4px 4px 0 var(--pk-shadow-color));
+  }
+
+  .pk-onboarding-options > * {
+    border-radius: var(--pk-radius-card) !important;
+    border-color: var(--pk-line) !important;
+    background: var(--pk-panel) !important;
+  }
+
+  .pk-onboarding-options > *[aria-pressed="true"],
+  .pk-onboarding-options > *[data-state="checked"] {
+    border-color: var(--pk-red) !important;
+    background: var(--pk-selected) !important;
+    box-shadow: var(--pk-shadow);
+  }
+
+  .pk-onboarding-preferences > label {
+    border-radius: var(--pk-radius-card);
+    background: var(--pk-panel);
+  }
+
+  .pk-onboarding-preferences > label:has([data-slot="checkbox"][data-state="checked"]) {
+    border-color: var(--pk-red);
+    background: var(--pk-selected);
+  }
+
+  .pk-onboarding-welcome-title,
+  .pk-onboarding-wizard-title,
+  .pk-onboarding-welcome h2,
+  .pk-onboarding-dialog h2 {
+    font-family: var(--font-pixel);
+    font-size: var(--text-ui-xl);
+    font-weight: 400;
+    letter-spacing: 0;
+    line-height: 1.5;
+  }
+
+  .pk-onboarding-welcome .pk-welcome-logo {
+    width: 64px;
+    height: 64px;
+  }
+
+  .pk-onboarding-welcome .pk-welcome-logo::after {
+    display: none;
+  }
+
+  .pk-onboarding-dialog {
+    border: 2px solid var(--pk-ink) !important;
+    border-radius: var(--pk-radius-overlay) !important;
+    background: var(--pk-panel) !important;
+    box-shadow: var(--pk-shadow-overlay) !important;
+  }
+
+  .pk-onboarding-wizard-sidebar > div {
+    border-radius: var(--pk-radius-card) !important;
+    border-color: var(--pk-line);
+    background: var(--pk-paper);
+  }
+
+  .pk-workflow-detail-heading {
+    border-bottom: 1px solid var(--pk-line);
+    padding-bottom: 18px;
+  }
+
+  .pk-workflow-detail-heading > div:last-child {
+    flex-wrap: wrap;
+  }
+
+  .pk-workflow-script {
+    border: 1px solid var(--pk-ink);
+    border-radius: var(--pk-radius-card);
+    background: var(--pk-input);
+    box-shadow: var(--pk-shadow);
+  }
+
+  .pk-workflow-script > div:first-child {
+    min-height: 32px;
+    height: auto;
+    padding-block: 4px;
+    background: var(--pk-selected);
+    border-radius: calc(var(--pk-radius-card) - 1px) calc(var(--pk-radius-card) - 1px) 0 0;
+  }
+
+  .pk-workflow-history-row {
+    grid-template-columns: minmax(112px, max-content) minmax(0, 1fr) auto;
+  }
+
+  @media (min-width: 1024px) {
+    .pk-automation-grid.overflow-y-auto {
+      max-height: calc(var(--pk-card-height) * 4 + 52px);
+    }
+  }
+
+  @media (max-width: 900px) {
+    .pk-plugin-grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .pk-automation-controls {
+      align-items: flex-start;
+      flex-direction: column;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .pk-plugin-page,
+    .pk-plugin-detail,
+    .pk-automation-edit {
+      max-width: none;
+    }
+
+    .pk-plugin-page [data-testid="plugin-store-installed-strip"] {
+      padding: 10px;
+    }
+
+    .pk-plugin-detail-heading [data-testid="plugin-store-title-actions"] > div:last-child {
+      width: 100%;
+    }
+
+    .pk-plugin-detail-heading
+      [data-testid="plugin-store-title-actions"]
+      > div:last-child
+      > [data-slot="button"] {
+      flex: 1;
+    }
+
+    .pk-workflow-detail-heading {
+      flex-wrap: wrap;
+    }
+
+    .pk-workflow-history-row {
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 8px;
+    }
+
+    .pk-workflow-history-row > div:nth-child(2) {
+      grid-column: 1 / -1;
+      grid-row: 2;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pk-welcome-page .pk-welcome-logo::before,
+  .pk-welcome-page .pk-welcome-logo::after,
+  .pk-welcome-page .pk-welcome-letter,
+  .pk-welcome-page .pk-welcome-header > div > p,
+  .pk-welcome-page .pk-welcome-actions,
+  .pk-welcome-page .pk-welcome-entry-choice:active:not(:disabled) {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}
