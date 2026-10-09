@@ -27,6 +27,8 @@ coverage/
 /.electron-cache/
 /.pnpm-store/
 /.npm-cache/
+.playwright-cli/
+output/
 .turbo/
 z-work/
 openclaw/
