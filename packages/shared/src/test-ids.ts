@@ -26,6 +26,7 @@ export const TID_LOGIN_API_KEY_SKIP_BUTTON = "login-api-key-skip-button";
 /** API Key 登录错误提示 */
 export const TID_LOGIN_API_KEY_ERROR = "login-api-key-error";
 /** OAuth 弹窗内的登录按钮 */
+/** @deprecated 二开定制已下线登录页的账号登录按钮；保留常量避免外部旧测试编译失败。 */
 export const TID_OAUTH_LOGIN_BUTTON = "oauth-login-button";
 /** OAuth 弹窗取消按钮 */
 export const TID_OAUTH_CANCEL = "oauth-cancel";
@@ -725,8 +726,6 @@ export const TID_CONFIRM_DIALOG_CONFIRM = "confirm-dialog-confirm";
 export function testId(base: string, suffix: string): string {
   return `${base}-${suffix}`;
 }
-
-export const TID_START_PLAN_RECOMMENDATION_DIALOG = "start-plan-recommendation-dialog";
 
 /** 用户反馈的诊断日志授权开关 */
 export const TID_FEEDBACK_LOGS_OPT_IN = "feedback-logs-opt-in";

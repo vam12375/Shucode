@@ -1,4 +1,12 @@
-import type { ForceUpdateConfig } from "./coding-plan-subscription.js";
+/**
+ * 强制升级的最小版本配置。
+ *
+ * 二开定制：该类型原定义在 `coding-plan-subscription.ts`。订阅套餐协议已整体删除，
+ * 但 force-update 门禁（electron main 与 remote app config）依赖本类型，因此迁到本文件。
+ */
+export interface ForceUpdateConfig {
+  minimalVersion: string;
+}
 
 export interface ForceUpdateRequirement {
   currentVersion: string;
