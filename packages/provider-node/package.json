@@ -1,0 +1,23 @@
+{
+  "name": "@shucode/provider-node",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "lint": "oxlint"
+  },
+  "dependencies": {
+    "@shucode/provider": "workspace:*",
+    "@shucode/shared": "workspace:*",
+    "zod": "4.6.5"
+  },
+  "devDependencies": {
+    "@shucode/model-option-map": "workspace:*",
+    "@types/node": "^25.5.0",
+    "typescript": "^6.0.2"
+  }
+}
