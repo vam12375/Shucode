@@ -17,6 +17,16 @@ The dedicated `text-ui-*` scale is a mandatory repository-wide constraint for ap
 
 Treat violations of this section as design-system defects, not stylistic preferences.
 
+## Desktop pixel kitchen (approved visual direction)
+
+Desktop now follows the approved `z-work/ui-prototypes/01-pixel-kitchen.html` direction. The implementation contract is `specs/ui/desktop-pixel-kitchen.md`. These desktop rules take precedence over the rounded-container and soft-elevation rules below; ordinary Web and mobile remote-control surfaces retain the existing rules.
+
+- Use the existing desktop platform root markers to scope paper/ink/red semantic tokens and small hard overlay shadows. User review of the production UI requires moderate, aligned corners: 12px panel/overlay, 10px card, 6px control and 4px nested item. Match adjacent edges and inner/outer radii to the window's 4px inset. Preserve native window safe areas and the Linux outer compositor clip.
+- Brand, page titles, navigation, menus/submenus, buttons, tabs and action labels use the locally bundled pixel face, including Chinese glyphs. Body, form descriptions, editable inputs, messages and compact metadata use platform system sans with normal letter spacing. Code, Diff and terminal keep their existing independent fonts and settings.
+- Keep the existing `text-ui-*` scale and semantic colors. The visual refresh does not add a theme preference or change any state owner, event, feature gate or platform operation.
+- Reuse current controls and their accessibility/keyboard behavior. Use presentation-only `pk-*` class hooks for surface-specific layout; never copy the HTML prototype's demo state or controller into production.
+- Focus must remain visible, composite fields have one focus frame, and active overlays retain their hard shadow. Avatar circles, status lights and workflow/data graphics preserve meaningful geometry.
+
 ## Product Character
 
 Shucode is a desktop-first and web-compatible AI workspace. The interface should feel calm, dense, and operational rather than decorative.
