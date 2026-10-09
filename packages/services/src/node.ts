@@ -140,7 +140,6 @@ export { importLegacyPersonalProviderConfig } from "./model-provider/legacyPerso
 export {
   createAccountProviderConfigSource,
   createAccountProviderConnectionResolver,
-  createCodingPlanFamilyAvailabilityResolver,
   resolveCurrentAccountAccess,
 } from "./model-provider/accountProviderConnectionResolver.js";
 export { bindAccountProviderInvalidation } from "./model-provider/accountProviderInvalidation.js";
@@ -148,9 +147,6 @@ export type {
   AccountProviderConfigSourceOptions,
   AccountProviderConnectionResolverOptions,
   AccountProviderConnectionSettings,
-  AccountProviderFamilyAvailabilityInput,
-  AccountProviderFamilyAvailabilityResolver,
-  CodingPlanFamilyAvailabilityResolverOptions,
 } from "./model-provider/accountProviderConnectionResolver.js";
 export {
   createProviderConfigRuntime,
@@ -273,7 +269,6 @@ export { createServiceLogger } from "./logger/serviceLogger.js";
 export {
   buildOfficialMcpAuthHeaders,
   createOfficialMcpAuthHeadersResolver,
-  resolveOfficialMcpCredentials,
 } from "./official-mcp/officialMcpCredentials.js";
 export {
   computeAutomationNextRunAt,
@@ -365,7 +360,6 @@ import { createAccountProviderCredentialService } from "./model-provider/account
 import { createAccountProviderRequestAuthService } from "./model-provider/accountProviderRequestAuthService.js";
 import {
   createAccountProviderConfigSource,
-  createCodingPlanFamilyAvailabilityResolver,
   resolveCurrentAccountAccess,
 } from "./model-provider/accountProviderConnectionResolver.js";
 import { bindAccountProviderInvalidation } from "./model-provider/accountProviderInvalidation.js";
@@ -449,10 +443,7 @@ import {
   resolveOffPeakCodingPlanSupport,
   resolveOffPeakMockUpstream,
 } from "./session/offPeakRuntimeModel.js";
-import {
-  createOfficialMcpAuthHeadersResolver,
-  resolveOfficialMcpCredentials,
-} from "./official-mcp/officialMcpCredentials.js";
+import { createOfficialMcpAuthHeadersResolver } from "./official-mcp/officialMcpCredentials.js";
 import {
   createOfficialMcpTrustedOriginRegistry,
   OFFICIAL_MCP_DEV_TRUSTED_ORIGINS_ENV,
@@ -1575,10 +1566,6 @@ export function createLocalServices(options: {
       });
     },
     loadAccountIdentity,
-    resolveFamilyAvailability: createCodingPlanFamilyAvailabilityResolver({
-      apiClient,
-      credentialService,
-    }),
   });
   const accountProviderRuntimeLog = createServiceLogger("account-provider-runtime");
   const modelSelectionConfiguredDefaultSource = new NodeModelSelectionConfigRepository({
@@ -1646,18 +1633,6 @@ export function createLocalServices(options: {
     accountProviderCredentialStore,
     refreshAccountProviders: (reason: string) => accountProviderConfigSource.refresh(reason),
   });
-  // 官方 Server MCP 的凭证解析源。MCP 调用的身份头与 MCP 额度查询（/api/v1/mcp/usage）
-  // 必须共用这一份实现，否则两处对"当前选中的 Coding Plan 连接"的判定会分叉。
-  // 额度侧注入的是凭证解析而非 resolveHeaders：归属校验需要 providerFamily，
-  // 而身份头里没有 family；身份头仍由同一个 buildOfficialMcpAuthHeaders 构造。
-  const officialMcpCredentialSource = {
-    resolve: () =>
-      resolveOfficialMcpCredentials({
-        accountRequestAuthService,
-        credentialService,
-        modelSelectionService: providerRuntime.modelSelection,
-      }),
-  };
   // mcpSync/hooks 里引用 shucodeAgentService 的闭包是惰性调用，声明顺序不影响初始化。
   const skillsService = createSkillsService({ isDesktopRuntime: true });
   const mcpSyncService = createMcpSyncService({
@@ -2068,7 +2043,6 @@ export function createLocalServices(options: {
   };
   const codingPlanSubscriptionService = createCodingPlanSubscriptionService({
     apiClient,
-    credentialService,
     resolveOffPeakModelSelectionView: async () => {
       await providerRuntime.start();
       return buildOffPeakModelSelectionView(providerRuntime.registryService.getView());
@@ -2467,16 +2441,7 @@ export function createLocalServices(options: {
     )
     .register(IFileWatcherService, createFileWatcherService())
     .register(IOAuthService, oauthService)
-    .register(
-      IUsageStatsService,
-      createUsageStatsService({
-        apiClient,
-        accountRequestAuthService,
-        credentialService,
-        shucodeAgentService,
-        officialMcpCredentialSource,
-      }),
-    )
+    .register(IUsageStatsService, createUsageStatsService({ shucodeAgentService }))
     .register(ICodingPlanSubscriptionService, codingPlanSubscriptionService)
     .register(
       IClientConfigService,

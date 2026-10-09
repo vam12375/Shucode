@@ -9,21 +9,11 @@ import type {
 } from "@shucode/provider";
 import { AccountProviderService, createAccountProviderConfigResolver } from "@shucode/provider";
 import {
-  type ApiClient,
   type ProviderFamilyConnectionSelectionSettings,
   type ProviderFamilyDomain,
   type ShucodeAccountAccess,
   type ShucodeProviderAccountAccess,
 } from "@shucode/shared";
-import type {
-  CodingPlanAvailabilityProvider,
-  CodingPlanAvailabilityResult,
-  CodingPlanUnavailableReason,
-} from "#src/model-provider/codingPlanProviderAvailability.js";
-import {
-  validateBigModelAccountProviderAvailability,
-  validateZaiAccountProviderAvailability,
-} from "#src/model-provider/codingPlanProviderAvailability.js";
 
 export interface AccountProviderConnectionSettings {
   readonly providerFamilyDomain: ProviderFamilyDomain | null;
@@ -31,16 +21,6 @@ export interface AccountProviderConnectionSettings {
   /** Host 旧连接导入尚不能确定身份；仅运行时事实，不写入配置或协议。 */
   readonly unresolvedFamilies?: readonly ProviderFamilyDomain[];
 }
-
-export interface AccountProviderFamilyAvailabilityInput {
-  readonly family: ProviderFamilyDomain;
-  readonly providers: readonly CodingPlanAvailabilityProvider[];
-  readonly selections: ProviderFamilyConnectionSelectionSettings;
-}
-
-export type AccountProviderFamilyAvailabilityResolver = (
-  input: AccountProviderFamilyAvailabilityInput,
-) => Promise<Partial<Record<string, CodingPlanAvailabilityResult>>>;
 
 export interface AccountProviderConnectionResolverOptions {
   readonly readSettings: () => Promise<AccountProviderConnectionSettings>;
@@ -51,14 +31,6 @@ export interface AccountProviderConnectionResolverOptions {
     forceRefresh: boolean,
   ) => Promise<string | null>;
   readonly loadAccountIdentity: (family: ProviderFamilyDomain) => Promise<string | null>;
-  readonly resolveFamilyAvailability: AccountProviderFamilyAvailabilityResolver;
-}
-
-export interface CodingPlanFamilyAvailabilityResolverOptions {
-  readonly apiClient: ApiClient;
-  readonly credentialService?: {
-    load(key: string): Promise<string | null>;
-  };
 }
 
 export interface AccountProviderConfigSourceOptions extends AccountProviderConnectionResolverOptions {
@@ -66,10 +38,23 @@ export interface AccountProviderConfigSourceOptions extends AccountProviderConne
 }
 
 /**
- * 把现有账号域、连接模式和套餐权益统一投影为领域层 Connection Result。
+ * 把现有账号域与连接模式投影为领域层 Connection Result。
+ *
+ * 二开定制说明：原实现会调用 `validateZaiAccountProviderAvailability` /
+ * `validateBigModelAccountProviderAvailability`（经 `createCodingPlanFamilyAvailabilityResolver`
+ * 注入）去远端查询套餐订阅，并据此决定 connected / unavailable 与 reason。
+ * 套餐与权益链路已整体删除，这里改为**只按凭据是否存在判定连接状态**：
+ *   - 拿不到当前账号身份（OAuth 登录态）→ `unavailable` + `not-connected`；
+ *   - 有身份但该连接模式的凭据缺失（individual 需 Coding Plan Key）→ `unavailable` + `credential-failed`；
+ *   - 有身份且有凭据 → `available`；
+ *   - `off-peak` / `start-plan` / `team-coding-plan` 没有独立的可读凭据（key 在请求期投影），
+ *     因此只要有登录身份即 `available`，具体准入仍由服务端裁决。
+ * 保留对外形状（`createAccountProviderConfigSource` / `createAccountProviderConnectionResolver`
+ * / `resolveCurrentAccountAccess`）与"未配置任何 account provider 时返回空集合"的行为不变，
+ * 以免影响保留的账号凭据运行时（模型请求鉴权、闲时任务、动态工作流、官方 MCP 凭据）。
  *
  * 该适配器不保存凭据。Personal Coding Plan Key 的物理来源由注入端决定；
- * Start/Team 的动态凭据继续由现有 availability 依赖按请求读取。
+ * Start/Team 的动态凭据继续由现有依赖按请求读取。
  */
 export function createAccountProviderConnectionResolver(
   options: AccountProviderConnectionResolverOptions,
@@ -89,64 +74,42 @@ export function createAccountProviderConnectionResolver(
       accountIdentityByFamily.set(family, pending);
       return pending;
     };
-    const availabilityByProviderId = new Map<string, CodingPlanAvailabilityResult>();
 
-    for (const family of ["zai", "bigmodel"] as const) {
-      const configured = configuredProviders
-        .entries()
-        .flatMap(([providerId, config]) =>
-          config.access?.type === "zhipu-account" &&
-          config.access.accountType === family &&
-          config.access.mode &&
-          config.access.mode !== "off-peak"
-            ? [{ providerId, config, planKind: config.access.mode }]
-            : [],
-        );
-      if (configured.length === 0) continue;
-
-      // 旧团队身份补全只限制付费访问，Start 只依赖当前登录账号。
-      const queryable = configured.filter(({ providerId, planKind }) => {
-        if (settings.unresolvedFamilies?.includes(family) && planKind !== "start-plan") {
-          availabilityByProviderId.set(providerId, { kind: "unknown" });
-          return false;
+    // 凭据事实按 providerId 缓存：同一轮内多个查询点不能重复打凭据存储。
+    const credentialAvailableByProviderId = new Map<
+      string,
+      Promise<{ accountIdentity: string | null; hasCredential: boolean }>
+    >();
+    const resolveCredentialFact = (params: {
+      providerId: string;
+      family: ProviderFamilyDomain;
+      planKind: "start-plan" | "individual-coding-plan" | "team-coding-plan" | "off-peak";
+    }) => {
+      const existing = credentialAvailableByProviderId.get(params.providerId);
+      if (existing) return existing;
+      const pending = (async () => {
+        const accountIdentity = await loadAccountIdentity(params.family);
+        if (!accountIdentity) {
+          return { accountIdentity: null, hasCredential: false };
         }
-        return true;
-      });
-      if (queryable.length === 0) continue;
-
-      const accountIdentity = await loadAccountIdentity(family);
-      if (!accountIdentity) {
-        for (const { providerId } of queryable) {
-          availabilityByProviderId.set(providerId, {
-            kind: "unavailable",
-            reason: "coding_plan_not_connected",
-          });
+        // Start Plan / Team Plan / Off-Peak 都不读 Coding Plan Key：Start 与 Off-Peak 跟随登录身份，
+        // Team 由 accountProviderTeamPlanRequestKey 在请求期投影运行时 key。
+        if (params.planKind !== "individual-coding-plan") {
+          return { accountIdentity, hasCredential: true };
         }
-        continue;
-      }
-
-      const availabilityProviders = await Promise.all(
-        queryable.map(async ({ providerId, planKind }) => ({
-          providerId,
-          family,
-          planKind,
-          apiKey:
-            planKind !== "team-coding-plan"
-              ? await options
-                  .loadCodingPlanApiKey(providerId, family, accountIdentity, forceCredentialRefresh)
-                  .catch(() => null)
-              : null,
-        })),
-      );
-      const resolved = await options.resolveFamilyAvailability({
-        family,
-        providers: availabilityProviders,
-        selections: settings.selections,
-      });
-      for (const { providerId } of queryable) {
-        availabilityByProviderId.set(providerId, resolved[providerId] ?? { kind: "unknown" });
-      }
-    }
+        const apiKey = await options
+          .loadCodingPlanApiKey(
+            params.providerId,
+            params.family,
+            accountIdentity,
+            forceCredentialRefresh,
+          )
+          .catch(() => null);
+        return { accountIdentity, hasCredential: Boolean(apiKey?.trim()) };
+      })();
+      credentialAvailableByProviderId.set(params.providerId, pending);
+      return pending;
+    };
 
     const connections: AccountProviderConnectionResult[] = [];
     const scopes = new Map<string, string>();
@@ -157,74 +120,91 @@ export function createAccountProviderConnectionResolver(
         connections.push({ providerId, status: "unavailable" });
         continue;
       }
-      const selection = settings.selections[access.accountType];
-      // last-known-good 只对同账号、同 Team 身份成立。切账号后的网络失败不能复活旧权益。
+      // 属性收窄不会跨 await 保留；先落成局部常量再参与后续判定。
+      const accountType: ProviderFamilyDomain = access.accountType;
+      const mode = access.mode;
+      const selection = settings.selections[accountType];
+      // last-known-good 只对同账号、同 Team 身份成立。切账号后的凭据缺失不能复活旧连接。
       const scope = JSON.stringify([
-        await loadAccountIdentity(access.accountType),
-        access.mode === "team-coding-plan" && selection?.kind === "team-coding-plan"
+        await loadAccountIdentity(accountType),
+        mode === "team-coding-plan" && selection?.kind === "team-coding-plan"
           ? [selection.organizationId, selection.projectId, selection.productId]
           : null,
       ]);
       scopes.set(providerId, scope);
       const resetPrevious =
         previousScopes.has(providerId) && previousScopes.get(providerId) !== scope;
-      if (access.mode === "off-peak") {
-        const selectedPlanKind = selection?.kind;
-        const matchingPlanAvailable =
-          settings.providerFamilyDomain === access.accountType &&
-          (selectedPlanKind === "individual-coding-plan" ||
-            selectedPlanKind === "team-coding-plan") &&
-          configuredProviders
-            .entries()
-            .some(
-              ([candidateId, candidate]) =>
-                candidate.access?.type === "zhipu-account" &&
-                candidate.access.accountType === access.accountType &&
-                candidate.access.mode === selectedPlanKind &&
-                availabilityByProviderId.get(candidateId)?.kind === "available",
-            );
+      // Start 跟随登录身份，付费连接跟随连接选择；两者可同时 current，不改写配置。
+      const current =
+        settings.providerFamilyDomain === accountType &&
+        (mode === "start-plan"
+          ? Boolean(await loadAccountIdentity(accountType))
+          : selection?.kind === mode);
+      const connectionKey = createHash("sha256")
+        .update(
+          JSON.stringify([
+            await loadAccountIdentity(accountType),
+            accountType,
+            mode === "start-plan" ? { kind: "start-plan" } : (selection ?? null),
+          ]),
+        )
+        .digest("hex");
+      const base = {
+        current,
+        // 两个 Team 共用 Provider ID，观察器必须按同一快照中的完整身份比较，
+        // 不能把手动换账号误当成原连接失效。它只进入 Account State，不进入 Config。
+        connectionKey,
+        ...(resetPrevious ? { resetPrevious: true } : {}),
+      };
+
+      // 旧团队身份补全尚不能确定身份时保持 unknown，不凭缺失的凭据把它判成未连接。
+      if (settings.unresolvedFamilies?.includes(accountType) && mode !== "start-plan") {
+        connections.push({ providerId, status: "unknown", ...base });
+        continue;
+      }
+
+      if (mode === "off-peak") {
+        // Off-Peak 没有自己的凭据（不读 Coding Plan Key、也不投影 Team 运行时 key），
+        // 它只要求当前账号域仍有可用的登录身份。二开删除了套餐购买链路，
+        // 因此不能再像旧实现那样"跟随所选付费套餐是否可用"——否则删掉付费节点后
+        // 闲时任务会被永久判成未连接。准入/低峰仍由服务端裁决（3006 兜底）。
+        const fact = await resolveCredentialFact({
+          providerId,
+          family: accountType,
+          planKind: mode,
+        });
         connections.push({
           providerId,
-          status: matchingPlanAvailable ? "available" : "unavailable",
+          status: fact.hasCredential ? "available" : "unavailable",
+          ...(fact.hasCredential
+            ? {}
+            : { unavailableReason: resolveAccountUnavailableReason("not_connected") }),
+          ...base,
         });
         continue;
       }
-      const availability = availabilityByProviderId.get(providerId) ?? {
-        kind: "unknown" as const,
-      };
+
+      const fact = await resolveCredentialFact({
+        providerId,
+        family: accountType,
+        planKind: mode,
+      });
+      if (fact.hasCredential) {
+        connections.push({ providerId, status: "available", ...base });
+        continue;
+      }
       connections.push({
         providerId,
-        status: availability.kind,
-        // 原因必须随连接结果一起发布。UI 拿不到原因时只能把"已登录但无套餐"
-        // 也显示成"未连接"。
-        ...(availability.kind === "unavailable"
-          ? {
-              unavailableReason: resolveAccountUnavailableReason(availability.reason),
-            }
-          : {}),
-        // Start 跟随登录身份，付费套餐跟随连接选择；两者可同时 current，不改写权益或配置。
-        current:
-          settings.providerFamilyDomain === access.accountType &&
-          (access.mode === "start-plan"
-            ? Boolean(await loadAccountIdentity(access.accountType))
-            : selection?.kind === access.mode),
-        // 两个 Team 共用 Provider ID，观察器必须按同一快照中的完整身份比较，
-        // 不能把手动换套餐/账号误当成原套餐失效。它只进入 Account State，不进入 Config。
-        connectionKey: createHash("sha256")
-          .update(
-            JSON.stringify([
-              await loadAccountIdentity(access.accountType),
-              access.accountType,
-              access.mode === "start-plan" ? { kind: "start-plan" } : (selection ?? null),
-            ]),
-          )
-          .digest("hex"),
-        ...("models" in availability ? { models: availability.models } : {}),
-        ...("effectiveAt" in availability ? { effectiveAt: availability.effectiveAt } : {}),
-        ...(resetPrevious ? { resetPrevious: true } : {}),
+        status: "unavailable",
+        // 原因必须随连接结果一起发布。UI 拿不到原因时只能把"未登录"与"凭据失效"混为一谈。
+        unavailableReason: resolveAccountUnavailableReason(
+          fact.accountIdentity ? "credential_failed" : "not_connected",
+        ),
+        ...base,
       });
     }
-    // 权益查询可能跨越切账号/套餐，旧设置与新身份会被拼成可发布结果。
+
+    // 凭据查询可能跨越切账号/套餐，旧设置与新身份会被拼成可发布结果。
     // 发布前核对本轮作用域；失败时也不能推进 previousScopes，否则下一轮会把
     // 未发布的账号误认作 last-known-good。重试继续由现有刷新事件驱动。
     const identitiesUnchanged = await Promise.all(
@@ -253,23 +233,13 @@ function isCredentialRefreshReason(reason: string): boolean {
 }
 
 /**
- * 把 Coding Plan 可用性原因投影为账号域原因。
- * Account State 是跨 family 的通用事实，不直接沿用 Coding Plan 内部枚举；
- * UI 只依赖这里的稳定语义，不认识套餐查询实现。
+ * 把连接事实原因投影为账号域原因。
+ * Account State 是跨 family 的通用事实；UI 只依赖这里的稳定语义，不认识凭据实现。
  */
 function resolveAccountUnavailableReason(
-  reason: CodingPlanUnavailableReason,
+  reason: "not_connected" | "credential_failed",
 ): AccountProviderUnavailableReason {
-  switch (reason) {
-    case "coding_plan_not_authenticated":
-      return "not-authenticated";
-    case "coding_plan_not_connected":
-      return "not-connected";
-    case "coding_plan_auth_failed":
-      return "credential-failed";
-    case "coding_plan_not_entitled":
-      return "not-entitled";
-  }
+  return reason === "credential_failed" ? "credential-failed" : "not-connected";
 }
 
 /** 组装 Config、账号连接解析与第三层 Account Provider Config Source。 */
@@ -280,22 +250,6 @@ export function createAccountProviderConfigSource(
     configSource: options.configSource,
     resolve: createAccountProviderConfigResolver(createAccountProviderConnectionResolver(options)),
   });
-}
-
-/** 用当前稳定的 Plan 查询实现生产 Family Availability Port。 */
-export function createCodingPlanFamilyAvailabilityResolver(
-  options: CodingPlanFamilyAvailabilityResolverOptions,
-): AccountProviderFamilyAvailabilityResolver {
-  return ({ family, providers, selections }) => {
-    const context = {
-      apiClient: options.apiClient,
-      credentialService: options.credentialService,
-      providerFamilyConnectionSelections: selections,
-    };
-    return family === "zai"
-      ? validateZaiAccountProviderAvailability(providers, context)
-      : validateBigModelAccountProviderAvailability(providers, context);
-  };
 }
 
 /**

@@ -1,49 +1,18 @@
-import type {
-  CodingPlanAgreementResponse,
-  CodingPlanBatchPreviewRequest,
-  CodingPlanBatchPreviewResponse,
-  CodingPlanCreateSignRequest,
-  CodingPlanPaymentCheckRequest,
-  CodingPlanPaymentCheckResponse,
-  CodingPlanPendingOrderCheckRequest,
-  CodingPlanPendingOrderCheckResponse,
-  CodingPlanPaypalSetupTokenRequest,
-  CodingPlanPaypalSetupTokenResponse,
-  CodingPlanPaypalSubscribeRequest,
-  CodingPlanPaypalSubscribeResponse,
-  CodingPlanPaypalSupportRequest,
-  CodingPlanPaypalSupportResponse,
-  CodingPlanProductInfo,
-  CodingPlanProductInfoRequest,
-  CodingPlanStaticProductsConfig,
-  CodingPlanStaticTeamProductsConfig,
-  CodingPlanPreviewRequest,
-  CodingPlanPreviewResponse,
-  CodingPlanStripeBindRequest,
-  CodingPlanStripeBindResponse,
-  CodingPlanStripeCard,
-  CodingPlanStripePayRequest,
-  CodingPlanStripePayResponse,
-  CodingPlanStripeUnbindRequest,
-  CodingPlanUpdateSignRequest,
-  EnterpriseCodingPlanCreateOrderRequest,
-  EnterpriseCodingPlanCreateOrderResponse,
-  EnterpriseCodingPlanCancelOrderRequest,
-  EnterpriseCodingPlanCancelOrderResponse,
-  EnterpriseCodingPlanBalanceResponse,
-  EnterpriseCodingPlanContinuePayRequest,
-  EnterpriseCodingPlanOrderCalculateRequest,
-  EnterpriseCodingPlanOrderCalculateResponse,
-  EnterpriseCodingPlanPendingOrder,
-  EnterpriseCodingPlanOrderStatusRequest,
-  EnterpriseCodingPlanOrderStatusResponse,
-  EnterpriseCodingPlanPricingRequest,
-  EnterpriseCodingPlanPricingResponse,
-  StartPlanPreviewConfig,
-  ShucodeModelContextBudgetStrategy,
-  ForceUpdateConfig,
-  DynamicWorkflowClientConfig,
-} from "@shucode/shared";
+/**
+ * 二开定制说明（`coding-plan-subscription` 服务）：
+ *
+ * 官方订阅套餐 / 编程套餐 / Start Plan / 团队套餐 / 购买充值 / 订单支付 / 套餐额度整条链路
+ * 已从代码中删除，客户端只保留「自定义（personal）Provider + API key」。
+ *
+ * 本接口**唯一职责**：读取平台 `client/configs`，为两个保留功能提供灰度配置——
+ *   1. `getOffPeakClientConfig`：闲时任务（Off-Peak）曝光开关与模型视图；
+ *   2. `getDynamicWorkflowClientConfig`：动态工作流灰度模式。
+ *
+ * 服务名、RPC 通道名（`ServiceChannels.CodingPlanSubscription` = `coding-plan-subscription`）
+ * 与描述符保持不变：它们是 desktop host/client 代理的 wire 契约，改名会牵动远端代理，
+ * 且 host 侧 `remoteWorkspaceServiceCollection` 仍按该通道注册本服务。
+ */
+import type { DynamicWorkflowClientConfig } from "@shucode/shared";
 import type { ModelSelectionView } from "@shucode/provider";
 import { ServiceChannels } from "@shucode/shared";
 import { createServiceDescriptor } from "../descriptors.js";
@@ -56,10 +25,6 @@ export interface OffPeakClientConfig {
 }
 
 export interface ICodingPlanSubscriptionService {
-  batchPreview(request?: CodingPlanBatchPreviewRequest): Promise<CodingPlanBatchPreviewResponse>;
-  getStaticProducts(): Promise<CodingPlanStaticProductsConfig>;
-  getStaticTeamProducts(): Promise<CodingPlanStaticTeamProductsConfig>;
-  getStartPlanPreview(): Promise<StartPlanPreviewConfig | null>;
   /** 闲时任务灰度配置：forceRefresh 供入口打开时补拉（绕过 1h 快照缓存）。 */
   getOffPeakClientConfig(options?: { forceRefresh?: boolean }): Promise<OffPeakClientConfig>;
   /**
@@ -69,52 +34,6 @@ export interface ICodingPlanSubscriptionService {
   getDynamicWorkflowClientConfig(options?: {
     forceRefresh?: boolean;
   }): Promise<DynamicWorkflowClientConfig>;
-  /** 兼容接口：固定返回 preflight-v1，不读取远端配置或缓存。 */
-  getModelContextBudgetStrategy(): Promise<ShucodeModelContextBudgetStrategy>;
-  getForceUpdateConfig(): Promise<ForceUpdateConfig | null>;
-  productInfo(request: CodingPlanProductInfoRequest): Promise<CodingPlanProductInfo>;
-  preview(request: CodingPlanPreviewRequest): Promise<CodingPlanPreviewResponse>;
-  createSign(request: CodingPlanCreateSignRequest): Promise<CodingPlanAgreementResponse>;
-  updateSign(request: CodingPlanUpdateSignRequest): Promise<CodingPlanAgreementResponse>;
-  checkPayment(request: CodingPlanPaymentCheckRequest): Promise<CodingPlanPaymentCheckResponse>;
-  checkPendingOrders(
-    request?: CodingPlanPendingOrderCheckRequest,
-  ): Promise<CodingPlanPendingOrderCheckResponse>;
-  queryStripeCards(request?: {
-    providerId?: CodingPlanPreviewRequest["providerId"];
-  }): Promise<CodingPlanStripeCard[]>;
-  bindStripeCard(request: CodingPlanStripeBindRequest): Promise<CodingPlanStripeBindResponse>;
-  unbindStripeCard(request: CodingPlanStripeUnbindRequest): Promise<string>;
-  payStripe(request: CodingPlanStripePayRequest): Promise<CodingPlanStripePayResponse>;
-  checkPaypalSupport(
-    request?: CodingPlanPaypalSupportRequest,
-  ): Promise<CodingPlanPaypalSupportResponse>;
-  createPaypalSetupToken(
-    request: CodingPlanPaypalSetupTokenRequest,
-  ): Promise<CodingPlanPaypalSetupTokenResponse>;
-  subscribePaypal(
-    request: CodingPlanPaypalSubscribeRequest,
-  ): Promise<CodingPlanPaypalSubscribeResponse>;
-  getEnterprisePricing(
-    request?: EnterpriseCodingPlanPricingRequest,
-  ): Promise<EnterpriseCodingPlanPricingResponse>;
-  getEnterpriseBalance(): Promise<EnterpriseCodingPlanBalanceResponse>;
-  calculateEnterpriseOrder(
-    request: EnterpriseCodingPlanOrderCalculateRequest,
-  ): Promise<EnterpriseCodingPlanOrderCalculateResponse>;
-  createEnterpriseOrder(
-    request: EnterpriseCodingPlanCreateOrderRequest,
-  ): Promise<EnterpriseCodingPlanCreateOrderResponse>;
-  getEnterprisePendingOrders(): Promise<EnterpriseCodingPlanPendingOrder[]>;
-  cancelEnterpriseOrder(
-    request: EnterpriseCodingPlanCancelOrderRequest,
-  ): Promise<EnterpriseCodingPlanCancelOrderResponse>;
-  continueEnterpriseOrderPayment(
-    request: EnterpriseCodingPlanContinuePayRequest,
-  ): Promise<EnterpriseCodingPlanCreateOrderResponse>;
-  checkEnterpriseOrderStatus(
-    request: EnterpriseCodingPlanOrderStatusRequest,
-  ): Promise<EnterpriseCodingPlanOrderStatusResponse>;
 }
 
 export const ICodingPlanSubscriptionService =
