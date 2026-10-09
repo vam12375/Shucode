@@ -38,7 +38,7 @@ export type AutomationSettingsHistoryTab = "settings" | "history";
 /** 定时与闲时共用运行历史空态，防止透明留白与卡片容器样式再次漂移。 */
 export function AutomationHistoryEmptyState({ children }: { children: ReactNode }) {
   return (
-    <div className="flex min-h-[226px] items-center justify-center rounded-xl border border-dashed border-card-border bg-background px-4 text-center text-ui-base text-foreground-subtle">
+    <div className="pk-catalog-empty flex min-h-[226px] items-center justify-center rounded-xl border border-dashed border-card-border bg-background px-4 text-center text-ui-base text-foreground-subtle">
       {children}
     </div>
   );
@@ -81,7 +81,7 @@ export function AutomationKeepAwakeNotice({
   return (
     <div
       data-automations-keep-awake
-      className="flex min-h-11 w-full items-center gap-3 overflow-hidden rounded-[10px] bg-surface px-3 py-3 text-foreground-subtle"
+      className="pk-catalog-notice flex min-h-11 w-full items-center gap-3 overflow-hidden rounded-[10px] bg-surface px-3 py-3 text-foreground-subtle"
     >
       <span className="flex size-5 shrink-0 items-center justify-center" aria-hidden="true">
         <AutomationInfoIcon className="size-4" />
@@ -110,7 +110,7 @@ export function AutomationCreateDropdown({
   const { intl } = useShucodeIntl();
   return (
     <DropdownMenu>
-      <div className="inline-flex h-7 items-center overflow-hidden rounded-lg">
+      <div className="pk-automation-create inline-flex h-7 items-center overflow-hidden rounded-lg">
         <Button
           type="button"
           variant="default"

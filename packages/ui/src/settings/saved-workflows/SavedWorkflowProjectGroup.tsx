@@ -383,7 +383,7 @@ export function SavedWorkflowProjectGroup({
       {state.entries.length > 0 ? (
         <div
           data-testid={testId(TID_WORKFLOWS_LIST, workspaceKey)}
-          className="mt-5 grid grid-cols-1 auto-rows-[132px] gap-x-4 gap-y-4 lg:grid-cols-2"
+          className="pk-automation-grid mt-5 grid grid-cols-1 auto-rows-[132px] gap-x-4 gap-y-4 lg:grid-cols-2"
         >
           {state.entries.map((entry) => (
             <SavedWorkflowCard

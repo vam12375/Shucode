@@ -496,6 +496,7 @@ function AgentListRow({
     <div
       data-testid={testId(TID_SUBAGENT_ROW, agent.name)}
       className={cn(
+        "pk-settings-resource-row",
         "grid cursor-default items-center gap-3 px-4 py-3 transition-colors",
         rowEditable && "hover:bg-hover",
         hasModelOverrideControl
@@ -1008,7 +1009,10 @@ function SubagentForm({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-3 rounded-xl border border-border p-4">
+    <form
+      onSubmit={handleSubmit}
+      className="pk-settings-resource-form space-y-3 rounded-xl border border-border p-4"
+    >
       <div className="flex justify-end">
         <label className="flex min-w-0 flex-wrap items-center justify-end gap-2">
           <span className="shrink-0 text-ui-base text-foreground-subtle">
@@ -1611,7 +1615,7 @@ export function SubagentsSection({ onManageModels }: SubagentsSectionProps) {
 
   if (isFormView) {
     return (
-      <div className="space-y-6">
+      <div className="pk-settings-capability space-y-6">
         <SettingsBreadcrumbReporter
           items={[
             {
@@ -1660,7 +1664,7 @@ export function SubagentsSection({ onManageModels }: SubagentsSectionProps) {
   }
 
   const renderAgentList = (items: AgentSummary[]) => (
-    <div className="overflow-hidden rounded-xl bg-surface">
+    <div className="pk-settings-resource-list overflow-hidden rounded-xl bg-surface">
       {items.map((agent, index) => (
         <div key={agent.id}>
           {index > 0 ? <div className="h-px bg-border/50" aria-hidden="true" /> : null}
@@ -1693,7 +1697,7 @@ export function SubagentsSection({ onManageModels }: SubagentsSectionProps) {
 
   const hasSearchResultEmpty = Boolean(query.trim()) && filteredAgentCount === 0;
   return (
-    <div className="space-y-6">
+    <div className="pk-settings-capability space-y-6">
       <div className="flex min-w-0 flex-wrap items-center gap-3">
         <div className="flex min-w-0 flex-wrap items-center gap-3">
           <PluginScopeMenu
@@ -1748,7 +1752,7 @@ export function SubagentsSection({ onManageModels }: SubagentsSectionProps) {
       ) : hasSearchResultEmpty ? (
         <PluginSearchEmptyState label={intl.formatMessage({ id: "settings.subagents.empty" })} />
       ) : (
-        <div className="space-y-6">
+        <div className="pk-settings-capability space-y-6">
           <section
             className={query.trim() && groupedAgents.user.length === 0 ? "hidden" : "space-y-4"}
           >

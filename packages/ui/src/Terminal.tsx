@@ -289,16 +289,16 @@ export function Terminal({
   return (
     <section
       data-testid={TID_TERMINAL}
-      className="flex h-full min-h-0 flex-col gap-2 overflow-hidden bg-background p-3 pb-2"
+      className="pk-terminal-panel flex h-full min-h-0 flex-col gap-2 overflow-hidden bg-background p-3 pb-2"
     >
       <Tabs
         value={activeSession?.id ?? ""}
         onValueChange={handleActivateSession}
         className="h-full min-h-0 gap-2"
       >
-        <div className="flex shrink-0 items-center gap-2">
+        <div className="pk-terminal-toolbar flex shrink-0 items-center gap-2">
           <div className="flex min-w-0 shrink-0 items-center gap-2">
-            <div className="truncate text-ui-base font-medium text-foreground">
+            <div className="pk-panel-title truncate text-ui-base font-medium text-foreground">
               {intl.formatMessage({ id: "terminal.title" })}
             </div>
             {activeSession?.shellLabel ? (

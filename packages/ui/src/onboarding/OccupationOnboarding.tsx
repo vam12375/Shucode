@@ -271,7 +271,7 @@ export function OccupationOnboarding({
     <main
       aria-label={t("title")}
       data-testid="onboarding-page"
-      className="relative flex h-dvh w-full min-h-0 flex-col overflow-hidden bg-background text-foreground"
+      className="pk-onboarding-page relative flex h-dvh w-full min-h-0 flex-col overflow-hidden bg-background text-foreground"
     >
       <div className="pointer-events-none absolute inset-x-0 top-0 z-20 h-12 [app-region:drag]" />
       {/* 与 Settings 相同，计入 Workspace 的 4px 外层留白、1px 边框和 8px 内边距。 */}
@@ -324,7 +324,7 @@ export function OccupationOnboarding({
                       formatLabel={(key) => t(key)}
                     />
                   ) : preferences ? (
-                    <div className="mt-8 space-y-3">
+                    <div className="pk-onboarding-preferences mt-8 space-y-3">
                       {(["suggestions", "memory", "migration"] as const)
                         .filter((key) => key !== "suggestions" || mode === "office")
                         .map((key) => (

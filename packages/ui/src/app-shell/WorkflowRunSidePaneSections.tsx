@@ -128,7 +128,7 @@ export const WorkflowRunStatusHeader = memo(function WorkflowRunStatusHeader({
   const supersededBy = run?.supersededBy;
 
   return (
-    <div className="shrink-0 border-b border-border px-4 py-3">
+    <div className="pk-workflow-pane-header shrink-0 border-b border-border px-4 py-3">
       <div className="flex items-center gap-2">
         {/* 运行名是标识符：等宽排印（DESIGN.md 把 font-mono 留给技术值）。 */}
         <span className="min-w-0 flex-1 truncate font-mono text-ui-base font-medium text-foreground">

@@ -150,7 +150,7 @@ export function ShortcutBindingRow({
 
   return (
     <div
-      className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)_80px_72px] items-center border-t border-border px-4 py-3 text-ui-base"
+      className="pk-shortcut-row grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)_80px_72px] items-center border-t border-border px-4 py-3 text-ui-base"
       data-testid={`settings-shortcut-row-${entry.id}`}
     >
       <span className="flex min-w-0 items-center">

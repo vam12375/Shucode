@@ -79,7 +79,7 @@ const WorkflowArtifactContent = memo(function WorkflowArtifactContent({
 
   return (
     <div
-      className="flex h-full min-h-0 flex-col bg-background"
+      className="pk-workflow-artifact-pane flex h-full min-h-0 flex-col bg-background"
       data-artifact-source={live === undefined ? "journal" : "live"}
       data-testid={TID_WORKFLOW_ARTIFACT_PANE}
       data-workflow-artifact-id={tab.artifactId}
@@ -213,14 +213,14 @@ function WorkflowArtifactView({
 
   return (
     <>
-      <header className="shrink-0 border-b border-border px-4 py-3">
+      <header className="pk-workflow-pane-header shrink-0 border-b border-border px-4 py-3">
         <div className="flex min-w-0 items-center gap-2">
           {/* 与产物药丸同一枚方形瓦片：tab 头就是那枚药丸长大了。 */}
           <span className="flex size-[22px] shrink-0 items-center justify-center rounded-md bg-surface-hover text-foreground-subtle">
             <ArtifactKindIcon className="size-3.5" kind={artifact.kind} />
           </span>
           <h2
-            className="min-w-0 flex-1 truncate text-ui-base font-medium text-foreground"
+            className="pk-panel-title min-w-0 flex-1 truncate text-ui-base font-medium text-foreground"
             data-testid="workflow-artifact-title"
             title={title}
           >

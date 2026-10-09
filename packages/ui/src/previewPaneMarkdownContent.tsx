@@ -39,7 +39,7 @@ export function MarkdownPreviewContent({
     <div
       ref={rootRef}
       data-markdown-preview="true"
-      className="w-full h-full bg-background overflow-auto"
+      className="pk-preview-markdown w-full h-full bg-background overflow-auto"
     >
       {selectionTarget && sourceKey ? (
         <MarkdownSelectionTooltip
@@ -51,7 +51,7 @@ export function MarkdownPreviewContent({
           target={selectionTarget}
         />
       ) : null}
-      <div className="min-h-full bg-background p-4">
+      <div className="pk-preview-document min-h-full bg-background p-4">
         <MessageResponse
           className="min-w-0 break-words"
           workspacePath={workspacePath}

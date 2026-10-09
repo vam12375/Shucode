@@ -53,7 +53,7 @@ export function WorkspaceFileTreeStickyFolders({
 
   return (
     <div className="pointer-events-none sticky top-0 z-10 h-0 overflow-visible px-1">
-      <div className="pointer-events-auto overflow-hidden rounded-lg">
+      <div className="pk-file-tree-sticky pointer-events-auto overflow-hidden rounded-lg">
         {items.map((item) => {
           const row = item.row;
           const handleToggle = (nextRow: WorkspaceFileTreeRow) => {

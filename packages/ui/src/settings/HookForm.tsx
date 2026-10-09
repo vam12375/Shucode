@@ -186,17 +186,21 @@ export function HookForm({
         </p>
       </div>
 
-      <div className="space-y-3 rounded-xl border border-border p-4">
+      <div className="pk-settings-resource-form space-y-3 rounded-xl border border-border p-4">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="grid w-full min-w-0 gap-3 sm:grid-cols-2 md:w-auto">
             <Field label={intl.formatMessage({ id: "settings.hooks.event" })} htmlFor="hook-event">
               <Select value={event} onValueChange={(value) => setEvent(value as HookEvent)}>
-                <SelectTrigger id="hook-event" size="lg" className="w-full md:w-48">
+                <SelectTrigger
+                  id="hook-event"
+                  size="lg"
+                  className="pk-technical-value w-full md:w-48"
+                >
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   {HOOK_EVENTS.map((hookEvent) => (
-                    <SelectItem key={hookEvent} value={hookEvent}>
+                    <SelectItem key={hookEvent} value={hookEvent} className="pk-technical-value">
                       {hookEvent}
                     </SelectItem>
                   ))}

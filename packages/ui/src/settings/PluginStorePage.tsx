@@ -377,7 +377,7 @@ export function PluginStorePage({
 
   if (!workspacePath) {
     return (
-      <div className="rounded-lg border border-border bg-card px-3 py-2 text-ui-base text-foreground-subtle">
+      <div className="pk-catalog-empty rounded-lg border border-border bg-card px-3 py-2 text-ui-base text-foreground-subtle">
         {intl.formatMessage({ id: "settings.plugins.noWorkspace" })}
       </div>
     );
@@ -386,7 +386,12 @@ export function PluginStorePage({
   const detailUpdatePending = canUpdatePluginItem(detailItem);
 
   return (
-    <div ref={rootRef} className="space-y-5" data-testid="plugin-store-root" data-view={view}>
+    <div
+      ref={rootRef}
+      className="pk-catalog-page pk-plugin-page space-y-5"
+      data-testid="plugin-store-root"
+      data-view={view}
+    >
       <SettingsBreadcrumbReporter
         items={
           view === "detail" && detailItem
@@ -398,7 +403,7 @@ export function PluginStorePage({
       {view === "store" ? (
         <h1
           data-testid="plugin-store-title"
-          className="text-2xl font-semibold tracking-tight text-foreground lg:text-3xl"
+          className="pk-catalog-title text-2xl font-semibold tracking-tight text-foreground lg:text-3xl"
         >
           {intl.formatMessage({ id: "workspace.openPluginsSettings" })}
         </h1>

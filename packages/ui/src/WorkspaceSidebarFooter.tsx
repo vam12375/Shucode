@@ -199,7 +199,9 @@ export const WorkspaceSidebarFooter = memo(function WorkspaceSidebarFooterCompon
 
   return (
     // footer 被 Settings 复用，页面专属边距由调用方传入，避免修改共享默认样式。
-    <footer className={cn("flex shrink-0 flex-col gap-2.5 px-4 pt-2 pb-4", className)}>
+    <footer
+      className={cn("pk-sidebar-footer flex shrink-0 flex-col gap-2.5 px-4 pt-2 pb-4", className)}
+    >
       <div className="flex min-w-0 gap-2">
         <DropdownMenu open={profileMenuOpen} onOpenChange={setProfileMenuOpen}>
           <DropdownMenuTrigger asChild>
@@ -209,7 +211,7 @@ export const WorkspaceSidebarFooter = memo(function WorkspaceSidebarFooterCompon
               type="button"
               variant="ghost"
               size={"lg"}
-              className="min-w-0 flex-1 justify-start gap-2 overflow-hidden rounded-tl-2xl rounded-bl-2xl border-0 pl-0"
+              className="pk-profile-trigger min-w-0 flex-1 justify-start gap-2 overflow-hidden rounded-tl-2xl rounded-bl-2xl border-0 pl-0"
               data-testid={TID_LOGIN_TRIGGER}
               aria-label={profileBadge}
             >

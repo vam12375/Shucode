@@ -690,7 +690,7 @@ function CustomRepeatDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        className="max-h-[calc(100vh-2rem)] w-[400px] gap-0 overflow-y-auto border-border bg-card p-0 shadow-[0_20px_25px_-5px_rgba(0,0,0,0.1),0_8px_10px_-6px_rgba(0,0,0,0.1)]"
+        className="pk-custom-repeat max-h-[calc(100vh-2rem)] w-[400px] gap-0 overflow-y-auto border-border bg-card p-0 shadow-[0_20px_25px_-5px_rgba(0,0,0,0.1),0_8px_10px_-6px_rgba(0,0,0,0.1)]"
         aria-describedby={undefined}
         showCloseButton={false}
       >
@@ -1937,7 +1937,12 @@ export function AutomationEditView({
 
   return (
     <>
-      <div className={cn(SETTINGS_FRAME_CONTENT_CLASSNAME, "flex flex-col gap-6")}>
+      <div
+        className={cn(
+          SETTINGS_FRAME_CONTENT_CLASSNAME,
+          "pk-catalog-page pk-automation-edit flex flex-col gap-6",
+        )}
+      >
         <SettingsBreadcrumbReporter
           items={[
             {
@@ -1976,7 +1981,7 @@ export function AutomationEditView({
             onValueChange={handleTabChange}
           />
 
-          <div className="flex items-center gap-1.5">
+          <div className="pk-automation-actions flex items-center gap-1.5">
             {editing ? (
               <>
                 {showEditingSettingsActions ? (
@@ -2072,7 +2077,7 @@ export function AutomationEditView({
         {tab === "settings" ? (
           <form
             id="automation-edit-form"
-            className="space-y-4"
+            className="pk-catalog-form space-y-4"
             onSubmit={(e) => void handleSubmit(e)}
           >
             {editStatus ? (
@@ -2144,7 +2149,7 @@ export function AutomationEditView({
                 </label>
                 <div
                   data-testid={TID_AUTOMATION_SCHEDULE_PREVIEW}
-                  className="relative flex h-9 items-center overflow-hidden rounded-xl border border-input-border bg-input px-2 pr-9 text-ui-base leading-5 text-foreground-subtle transition-colors hover:border-input-border-hover focus-within:border-input-border-focused focus-within:bg-input-focused"
+                  className="pk-schedule-field relative flex h-9 items-center overflow-hidden rounded-xl border border-input-border bg-input px-2 pr-9 text-ui-base leading-5 text-foreground-subtle transition-colors hover:border-input-border-hover focus-within:border-input-border-focused focus-within:bg-input-focused"
                 >
                   <span className="min-w-0 truncate">
                     {intl.formatMessage({ id: "automations.frequency.custom" })}
@@ -2223,7 +2228,7 @@ export function AutomationEditView({
                     {/* 调度栏不用 min-height、换行布局和全行摘要——那些会在新增 tag 后被第二行撑高。
                         恢复全局 Input 的 1px 描边后，用 7px 左内边距抵消边框占位，保持首个 tag
                         距外边缘仍为 8px；tag 增加上下各 1px padding 后仍在 36px input 内垂直居中。 */}
-                    <div className="relative flex h-9 flex-nowrap items-center gap-1 overflow-hidden rounded-xl border border-input-border bg-input py-1 pl-[7px] pr-9 text-ui-base leading-5 text-foreground transition-colors hover:border-input-border-hover focus-within:border-input-border-focused focus-within:bg-input-focused">
+                    <div className="pk-schedule-field relative flex h-9 flex-nowrap items-center gap-1 overflow-hidden rounded-xl border border-input-border bg-input py-1 pl-[7px] pr-9 text-ui-base leading-5 text-foreground transition-colors hover:border-input-border-hover focus-within:border-input-border-focused focus-within:bg-input-focused">
                       <Select
                         value={builder.frequency}
                         onValueChange={(value) => {
@@ -2741,7 +2746,7 @@ export function AutomationEditView({
                 {intl.formatMessage({ id: "automations.runs.empty" })}
               </AutomationHistoryEmptyState>
             ) : (
-              <div className="overflow-x-auto rounded-[8px]">
+              <div className="pk-catalog-table overflow-x-auto rounded-[8px]">
                 {/* 运行历史使用可缩放字号，不能继续绑定固定 18px 行高。*/}
                 <table className="w-full text-left text-ui-base font-normal leading-normal tracking-[-0.08px]">
                   <thead className="bg-surface text-foreground-subtle">

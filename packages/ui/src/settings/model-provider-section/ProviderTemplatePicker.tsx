@@ -69,7 +69,10 @@ export function ProviderTemplatePicker({
     }
   };
   return (
-    <section className="space-y-5" data-testid={TID_MODEL_PROVIDER_TEMPLATE_PICKER}>
+    <section
+      className="pk-provider-template-picker space-y-5"
+      data-testid={TID_MODEL_PROVIDER_TEMPLATE_PICKER}
+    >
       <div className="flex items-center gap-3">
         <Button
           type="button"
@@ -153,7 +156,7 @@ function ProviderTemplateCard({
         data-testid={cardTestId}
         disabled={disabled}
         onClick={onClick}
-        className="flex min-h-16 min-w-0 items-center gap-3 rounded-lg border border-border bg-surface px-4 py-3 text-left transition-colors outline-none hover:border-border-hover hover:bg-hover focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/20 disabled:opacity-60"
+        className="pk-provider-template-card flex min-h-16 min-w-0 items-center gap-3 rounded-lg border border-border bg-surface px-4 py-3 text-left transition-colors outline-none hover:border-border-hover hover:bg-hover focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/20 disabled:opacity-60"
       >
         {icon}
         <span className="min-w-0 flex-1 break-words text-ui-base font-medium">{label}</span>

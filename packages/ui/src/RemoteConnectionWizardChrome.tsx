@@ -40,7 +40,7 @@ export function RemoteConnectionWizardSidebar({ currentStep }: { currentStep: Re
 
   return (
     <>
-      <nav className="md:hidden">
+      <nav className="pk-connection-mobile-steps md:hidden">
         <div className="flex min-w-0 gap-2 overflow-x-auto rounded-xl border border-border bg-surface p-2">
           {REMOTE_WIZARD_STEPS.map((step, index) => {
             const isCurrent = currentStep === step.key;
@@ -80,13 +80,13 @@ export function RemoteConnectionWizardSidebar({ currentStep }: { currentStep: Re
         </div>
       </nav>
 
-      <aside className="hidden w-56 shrink-0 flex-col gap-2 p-1 md:flex">
+      <aside className="pk-connection-sidebar hidden w-56 shrink-0 flex-col gap-2 p-1 md:flex">
         <div className="rounded-xl border border-border bg-surface flex flex-col gap-4 p-4 h-full">
           <h3 className="text-ui-base font-medium tracking-wide text-foreground-subtle uppercase">
             {intl.formatMessage({ id: "remote.wizard" })}
           </h3>
 
-          <div className="space-y-2">
+          <div className="pk-connection-header space-y-2">
             {REMOTE_WIZARD_STEPS.map((step, index) => {
               const isCurrent = currentStep === step.key;
               const isCompleted = index < currentIndex;
@@ -97,7 +97,7 @@ export function RemoteConnectionWizardSidebar({ currentStep }: { currentStep: Re
                   className={cn(
                     "flex items-center gap-3 rounded-xl border-0 px-3 py-3 transition-colors",
                     isCurrent
-                      ? "border-border-hover bg-card"
+                      ? "pk-active border-border-hover bg-card"
                       : isCompleted
                         ? "border-transparent bg-background-alt"
                         : "border-transparent bg-transparent",
@@ -149,7 +149,7 @@ export function RemoteConnectionWizardHeader({
   const { intl } = useShucodeIntl();
 
   return (
-    <div className="space-y-2">
+    <div className="pk-connection-header space-y-2">
       <div className="flex items-start justify-between gap-4">
         <DialogTitle className="text-lg font-medium">{title}</DialogTitle>
         <div className="flex shrink-0 items-center gap-1">

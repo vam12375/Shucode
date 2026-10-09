@@ -2,11 +2,19 @@
 /**
  * WelcomeScreen —— 统一登录入口
  *
- * 二开定制：手动入口只保留 API Key，不再展示 Z.ai / BigModel 账号登录按钮。
+ * 二开定制：不再展示 Z.ai / BigModel 账号登录按钮；桌面入口提前展示已有跳过操作。
  * OAuth 流程仍由设置页模型 Provider 连接、Coding Plan 续费恢复等 loginEntryRequest
  * 自动发起，继续复用本页的等待 / 失败状态与 useOAuth hook。
  */
-import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type CSSProperties,
+  type ReactNode,
+} from "react";
 import { LoaderIcon, TriangleAlertIcon } from "lucide-react";
 import {
   type OAuthProviderMeta,
@@ -25,17 +33,18 @@ import { useShucodeStore } from "./store/StoreProvider.js";
 
 interface WelcomeScreenProps {
   onComplete: (reason: LoginCompleteReason) => void | Promise<void>;
+  isDesktop?: boolean;
 }
 
 export type LoginCompleteReason = "oauth" | "apiKey" | "skip";
 
-export function WelcomeScreen({ onComplete }: WelcomeScreenProps) {
+export function WelcomeScreen({ onComplete, isDesktop = false }: WelcomeScreenProps) {
   return (
-    <main className="relative flex h-full min-h-dvh items-center justify-center overflow-hidden bg-background px-4 py-6 text-foreground sm:px-6">
-      <ThemeHeroVisual className="absolute inset-0" />
+    <main className="pk-welcome-page relative flex h-full min-h-dvh items-center justify-center overflow-hidden bg-background px-4 py-6 text-foreground sm:px-6">
+      <ThemeHeroVisual className="pk-welcome-backdrop absolute inset-0" />
       <div className="pointer-events-none absolute left-0 top-0 right-0 z-10 flex h-12 w-full items-center [app-region:drag]" />
-      <section className="relative z-10 w-full flex flex-col gap-10 max-w-sm rounded-2xl border border-popover-border bg-background p-8 text-ui-base/relaxed shadow-md sm:p-10">
-        <LoginPanel active onComplete={onComplete} />
+      <section className="pk-welcome-panel relative z-10 w-full flex flex-col gap-10 max-w-sm rounded-2xl border border-popover-border bg-background p-8 text-ui-base/relaxed shadow-md sm:p-10">
+        <LoginPanel active onComplete={onComplete} isDesktop={isDesktop} />
       </section>
     </main>
   );
@@ -44,6 +53,7 @@ export function WelcomeScreen({ onComplete }: WelcomeScreenProps) {
 interface LoginPanelProps {
   active: boolean;
   onComplete: (reason: LoginCompleteReason) => void | Promise<void>;
+  isDesktop: boolean;
 }
 
 interface ActiveLoginEntryAttempt {
@@ -65,7 +75,7 @@ function shouldCompleteLoginFromExistingUser(params: {
   return params.hasUser && !params.attempt;
 }
 
-function LoginPanel({ active, onComplete }: LoginPanelProps) {
+function LoginPanel({ active, onComplete, isDesktop }: LoginPanelProps) {
   const { intl } = useShucodeIntl();
   const { startLogin, cancel, reset, status, error, providers, pendingProvider, refreshProviders } =
     useOAuth();
@@ -265,6 +275,18 @@ function LoginPanel({ active, onComplete }: LoginPanelProps) {
     status,
   ]);
 
+  const apiKeyFormCallbacks = {
+    onCancel: () => setLoginMode("entry"),
+    onSaved: () => {
+      resetApiKeyForm();
+      return onComplete("apiKey");
+    },
+    onSkipped: () => {
+      resetApiKeyForm();
+      return onComplete("skip");
+    },
+  };
+
   return (
     <>
       <LoginPanelHeader
@@ -274,38 +296,33 @@ function LoginPanel({ active, onComplete }: LoginPanelProps) {
         {null}
       </LoginPanelHeader>
 
-      <div className="space-y-6">
+      <div className="pk-welcome-actions space-y-6">
         {/* Root 层写入 oauthError（轮询/回调失败）后 effect 会把 useOAuth reset 回 idle，
             若只判断 status==="idle" 会让失败块和登录入口按钮同屏、状态纠缠。
             失败期间统一由下方失败块接管（重新登录/取消），入口按钮等错误清掉后再回来。 */}
-        {status === "idle" && !oauthError && loginMode === "entry" && (
-          // 二开定制：账号登录按钮（Z.ai / BigModel）已下线，登录入口只剩 API key。
+        {status === "idle" && !oauthError && loginMode === "entry" && isDesktop && (
+          // 二开定制：账号登录按钮（Z.ai / BigModel）已下线，入口复用 API key/跳过流程。
           // 这里不能再用 provider 列表加载态遮住按钮，否则未登录用户会先看到空面板。
+          <LoginApiKeyForm
+            {...apiKeyFormCallbacks}
+            entryActions={{ onOpenApiKey: () => setLoginMode("apiKey") }}
+          />
+        )}
+
+        {status === "idle" && !oauthError && loginMode === "entry" && !isDesktop && (
           <Button
             variant="outline"
             className="h-10 w-full text-ui-base"
             size="lg"
             data-testid={TID_LOGIN_USE_API_KEY_BUTTON}
-            onClick={() => {
-              setLoginMode("apiKey");
-            }}
+            onClick={() => setLoginMode("apiKey")}
           >
             {intl.formatMessage({ id: "login.useApiKey" })}
           </Button>
         )}
 
         {status === "idle" && loginMode === "apiKey" ? (
-          <LoginApiKeyForm
-            onCancel={() => setLoginMode("entry")}
-            onSaved={() => {
-              resetApiKeyForm();
-              return onComplete("apiKey");
-            }}
-            onSkipped={() => {
-              resetApiKeyForm();
-              return onComplete("skip");
-            }}
-          />
+          <LoginApiKeyForm {...apiKeyFormCallbacks} />
         ) : null}
 
         {status === "waiting" && (
@@ -401,10 +418,25 @@ function LoginPanelHeader({
   children: ReactNode;
 }) {
   return (
-    <header className="flex flex-col items-center gap-3 text-center">
+    <header className="pk-welcome-header flex flex-col items-center gap-3 text-center">
       <LoginPanelLogo />
       <div className="flex flex-col items-center gap-1 text-center">
-        <h1 className="text-3xl font-semibold tracking-tight">{title}</h1>
+        <h1 className="text-ui-xl font-semibold tracking-tight" aria-label={title}>
+          <span className="pk-welcome-title-static" aria-hidden="true">
+            {title}
+          </span>
+          <span className="pk-welcome-title-pixel" aria-hidden="true">
+            {Array.from(title).map((letter, index) => (
+              <span
+                key={index}
+                className="pk-welcome-letter"
+                style={{ "--pk-letter-index": index } as CSSProperties}
+              >
+                {letter}
+              </span>
+            ))}
+          </span>
+        </h1>
         <p className="text-ui-base/relaxed text-foreground-subtle">{description}</p>
       </div>
       {children}
@@ -416,7 +448,7 @@ function LoginPanelLogo() {
   return (
     // 登录 logo 壳是固定深色底，边框不能跟随浅色主题 token，否则浅色主题下边框过重。
     <div
-      className="relative mb-1 flex size-16 items-center justify-center rounded-2xl bg-[linear-gradient(180deg,#000000_0%,#151718_100%)] text-[#ffffff] shadow-lg/20 before:pointer-events-none before:absolute before:inset-0 before:rounded-2xl before:border before:border-[rgba(255,255,255,0.1)]"
+      className="pk-welcome-logo relative mb-1 flex size-16 items-center justify-center rounded-2xl bg-[linear-gradient(180deg,#000000_0%,#151718_100%)] text-[#ffffff] shadow-lg/20 before:pointer-events-none before:absolute before:inset-0 before:rounded-2xl before:border before:border-[rgba(255,255,255,0.1)]"
       aria-label="Shucode"
       role="img"
     >

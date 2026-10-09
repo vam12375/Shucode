@@ -265,7 +265,10 @@ export function SavedWorkflowDetailView({
   return (
     <div
       data-testid={TID_WORKFLOW_DETAIL}
-      className={cn(SETTINGS_FRAME_CONTENT_CLASSNAME, "flex flex-col gap-6")}
+      className={cn(
+        SETTINGS_FRAME_CONTENT_CLASSNAME,
+        "pk-catalog-page pk-workflow-detail flex flex-col gap-6",
+      )}
     >
       <SettingsBreadcrumbReporter
         items={[{ label: projectLabel }, { label: name }]}
@@ -399,7 +402,7 @@ export function SavedWorkflowDetailView({
             </div>
             <div
               data-testid={TID_WORKFLOW_DETAIL_SCRIPT}
-              className="overflow-hidden rounded-lg border border-border bg-surface"
+              className="pk-workflow-script overflow-hidden rounded-lg border border-border bg-surface"
             >
               <div className="flex h-8 items-center justify-between border-b border-border px-3">
                 <span className="font-mono text-ui-sm text-foreground-subtle">

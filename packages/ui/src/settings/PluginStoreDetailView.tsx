@@ -122,10 +122,18 @@ export function PluginStoreDetailView({
   const componentsFailed = !item.info && describeEntry?.status === "error";
 
   return (
-    <div className="space-y-8" data-testid="plugin-store-detail" data-plugin-id={item.id}>
+    <div
+      className="pk-plugin-detail space-y-8"
+      data-testid="plugin-store-detail"
+      data-plugin-id={item.id}
+    >
       {/* 头部：大图标后，显示名与菜单/主按钮同排；简介和来源提示另起一行。 */}
-      <div className="space-y-3">
-        <PluginStoreAvatar item={item} className="size-16 rounded-2xl" iconClassName="size-6" />
+      <div className="pk-plugin-detail-heading space-y-3">
+        <PluginStoreAvatar
+          item={item}
+          className="pk-plugin-icon size-16 rounded-2xl"
+          iconClassName="size-6"
+        />
         <div
           className="flex min-w-0 items-center justify-between gap-3"
           data-testid="plugin-store-title-actions"
@@ -265,7 +273,7 @@ function HeroSection({
         data-testid="plugin-store-example-prompt"
         data-plugin-id={item.id}
         // 彩色 Hero 上统一使用参考图的深色半透明胶囊，不随底图有无切换为普通卡片。
-        className="group/prompt flex w-fit max-w-2xl items-center gap-2.5 rounded-3xl bg-black/75 px-3.5 py-2.5 text-left text-ui-base text-white shadow-lg backdrop-blur-md transition-colors hover:bg-black/85 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+        className="pk-plugin-example group/prompt flex w-fit max-w-2xl items-center gap-2.5 rounded-3xl bg-black/75 px-3.5 py-2.5 text-left text-ui-base text-white shadow-lg backdrop-blur-md transition-colors hover:bg-black/85 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
         onClick={() => onUsePrompt(item, prompt)}
       >
         <img
@@ -290,10 +298,10 @@ function HeroSection({
 
   return (
     <div
-      className="relative min-h-72 overflow-hidden rounded-3xl sm:aspect-[3/1] sm:min-h-0"
+      className="pk-plugin-hero relative min-h-72 overflow-hidden rounded-3xl sm:aspect-[3/1] sm:min-h-0"
       data-testid="plugin-store-hero"
     >
-      <ThemeHeroVisual className="pointer-events-none absolute inset-0" />
+      <ThemeHeroVisual className="pk-plugin-hero-backdrop pointer-events-none absolute inset-0" />
       {showHeroImage ? (
         <img
           src={heroImage}
@@ -322,7 +330,11 @@ function ComponentSection({ group }: { group: PluginComponentDisplayGroup }) {
   const { intl } = useShucodeIntl();
   const Icon = SECTION_ICONS[group.kind];
   return (
-    <section data-testid="plugin-store-component-section" data-component-kind={group.kind}>
+    <section
+      className="pk-plugin-components"
+      data-testid="plugin-store-component-section"
+      data-component-kind={group.kind}
+    >
       <div className="flex items-baseline gap-2 border-b border-border pb-2">
         <h2 className="text-ui-lg font-semibold text-foreground">
           {intl.formatMessage({ id: SECTION_TITLE_IDS[group.kind] })}
@@ -476,7 +488,7 @@ export function PluginStoreAdvancedSection({ children }: { children: ReactNode }
   const { intl } = useShucodeIntl();
   return (
     <details
-      className="group/advanced border-t border-border pt-4"
+      className="pk-plugin-advanced group/advanced border-t border-border pt-4"
       data-testid="plugin-store-advanced"
     >
       <summary className="flex cursor-pointer list-none items-center gap-2 text-ui-base font-medium text-foreground-subtle transition-colors hover:text-foreground">

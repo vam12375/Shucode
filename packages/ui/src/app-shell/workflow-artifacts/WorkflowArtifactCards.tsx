@@ -35,7 +35,7 @@ export function ArtifactMetadataCard({
   return (
     <div className="flex h-full min-h-0 items-start justify-center overflow-auto p-6">
       <div
-        className="flex w-full max-w-md flex-col gap-3 rounded-lg border border-card-border bg-card p-4"
+        className="pk-workflow-file-card flex w-full max-w-md flex-col gap-3 rounded-lg border border-card-border bg-card p-4"
         data-testid={testId}
       >
         <div className="min-w-0">

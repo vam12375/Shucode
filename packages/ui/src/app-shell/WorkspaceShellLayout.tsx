@@ -1521,7 +1521,7 @@ export const WorkspaceShellLayout = memo(function WorkspaceShellLayoutComponent(
         data-workspace-shell="true"
         style={workspaceShellSplitStyle}
         className={cn(
-          "relative flex h-full min-h-0 w-full overflow-hidden",
+          "pk-workspace-shell relative flex h-full min-h-0 w-full overflow-hidden",
           // 窗口原生 resize 时，外层 react-resizable-panels 会把每一帧
           // 都写进 layout store，连带侧栏 tooltip/menu 子树反复 commit。这里改成
           // CSS 变量驱动的专用 split，普通窗口 resize 只走浏览器布局，不触发 React 状态。
@@ -1669,7 +1669,7 @@ export const WorkspaceShellLayout = memo(function WorkspaceShellLayoutComponent(
                   <section
                     data-workspace-conversation-frame="true"
                     className={cn(
-                      "relative flex h-full min-h-0 flex-1 flex-col overflow-hidden bg-background",
+                      "pk-conversation-frame relative flex h-full min-h-0 flex-1 flex-col overflow-hidden bg-background",
                       isSidePaneVisible
                         ? "rounded-[var(--workspace-panel-radius)] border border-border"
                         : resolveWorkspaceShellWindowChromeClass({

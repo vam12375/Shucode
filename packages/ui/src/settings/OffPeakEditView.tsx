@@ -361,7 +361,10 @@ export function OffPeakEditView({
 
   return (
     <div
-      className={cn(SETTINGS_FRAME_CONTENT_CLASSNAME, "relative flex flex-col gap-6")}
+      className={cn(
+        SETTINGS_FRAME_CONTENT_CLASSNAME,
+        "pk-catalog-page pk-automation-edit relative flex flex-col gap-6",
+      )}
       data-testid={TID_OFFPEAK_EDIT_VIEW}
     >
       <SettingsBreadcrumbReporter
@@ -435,7 +438,7 @@ export function OffPeakEditView({
             createSubmitButton
           )
         ) : tab !== "history" && !readOnly ? (
-          <div className="flex items-center gap-1.5">
+          <div className="pk-automation-actions flex items-center gap-1.5">
             <button
               type="button"
               data-testid={TID_OFFPEAK_EDIT_SUBMIT}
@@ -486,7 +489,7 @@ export function OffPeakEditView({
           {...(onDeleteHistory ? { onDelete: onDeleteHistory } : {})}
         />
       ) : (
-        <div className="flex flex-col gap-4">
+        <div className="pk-catalog-form flex flex-col gap-4">
           {editing?.sessionId ? (
             // 会话内创建的任务绑定并运行在创建它的会话里；露出会话标题与跳转，并提示 Stop 即取消。
             <div className={AUTOMATION_FORM_FIELD_CLASSNAME}>

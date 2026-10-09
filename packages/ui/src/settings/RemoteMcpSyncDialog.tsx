@@ -134,7 +134,7 @@ function RemoteMcpSyncExistingFilterCheckbox({
   const { intl } = useShucodeIntl();
 
   return (
-    <label className="inline-flex h-6 cursor-pointer items-center gap-2 rounded-md px-1 text-ui-base text-foreground-subtle hover:text-foreground">
+    <label className="pk-settings-action-pixel inline-flex h-6 cursor-pointer items-center gap-2 rounded-md px-1 text-ui-base text-foreground-subtle hover:text-foreground">
       <input
         type="checkbox"
         className="size-4"
@@ -201,7 +201,7 @@ function RemoteMcpSyncBulkSelectionCheckbox({
 
   return (
     <label
-      className={`inline-flex h-6 items-center gap-2 rounded-md px-1 text-ui-base text-foreground-subtle ${
+      className={`pk-settings-action-pixel inline-flex h-6 items-center gap-2 rounded-md px-1 text-ui-base text-foreground-subtle ${
         disabled ? "opacity-50" : "cursor-pointer hover:text-foreground"
       }`}
     >

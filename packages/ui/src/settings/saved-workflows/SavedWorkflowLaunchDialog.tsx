@@ -154,7 +154,10 @@ export function SavedWorkflowLaunchDialog({
 
   return (
     <Dialog open={entry !== null} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[480px]" data-testid={TID_WORKFLOW_LAUNCH_DIALOG}>
+      <DialogContent
+        className="pk-catalog-dialog pk-workflow-launch sm:max-w-[480px]"
+        data-testid={TID_WORKFLOW_LAUNCH_DIALOG}
+      >
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Workflow className="size-4 shrink-0 text-foreground-subtle" aria-hidden="true" />
@@ -168,7 +171,7 @@ export function SavedWorkflowLaunchDialog({
           ) : null}
         </DialogHeader>
         <form
-          className="flex flex-col gap-4"
+          className="pk-catalog-form flex flex-col gap-4"
           onSubmit={(event) => {
             event.preventDefault();
             handleSubmit();

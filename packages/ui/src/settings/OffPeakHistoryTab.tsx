@@ -58,7 +58,7 @@ export function OffPeakHistoryTab({
   const endAt = isOffPeakTerminalStatus(task.status) ? (task.endedAt ?? Date.now()) : Date.now();
   const durationMin = Math.max(1, Math.round((endAt - task.startedAt) / 60_000));
   return (
-    <div className="overflow-x-auto rounded-[8px]">
+    <div className="pk-catalog-table overflow-x-auto rounded-[8px]">
       {/* History 表格字号可缩放，使用相对行高避免大字号内容被固定 18px 行盒裁切。*/}
       <table className="w-full text-left text-ui-base font-normal leading-snug tracking-[-0.08px]">
         <thead className="bg-surface text-foreground-subtle">

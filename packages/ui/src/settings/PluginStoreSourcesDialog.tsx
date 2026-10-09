@@ -58,7 +58,7 @@ export function PluginStoreSourcesDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        className="w-[min(480px,calc(100vw-2rem))] max-w-none"
+        className="pk-catalog-dialog w-[min(480px,calc(100vw-2rem))] max-w-none"
         data-testid="plugin-store-sources-dialog"
       >
         <DialogTitle className="text-ui-lg font-medium text-foreground">

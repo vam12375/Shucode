@@ -706,7 +706,7 @@ export function ComputerUseSection({
   }
 
   return (
-    <div className="space-y-4">
+    <div className="pk-settings-computer-use space-y-4">
       {/* 总开关：开/关 zcode-cua 插件（同步其 MCP + skill） */}
       <SettingsGroupCard>
         <SettingsRow

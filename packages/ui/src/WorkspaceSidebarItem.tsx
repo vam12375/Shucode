@@ -788,7 +788,7 @@ export const WorkspaceSidebarItem = memo(function WorkspaceSidebarItem({
   );
 
   return (
-    <li ref={itemRef} style={itemStyle} className="space-y-2">
+    <li ref={itemRef} style={itemStyle} className="pk-workspace-item space-y-2">
       <Collapsible
         className="flex flex-col gap-1"
         open={isExpanded && !isDisconnectedRemoteWorkspace}
@@ -803,7 +803,7 @@ export const WorkspaceSidebarItem = memo(function WorkspaceSidebarItem({
         >
           <div
             className={cn(
-              "group flex items-center gap-2 rounded-lg transition-[background-color,box-shadow]",
+              "pk-workspace-row group flex items-center gap-2 rounded-lg transition-[background-color,box-shadow]",
               isReconnectPending
                 ? "bg-brand/10 workspace-remote-connecting-breathe"
                 : isDisconnectedRemoteWorkspace

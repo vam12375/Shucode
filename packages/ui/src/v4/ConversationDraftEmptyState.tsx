@@ -170,14 +170,14 @@ export function ConversationDraftEmptyState({ className }: { className?: string 
   return (
     <div
       className={cn(
-        "relative mb-10 flex w-full max-w-2xl flex-col items-center justify-center gap-6 text-foreground sm:mb-8",
+        "pk-draft-empty-state relative mb-10 flex w-full max-w-2xl flex-col items-center justify-center gap-6 text-foreground sm:mb-8",
         className,
       )}
     >
       <div
         aria-hidden="true"
         className={cn(
-          "pointer-events-none absolute left-1/2 top-1/2 aspect-[5/4] w-[min(72vw,25rem)] -mt-10",
+          "pk-draft-watermark pointer-events-none absolute left-1/2 top-1/2 aspect-[5/4] w-[min(72vw,25rem)] -mt-10",
           "-translate-x-1/2 -translate-y-1/2 text-foreground-subtlest",
         )}
       >
@@ -192,14 +192,14 @@ export function ConversationDraftEmptyState({ className }: { className?: string 
           } as CSSProperties
         }
         className={cn(
-          "relative z-10 w-full px-4 text-center font-medium text-foreground",
+          "pk-draft-greeting relative z-10 w-full px-4 text-center font-medium text-foreground",
           "text-[length:var(--v4-draft-greeting-font-size)]/[1.2]",
         )}
       >
         <span
           ref={greetingMeasurementRef}
           aria-hidden="true"
-          className="pointer-events-none invisible absolute whitespace-nowrap text-3xl/[1.2]"
+          className="pk-draft-greeting-measurement pointer-events-none invisible absolute whitespace-nowrap text-3xl/[1.2]"
         >
           {greeting}
         </span>

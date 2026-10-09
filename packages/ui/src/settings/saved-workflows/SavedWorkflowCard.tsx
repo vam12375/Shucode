@@ -135,16 +135,16 @@ export const SavedWorkflowCard = memo(function SavedWorkflowCard({
           onOpen(entry);
         }
       }}
-      className="group relative flex h-full min-h-0 cursor-pointer gap-3 overflow-hidden rounded-xl border border-card-border bg-background p-3 text-left transition-colors hover:bg-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-input-border-focused"
+      className="pk-automation-card pk-workflow-card group relative flex h-full min-h-0 cursor-pointer gap-3 overflow-hidden rounded-xl border border-card-border bg-background p-3 text-left transition-colors hover:bg-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-input-border-focused"
     >
       <div className="flex h-full min-w-0 flex-1 flex-col gap-3">
-        <span className="block truncate pr-28 text-ui-base font-medium leading-5 text-foreground">
+        <span className="pk-automation-card-title block truncate pr-28 text-ui-base font-medium leading-5 text-foreground">
           {entry.name}
         </span>
-        <p className="text-wrap-phrase line-clamp-2 h-10 text-ui-base font-normal leading-5 text-foreground-subtle">
+        <p className="pk-automation-card-body text-wrap-phrase line-clamp-2 h-10 text-ui-base font-normal leading-5 text-foreground-subtle">
           {entry.description}
         </p>
-        <div className="mt-auto flex h-6 min-w-0 items-center gap-2 text-ui-base leading-5">
+        <div className="pk-automation-card-footer mt-auto flex h-6 min-w-0 items-center gap-2 text-ui-base leading-5">
           <div className="flex min-w-0 flex-1 items-center">
             <SavedWorkflowLastRunBadge run={lastRun} now={now} />
           </div>

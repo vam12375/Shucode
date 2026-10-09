@@ -190,7 +190,7 @@ function ActiveWorkspaceFileSearchEditor({
   return (
     // 排版对齐设置页统一规范：导语 + SettingsGroupCard 卡片，
     // 文字统一 text-ui-base；textarea 因内容是规则文本保留等宽字体。
-    <div className="space-y-3">
+    <div className="pk-settings-file-search space-y-3">
       <div className="text-ui-base font-medium text-foreground-subtle">
         {intl.formatMessage({ id: "settings.workspaceFileSearch.description" })}
       </div>

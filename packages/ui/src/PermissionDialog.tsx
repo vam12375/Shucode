@@ -691,11 +691,11 @@ export function PermissionDialog({
   const shouldUseSaveWorkflowBlock = blockKind === "saveWorkflow";
   return (
     <div className="w-full shrink-0 relative z-1">
-      <div className="w-full overflow-hidden rounded-2xl border border-border bg-popover shadow-xs">
+      <div className="pk-interaction-card w-full overflow-hidden rounded-2xl border border-border bg-popover shadow-xs">
         <div className="flex flex-col gap-3 p-3">
           <div className="space-y-4">
             <div className="flex flex-wrap items-center gap-2">
-              <p className="text-ui-base font-medium leading-tight text-foreground-subtle">
+              <p className="pk-panel-title text-ui-base font-medium leading-tight text-foreground-subtle">
                 {intl.formatMessage({ id: "chat.permission.title" })}
               </p>
               <InteractionRequestOriginBadge origin={request.origin} />
@@ -798,7 +798,7 @@ export function PermissionDialog({
                     onFocus={() => setSelectedIndex(index)}
                     onKeyDown={handleOptionKeyDown}
                     className={cn(
-                      "flex w-full items-center gap-3 rounded-xl px-3 py-2 text-left outline-none transition-colors focus-visible:bg-selected",
+                      "pk-interaction-option flex w-full items-center gap-3 rounded-xl px-3 py-2 text-left outline-none transition-colors focus-visible:bg-selected",
                       isSelected ? "bg-selected" : "hover:bg-hover",
                     )}
                   >

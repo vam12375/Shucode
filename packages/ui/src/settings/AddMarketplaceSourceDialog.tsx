@@ -77,7 +77,7 @@ export function AddMarketplaceSourceDialog({
       <DialogContent
         data-testid="plugin-store-add-source-dialog"
         className={cn(
-          "w-[min(420px,calc(100vw-2rem))] max-w-none transition-colors",
+          "pk-catalog-dialog w-[min(420px,calc(100vw-2rem))] max-w-none transition-colors",
           canPickPath && dragActive ? "border-border-hover bg-surface-hover" : "",
         )}
         onDragOver={

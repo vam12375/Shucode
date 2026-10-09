@@ -28,7 +28,7 @@ function WorkflowActorNotStarted() {
   const { intl } = useShucodeIntl();
   return (
     <div
-      className="flex h-full flex-col items-center justify-center px-6 text-center"
+      className="pk-panel-notice flex h-full flex-col items-center justify-center px-6 text-center"
       data-testid="workflow-actor-not-started"
     >
       <HourglassIcon className="size-8 text-foreground-subtlest" />

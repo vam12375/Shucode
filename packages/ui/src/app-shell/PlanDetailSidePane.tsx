@@ -59,7 +59,7 @@ const PlanDetailContent = memo(function PlanDetailContent({
   return (
     <div
       data-plan-detail-tool-call-id={tab.toolCallId}
-      className="h-full min-h-0 overflow-y-auto bg-background px-4 py-4"
+      className="pk-plan-document h-full min-h-0 overflow-y-auto bg-background px-4 py-4"
     >
       <MessageResponse
         className="mx-auto w-full max-w-4xl min-w-0 break-words text-foreground"

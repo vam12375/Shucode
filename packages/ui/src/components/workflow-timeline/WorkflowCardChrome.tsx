@@ -170,7 +170,7 @@ export function WorkflowCardHeader({
     });
   return (
     <div
-      className="flex min-w-0 items-center gap-2 text-ui-base"
+      className="pk-workflow-card-header flex min-w-0 items-center gap-2 text-ui-base"
       data-testid="workflow-card-header"
     >
       {WORKFLOW_CARD_ICON}

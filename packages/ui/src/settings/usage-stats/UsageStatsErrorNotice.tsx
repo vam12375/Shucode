@@ -18,7 +18,7 @@ export function UsageStatsErrorNotice({ error }: { error: string }) {
   return (
     // 参考 Plan Card teamUnavailable 的内联展示（InfoIcon + warning 文字），
     // 不加边框/背景容器，避免把业务状态提示渲染成独立错误条。
-    <div className="flex w-fit min-w-0 items-center gap-1.5 text-ui-base">
+    <div className="pk-usage-error flex w-fit min-w-0 items-center gap-1.5 text-ui-base">
       {usageErrorIsTeamPlanBusiness ? (
         <InfoIcon className="size-3 shrink-0 text-warning" aria-hidden="true" />
       ) : (

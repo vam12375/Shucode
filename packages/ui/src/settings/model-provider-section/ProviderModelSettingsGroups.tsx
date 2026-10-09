@@ -14,7 +14,7 @@ export function ModelSettingsGroup({
   children: ReactNode;
 }) {
   return (
-    <section className="space-y-4" data-model-settings-group={group}>
+    <section className="pk-model-editor-group space-y-4" data-model-settings-group={group}>
       {children}
     </section>
   );

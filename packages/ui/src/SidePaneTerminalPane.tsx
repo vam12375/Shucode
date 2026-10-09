@@ -34,7 +34,7 @@ export function SidePaneTerminalPane({
   }, []);
 
   return (
-    <section className="h-full min-h-0 overflow-hidden bg-background p-3">
+    <section className="pk-side-terminal h-full min-h-0 overflow-hidden bg-background p-3">
       <TerminalSession
         sessionId={sessionId}
         persistentKey={sessionId}

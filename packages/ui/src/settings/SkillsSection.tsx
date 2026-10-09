@@ -583,7 +583,7 @@ export function SkillsSection({
     return (
       <div
         key={skill.id}
-        className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 px-4 py-3 transition-colors hover:bg-hover"
+        className="pk-settings-resource-row grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 px-4 py-3 transition-colors hover:bg-hover"
       >
         {skill.scope === "plugin" && pluginIconItem ? (
           <PluginStoreAvatar item={pluginIconItem} className="size-9 bg-background" />
@@ -679,7 +679,7 @@ export function SkillsSection({
   ) : null;
 
   return (
-    <div className="space-y-4">
+    <div className="pk-settings-capability space-y-4">
       {/* 独立 Skills 分区的详情是弹窗，不属于页面级导航；只有插件容器需要上报详情层级。 */}
       {reportDetailBreadcrumb && detailSkill ? (
         <SettingsBreadcrumbReporter
@@ -874,7 +874,7 @@ export function SkillsSection({
           }
         }}
       >
-        <DialogContent className="max-h-[min(80vh,640px)] max-w-xl overflow-hidden p-0">
+        <DialogContent className="pk-settings-resource-dialog max-h-[min(80vh,640px)] max-w-xl overflow-hidden p-0">
           {detailSkill ? (
             <div className="flex min-h-0 flex-col">
               <DialogHeader className="border-b border-popover-border px-4 pt-4 pb-3">

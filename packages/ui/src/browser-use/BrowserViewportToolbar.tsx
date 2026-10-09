@@ -137,7 +137,7 @@ export function BrowserViewportToolbar({
 
   return (
     <div
-      className="flex h-8 shrink-0 items-center justify-center gap-1 overflow-x-auto border-y border-border bg-background px-2"
+      className="pk-browser-viewport-toolbar flex h-8 shrink-0 items-center justify-center gap-1 overflow-x-auto border-y border-border bg-background px-2"
       data-testid={TID_BROWSER_RESPONSIVE_TOOLBAR}
     >
       {/* TooltipContent 通过 Portal 挂到 body；不可见 tab 的触发器处于 display:none，

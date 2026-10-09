@@ -1233,7 +1233,7 @@ function ImportSelectionList({
             aria-checked={partiallyActiveSelected ? "mixed" : allActiveSelected}
             aria-label={toggleAllLabel}
             onClick={() => onSetResourceSelection(activeImportableResourceKeys, !allActiveSelected)}
-            className="flex min-w-0 items-center gap-2 rounded-md py-1 pr-2 text-left text-ui-base text-foreground-subtle transition-colors hover:text-foreground"
+            className="pk-settings-action-pixel flex min-w-0 items-center gap-2 rounded-md py-1 pr-2 text-left text-ui-base text-foreground-subtle transition-colors hover:text-foreground"
           >
             <span
               className={cn(
@@ -1332,7 +1332,7 @@ function ImportSelectionList({
                   onClick={() => onToggleExpanded(sourceKey)}
                   className="flex min-w-0 flex-1 flex-wrap items-baseline gap-x-2 gap-y-1 text-left"
                 >
-                  <span className="text-ui-base font-medium text-foreground">
+                  <span className="pk-settings-action-pixel text-ui-base font-medium text-foreground">
                     {formatAgentName(agent.agent, intl)}
                   </span>
                   <span className="min-w-0 break-all font-mono text-ui-xs text-foreground-subtle">
@@ -1427,7 +1427,9 @@ function ResourceSelectionRow({
         >
           {checked ? <CheckIcon className="size-3.5" /> : null}
         </span>
-        <span className="min-w-0 truncate text-ui-base text-foreground">{item.name}</span>
+        <span className="pk-settings-action-pixel min-w-0 truncate text-ui-base text-foreground">
+          {item.name}
+        </span>
         {"version" in item && item.version ? (
           <Badge
             variant="outline"

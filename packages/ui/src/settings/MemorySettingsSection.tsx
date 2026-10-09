@@ -152,7 +152,7 @@ export function MemorySettingsSection({
   }, [refreshCatalog]);
 
   return (
-    <div className="space-y-6">
+    <div className="pk-settings-memory space-y-6">
       <SettingsGroupCard>
         <SettingsRow
           label={intl.formatMessage({

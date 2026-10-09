@@ -309,7 +309,7 @@ export const WorkflowRunPhaseList = memo(function WorkflowRunPhaseList({
 
   return (
     <div
-      className="wf-motion flex min-h-0 flex-1 flex-col overflow-auto pb-3 pt-2.5"
+      className="pk-workflow-phase-list wf-motion flex min-h-0 flex-1 flex-col overflow-auto pb-3 pt-2.5"
       data-testid="workflow-run-phases"
       ref={rootRef}
     >

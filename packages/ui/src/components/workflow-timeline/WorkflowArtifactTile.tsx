@@ -102,7 +102,7 @@ export function WorkflowArtifactTile({
       {/* 预览框：底部渐隐由预览内容自己决定（文档缩略要「还有」的暗示，看板与图片不要）。 */}
       <div
         aria-hidden
-        className="wf-tile-frame wf-arrive relative aspect-[16/10] w-full overflow-hidden rounded-lg border border-border bg-panel"
+        className="pk-workflow-artifact-frame wf-tile-frame wf-arrive relative aspect-[16/10] w-full overflow-hidden rounded-lg border border-border bg-panel"
         data-testid="workflow-artifact-tile-frame"
         inert
         style={style}

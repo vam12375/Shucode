@@ -468,9 +468,9 @@ export function WorkspaceHeaderTitleSection({
       <h1
         data-testid={TID_WORKSPACE_TITLE}
         className={cn(
-          "flex min-w-12 max-w-100 shrink items-center gap-2 truncate font-semibold text-foreground @max-[560px]/workspace-header:max-w-[30vw] @max-[420px]/workspace-header:max-w-[22vw]",
+          "pk-workspace-title flex min-w-12 max-w-100 shrink items-center gap-2 truncate font-semibold text-foreground @max-[560px]/workspace-header:max-w-[30vw] @max-[420px]/workspace-header:max-w-[22vw]",
           simplifyForNarrowRemote && "max-md:max-w-[42vw]",
-          compact ? "text-[0.92rem]" : "text-ui-base",
+          "text-ui-base",
         )}
         title={activeTaskTitle}
       >

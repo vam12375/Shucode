@@ -751,7 +751,7 @@ export function InlineEditableProviderCard({
   const effectiveHeaderVisible = headerVisible && statusSection === undefined;
 
   return (
-    <div className="space-y-3">
+    <div className="pk-provider-card space-y-3">
       {effectiveHeaderVisible ? (
         <ProviderCardHeader
           providerName={headerProviderName}
@@ -808,7 +808,7 @@ export function InlineEditableProviderCard({
 
       {statusSection}
 
-      <div className="space-y-3">
+      <div className="pk-provider-form space-y-3">
         {isAccountProvider ? null : (
           <ProviderConnectionSection
             provider={provider}

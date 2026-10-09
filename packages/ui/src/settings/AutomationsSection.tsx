@@ -1384,7 +1384,7 @@ export function AutomationsSection({
   // 页标题即顶级切换：「自动化 / 工作流」两个标题词
   // 并排，30/34 沿用 h1 的页面标题层级；副标题随标签换。
   const pageHeader = (
-    <div className="flex flex-col gap-3">
+    <div className="pk-catalog-heading flex flex-col gap-3">
       <AutomationsPageTitle
         workflowTabEnabled={dynamicWorkflowEnabled}
         value={pageTab}
@@ -1420,13 +1420,19 @@ export function AutomationsSection({
   }
 
   return (
-    <div data-automations-content className={cn(SETTINGS_FRAME_CONTENT_CLASSNAME, "flex flex-col")}>
+    <div
+      data-automations-content
+      className={cn(
+        SETTINGS_FRAME_CONTENT_CLASSNAME,
+        "pk-catalog-page pk-automations-page flex flex-col",
+      )}
+    >
       {pageHeader}
 
       {/* Tab：Scheduled 常驻；Idle 仅在灰度命中或有闲时存量时出现，不再提供 All 混排视图。
          有任务时右上对齐创建（4866-1735）；空态创建入口在大卡内（4889-2013），不重复顶栏按钮。 */}
       {visibleTabs.length > 0 ? (
-        <div className="mt-8 flex items-center justify-between">
+        <div className="pk-automation-controls mt-8 flex items-center justify-between">
           {/* tab 曾与右侧操作组共用 12px 间距，未体现最新设计要求的 8px 紧凑节奏。*/}
           <div className="flex items-center gap-2" data-testid={TID_OFFPEAK_TAB}>
             {/* 未选中态不强制显示 surface 背景，以便与 hover、选中态形成层级。*/}
@@ -1435,9 +1441,9 @@ export function AutomationsSection({
                 key={key}
                 type="button"
                 className={cn(
-                  "rounded-full px-3 py-1 text-ui-base font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-input-border-focused",
+                  "pk-automation-segment rounded-full px-3 py-1 text-ui-base font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-input-border-focused",
                   tab === key
-                    ? "bg-selected text-foreground"
+                    ? "pk-automation-segment-active bg-selected text-foreground"
                     : "text-foreground-subtle hover:bg-hover hover:text-foreground",
                 )}
                 onClick={() => setTab(key)}
@@ -1487,7 +1493,7 @@ export function AutomationsSection({
          样式沿用顶栏 tab 的胶囊，但字号与内边距更小以体现层级。 */}
       {visibleTabs.length > 0 && hasVisibleTaskCards ? (
         <div
-          className="mt-3 flex flex-wrap items-center gap-1.5"
+          className="pk-automation-status-segments mt-3 flex flex-wrap items-center gap-1.5"
           data-testid={TID_AUTOMATIONS_STATUS_FILTER}
         >
           {AUTOMATION_STATUS_FILTERS.map((key) => (
@@ -1580,7 +1586,7 @@ export function AutomationsSection({
                     <div
                       data-testid={TID_AUTOMATIONS_LIST}
                       className={cn(
-                        "grid grid-cols-1 auto-rows-[132px] gap-x-4 gap-y-4 lg:grid-cols-2",
+                        "pk-automation-grid grid grid-cols-1 auto-rows-[132px] gap-x-4 gap-y-4 lg:grid-cols-2",
                         // 设计规范最多露出 8 张卡片；grid 自身负责滚动。阈值按筛选后的数量算，
                         // 否则筛出少量卡片时仍锁高度会留下大块空白。
                         visibleAutomations.length > 8 &&
@@ -1634,19 +1640,19 @@ export function AutomationsSection({
                             }}
                             className={cn(
                               // 任务卡与模板卡曾分别使用 surface/border，跨主题下描边深浅不一致。
-                              "group relative flex h-full min-h-0 cursor-pointer gap-3 overflow-hidden rounded-xl border border-card-border bg-background p-3 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-input-border-focused",
+                              "pk-automation-card group relative flex h-full min-h-0 cursor-pointer gap-3 overflow-hidden rounded-xl border border-card-border bg-background p-3 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-input-border-focused",
                               // 已完成任务保持静态弱化，不在 hover 时恢复透明度或改变背景。
                               status === "completed" ? "opacity-60" : "hover:bg-hover",
                             )}
                           >
                             <div className="flex h-full min-w-0 flex-1 flex-col gap-3">
-                              <span className="block truncate pr-12 text-ui-base font-medium leading-5 text-foreground">
+                              <span className="pk-automation-card-title block truncate pr-12 text-ui-base font-medium leading-5 text-foreground">
                                 {automation.title}
                               </span>
-                              <p className="text-wrap-phrase line-clamp-2 h-10 text-ui-base font-normal leading-5 text-foreground-subtle">
+                              <p className="pk-automation-card-body text-wrap-phrase line-clamp-2 h-10 text-ui-base font-normal leading-5 text-foreground-subtle">
                                 {automationPromptSummary(automation.prompt)}
                               </p>
-                              <div className="mt-auto flex h-6 min-w-0 items-center gap-2 text-ui-base leading-5">
+                              <div className="pk-automation-card-footer mt-auto flex h-6 min-w-0 items-center gap-2 text-ui-base leading-5">
                                 <div className="flex min-w-0 flex-1 items-center gap-2">
                                   {hasFailure ? (
                                     <>
@@ -1756,7 +1762,7 @@ export function AutomationsSection({
                 /* 空状态卡先于 Keep-awake，按钮组整体较卡片中心下移 8px。 */
                 <div
                   data-automations-empty-state
-                  className="flex h-[226px] w-full items-center justify-center rounded-2xl border border-card-border bg-background px-4"
+                  className="pk-catalog-empty flex h-[226px] w-full items-center justify-center rounded-2xl border border-card-border bg-background px-4"
                 >
                   <div className="flex translate-y-2 flex-col items-center gap-5">
                     <p className="text-ui-base font-medium leading-5 text-foreground-subtlest">
@@ -1859,7 +1865,7 @@ export function AutomationsSection({
                           });
                         }}
                         // Grid wrapper 虽已拉伸到行高，卡片本体仍需 h-full 才能继承同一行的最大高度；只设 min-height 时短文案卡会矮一截。
-                        className="flex h-full min-h-[114px] w-full flex-col gap-2 overflow-hidden rounded-xl border border-card-border bg-background p-3 text-left transition-colors hover:bg-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-input-border-focused"
+                        className="pk-automation-template flex h-full min-h-[114px] w-full flex-col gap-2 overflow-hidden rounded-xl border border-card-border bg-background p-3 text-left transition-colors hover:bg-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-input-border-focused"
                       >
                         <div className="flex items-center gap-0.5 text-foreground">
                           <OffPeakTemplateIcon
@@ -1931,7 +1937,7 @@ export function AutomationsSection({
                         key={template.id}
                         type="button"
                         onClick={() => handleUseTemplate(template)}
-                        className="group flex min-h-[114px] flex-col gap-2 overflow-hidden rounded-xl border border-card-border bg-background p-3 text-left transition-colors hover:bg-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-input-border-focused"
+                        className="pk-automation-template group flex min-h-[114px] flex-col gap-2 overflow-hidden rounded-xl border border-card-border bg-background p-3 text-left transition-colors hover:bg-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-input-border-focused"
                       >
                         <div className="flex min-w-0 items-center gap-1 text-foreground">
                           <span className="flex size-5 shrink-0 items-center justify-center">

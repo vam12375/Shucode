@@ -121,7 +121,7 @@ export function AnimatedTerminalPanel({
       >
         <div
           data-workspace-terminal-frame="true"
-          className={cn("h-full overflow-hidden bg-background", frameClassName)}
+          className={cn("pk-terminal-frame h-full overflow-hidden bg-background", frameClassName)}
         >
           {hasRenderedTerminal ? (
             <div aria-hidden={!isVisible} className="h-full">

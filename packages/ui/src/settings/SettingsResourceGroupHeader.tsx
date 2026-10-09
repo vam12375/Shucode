@@ -20,7 +20,7 @@ export function SettingsResourceGroupHeader({
   );
 
   return (
-    <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1 px-1">
+    <div className="pk-settings-group-header flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1 px-1">
       <div className="flex min-w-0 items-baseline gap-2">
         <span className="truncate text-ui-base font-medium text-foreground">{title}</span>
         <span className="shrink-0 text-ui-base text-foreground-subtlest">{itemCountLabel}</span>

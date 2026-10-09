@@ -8,10 +8,10 @@ export function OnboardingWelcomeAsciiVisual() {
 
   return (
     <ThemeHeroVisual
-      className="h-full min-h-0 rounded-xl"
+      className="pk-onboarding-welcome-art h-full min-h-0 rounded-xl"
       contentClassName="flex h-full items-center justify-center"
     >
-      <div className="space-y-4 text-center">
+      <div className="pk-onboarding-hero-content space-y-4 text-center">
         <div className="space-y-2">
           <p
             className={cn(

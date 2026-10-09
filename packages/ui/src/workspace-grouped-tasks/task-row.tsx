@@ -165,7 +165,7 @@ function GroupedTaskRowComponent({
       tabIndex={dragOverlay ? undefined : 0}
       data-mobile-active-task={!dragOverlay && isMobileActive ? "true" : undefined}
       className={cn(
-        "group/task-row",
+        "pk-task-row group/task-row",
         TASK_GROUP_ROW_CLASS,
         dragOverlay
           ? "pointer-events-none cursor-grabbing border border-border bg-background shadow-lg opacity-100"
@@ -371,7 +371,7 @@ function GroupedTaskRowComponent({
       data-grouped-task-key={groupedTaskDomKey}
       data-mobile-active-task={isMobileActive ? "true" : undefined}
       className={cn(
-        "group/task-row",
+        "pk-task-row group/task-row",
         TASK_GROUP_ROW_CLASS,
         "cursor-pointer",
         isActive ? "bg-selected" : "hover:bg-surface-hover",

@@ -90,7 +90,7 @@ export function MemorySettingsViewer({
   }
 
   return (
-    <section className="space-y-4">
+    <section className="pk-memory-viewer space-y-4">
       <div className="flex min-w-0 flex-wrap items-center justify-between gap-3">
         <div className="flex min-w-0 items-center gap-3">
           <PluginScopeMenu
@@ -150,7 +150,7 @@ export function MemorySettingsViewer({
               })}
             />
           </div>
-          <div className="overflow-hidden rounded-xl bg-surface">
+          <div className="pk-settings-resource-list overflow-hidden rounded-xl bg-surface">
             {visibleFiles.map((file, index) => (
               <Fragment key={file.name}>
                 {index > 0 ? <div className="h-px bg-border/50" aria-hidden="true" /> : null}

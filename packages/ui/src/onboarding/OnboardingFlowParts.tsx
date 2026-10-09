@@ -332,7 +332,7 @@ export function OnboardingFinishStep(props: {
         <div className="flex size-14 items-center justify-center rounded-full bg-success text-success-foreground">
           <CheckIcon className="size-7" />
         </div>
-        <div className="text-2xl font-medium text-foreground">
+        <div className="pk-onboarding-wizard-title text-2xl font-medium text-foreground">
           {intl.formatMessage({ id: "onboarding.finish.done" })}
         </div>
         <div className="text-ui-base text-foreground-subtle">

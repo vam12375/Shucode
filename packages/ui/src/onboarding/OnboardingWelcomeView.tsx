@@ -8,7 +8,7 @@ export function OnboardingWelcomeView(props: { onStart: () => void; onOpenMigrat
   const { intl } = useShucodeIntl();
 
   return (
-    <div className="flex h-full min-h-0">
+    <div className="pk-onboarding-welcome flex h-full min-h-0">
       <div className="flex w-1/2 flex-col px-8 py-8">
         <div className="space-y-6">
           <div className="inline-flex items-center rounded-full border border-border bg-background-alt px-3 py-1 text-ui-base text-foreground-subtle">
@@ -18,13 +18,13 @@ export function OnboardingWelcomeView(props: { onStart: () => void; onOpenMigrat
           <div className="space-y-2">
             {/* 欢迎 logo 壳是固定深色底，边框不能跟随浅色主题 token，否则浅色主题下边框过重。*/}
             <div
-              className="relative flex size-14 items-center justify-center rounded-xl bg-[linear-gradient(180deg,#000000_0%,#151718_100%)] text-[#ffffff] shadow-lg/20 before:pointer-events-none before:absolute before:inset-0 before:rounded-xl before:border before:border-[rgba(255,255,255,0.1)]"
+              className="pk-welcome-logo relative flex size-14 items-center justify-center rounded-xl bg-[linear-gradient(180deg,#000000_0%,#151718_100%)] text-[#ffffff] shadow-lg/20 before:pointer-events-none before:absolute before:inset-0 before:rounded-xl before:border before:border-[rgba(255,255,255,0.1)]"
               aria-label="Shucode"
               role="img"
             >
               <ShucodeAboutLogo className="h-auto w-8" />
             </div>
-            <div className="text-4xl font-bold tracking-tight text-foreground">
+            <div className="pk-onboarding-welcome-title text-4xl font-bold tracking-tight text-foreground">
               {intl.formatMessage({ id: "onboarding.welcome.title" })}
             </div>
           </div>

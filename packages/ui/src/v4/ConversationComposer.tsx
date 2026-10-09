@@ -1747,8 +1747,8 @@ function ConversationComposerImpl({
                   data-upload-status={attachment.uploadStatus}
                   className={
                     isMediaAttachment
-                      ? "relative size-12 overflow-hidden rounded-lg bg-surface after:pointer-events-none after:absolute after:inset-0 after:rounded-lg after:border after:border-border after:content-['']"
-                      : "h-12 w-fit max-w-full min-w-0 gap-2 rounded-lg border border-border bg-surface p-1.5 pr-6 [--attachment-bg:var(--color-surface)] hover:bg-surface-hover"
+                      ? "pk-composer-attachment relative size-12 overflow-hidden rounded-lg bg-surface after:pointer-events-none after:absolute after:inset-0 after:rounded-lg after:border after:border-border after:content-['']"
+                      : "pk-composer-attachment h-12 w-fit max-w-full min-w-0 gap-2 rounded-lg border border-border bg-surface p-1.5 pr-6 [--attachment-bg:var(--color-surface)] hover:bg-surface-hover"
                   }
                   data={{
                     id: attachment.id,
@@ -1836,7 +1836,7 @@ function ConversationComposerImpl({
                         data-testid={testId(TID_V4_ATTACHMENT_UPLOAD_PROGRESS, attachment.id)}
                         role={attachment.uploadStatus === "failed" ? "alert" : "status"}
                         aria-label={uploadStatusLabel}
-                        className="absolute inset-0 grid place-items-center rounded-lg bg-background/85 text-[7px] font-semibold text-foreground"
+                        className="absolute inset-0 grid place-items-center rounded-lg bg-background/85 text-ui-xs font-semibold text-foreground"
                       >
                         <svg
                           aria-hidden="true"
@@ -2193,7 +2193,7 @@ function ConversationComposerImpl({
       aria-hidden={isBlockedByInteraction ? true : undefined}
       style={isBlockedByInteraction ? { display: "none" } : undefined}
       className={cn(
-        "chat-composer-region z-20 w-full shrink-0 @container/composer",
+        "pk-composer-region chat-composer-region z-20 w-full shrink-0 @container/composer",
         centered && "max-w-2xl",
       )}
     >
@@ -2219,13 +2219,15 @@ function ConversationComposerImpl({
       ) : null}
       <div
         className={cn(
-          "chat-composer-input-surface w-full",
+          "pk-composer-surface chat-composer-input-surface w-full",
           contextHeader && "rounded-2xl bg-surface shadow-xl/5",
         )}
       >
         {contextHeader ? (
           // 旧 ChatViewComposer contextHeaderContent 同款包装（workspace 菜单 + Git 分支）。
-          <div className="p-1.5 flex min-w-0 flex-wrap items-center gap-0">{contextHeader}</div>
+          <div className="pk-composer-context p-1.5 flex min-w-0 flex-wrap items-center gap-0">
+            {contextHeader}
+          </div>
         ) : null}
         {conversationSelectionLimitReason ? (
           <div
@@ -2333,7 +2335,7 @@ function ConversationComposerImpl({
             </Button>
           </DialogClose>
           <DialogHeader className="gap-3 pr-8">
-            <DialogTitle className="text-xl font-semibold sm:text-2xl">
+            <DialogTitle className="text-ui-xl font-semibold">
               {intl.formatMessage({ id: "chat.queue.sendConfirm.title" })}
             </DialogTitle>
             <DialogDescription className="text-ui-base sm:text-ui-lg">

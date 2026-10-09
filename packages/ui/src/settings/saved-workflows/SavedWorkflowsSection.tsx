@@ -253,7 +253,13 @@ export function SavedWorkflowsSection({
   );
 
   return (
-    <div data-automations-content className={cn(SETTINGS_FRAME_CONTENT_CLASSNAME, "flex flex-col")}>
+    <div
+      data-automations-content
+      className={cn(
+        SETTINGS_FRAME_CONTENT_CLASSNAME,
+        "pk-catalog-page pk-workflow-hub flex flex-col",
+      )}
+    >
       {header}
 
       <div className="mt-8 flex items-center justify-between">

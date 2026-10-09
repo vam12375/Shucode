@@ -17,8 +17,8 @@ const toolLayoutOpenState = new Map<string, boolean>();
 // 内存诊断计数器：该表按 toolId 只增不减，先落日志。
 uiMemoryDiagnosticsRegistry.register("toolLayout", () => ({ openState: toolLayoutOpenState.size }));
 const TOOL_CONTENT_COLLAPSE_UNMOUNT_DELAY_MS = 300;
-const TOOL_CONTENT_SHELL_CLASSNAME = "text-popover-foreground outline-none";
-const TOOL_CONTENT_SPACING_CLASSNAME = "pt-2";
+const TOOL_CONTENT_SHELL_CLASSNAME = "pk-tool-content text-popover-foreground outline-none";
+const TOOL_CONTENT_SPACING_CLASSNAME = "pk-tool-content-body pt-2";
 
 interface ToolLayoutProps {
   toolId: string;
@@ -314,7 +314,7 @@ function ToolLayoutComponent({
         }
         setIsOpen(open);
       }}
-      className="w-full flex flex-col"
+      className="pk-tool-card w-full flex flex-col"
     >
       <ToolSummaryRow
         action={summaryAction}

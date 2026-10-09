@@ -39,7 +39,7 @@ export function AppUsagePanel() {
 
   if (loading && !snapshot) {
     return (
-      <div className="space-y-5">
+      <div className="pk-usage-panel space-y-5">
         <AppUsageLifetimeSummaryStrip snapshot={lifetimeSnapshot} />
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="text-ui-base font-medium text-foreground">
@@ -60,7 +60,7 @@ export function AppUsagePanel() {
 
   if (!snapshot) {
     return (
-      <div className="space-y-5">
+      <div className="pk-usage-panel space-y-5">
         <AppUsageLifetimeSummaryStrip snapshot={lifetimeSnapshot} />
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="text-ui-base font-medium text-foreground">
@@ -80,7 +80,7 @@ export function AppUsagePanel() {
   }
 
   return (
-    <div className="space-y-5">
+    <div className="pk-usage-panel space-y-5">
       <AppUsageLifetimeSummaryStrip snapshot={lifetimeSnapshot} />
       {lifetimeSnapshot?.heatmap.weeks.length ? (
         <UsageHeatmap locale={locale} intl={intl} weeks={lifetimeSnapshot.heatmap.weeks} />
@@ -158,13 +158,13 @@ function AppUsageLifetimeSummaryStrip({ snapshot }: { snapshot: AppUsageSnapshot
   ];
 
   return (
-    <section className="flex flex-col overflow-hidden rounded-xl bg-surface sm:flex-row sm:items-center">
+    <section className="pk-usage-summary flex flex-col overflow-hidden rounded-xl bg-surface sm:flex-row sm:items-center">
       {items.map((item, index) => (
         <Fragment key={item.label}>
           {index > 0 ? (
             <div aria-hidden="true" className="hidden h-7 w-px bg-border sm:block" />
           ) : null}
-          <div className="min-w-0 flex-1 px-4 py-3 text-center">
+          <div className="pk-usage-stat min-w-0 flex-1 px-4 py-3 text-center">
             <div className="truncate text-ui-lg font-medium text-foreground">{item.value}</div>
             <div className="mt-1 truncate text-ui-base text-foreground-subtle">{item.label}</div>
           </div>

@@ -39,7 +39,7 @@ export function ModelProviderSectionLayout({
   const refreshButtonLoading = customLoading;
 
   return (
-    <div className="space-y-4">
+    <div className="pk-model-settings space-y-4">
       <div className="flex items-start justify-between gap-3">
         <p className="text-ui-base leading-6 text-foreground-subtle">{description}</p>
         <SettingsResourceHeaderActions
@@ -52,13 +52,13 @@ export function ModelProviderSectionLayout({
         />
       </div>
 
-      <div className="overflow-clip rounded-xl border border-border bg-card">
+      <div className="pk-provider-panel overflow-clip rounded-xl border border-border bg-card">
         <div
-          className="grid min-h-[36rem] grid-cols-[56px_minmax(0,1fr)] gap-0 md:grid-cols-[224px_minmax(0,1fr)]"
+          className="pk-provider-split grid min-h-[36rem] grid-cols-[56px_minmax(0,1fr)] gap-0 md:grid-cols-[224px_minmax(0,1fr)]"
           data-model-provider-split-panel="true"
         >
           <div
-            className="min-w-0 border-r border-border"
+            className="pk-provider-navigation min-w-0 border-r border-border"
             data-model-provider-navigation-scroll="true"
           >
             <ModelProviderSectionNavigation
@@ -71,7 +71,7 @@ export function ModelProviderSectionLayout({
             />
           </div>
           <div
-            className="relative min-w-0 p-4 pb-20 sm:p-6 sm:pb-24"
+            className="pk-provider-detail relative min-w-0 p-4 pb-20 sm:p-6 sm:pb-24"
             data-model-provider-detail-scroll="true"
           >
             <ProviderDetailFeedbackBoundary key={selectedNodeKey ?? "unselected-provider"}>

@@ -183,7 +183,7 @@ export function PluginStoreListView({
           </div>
           {/* 横向滚动也会裁切纵向溢出；预留角标、缩放和焦点环空间。
               窄屏不补偿负外边距，避免滚动容器越过页面右边界。 */}
-          <div className="mt-1 flex items-center gap-3 overflow-x-auto px-2 pt-2 pb-1 sm:-mx-2">
+          <div className="pk-plugin-installed-items mt-1 flex items-center gap-3 overflow-x-auto px-2 pt-2 pb-1 sm:-mx-2">
             {installedItems.map((item) => {
               const displayName = resolveItemDisplayName(item, locale);
               const updating = actions.operationId === `plugin:update:${item.id}`;
@@ -199,7 +199,7 @@ export function PluginStoreListView({
                       onClick={() => actions.onOpenDetail(item.id)}
                     >
                       {/* Installed Strip 只表达已安装集合，启用态统一在管理视图展示，避免用透明度误伤品牌图标。 */}
-                      <PluginStoreAvatar item={item} className="size-10" />
+                      <PluginStoreAvatar item={item} className="pk-plugin-icon size-10" />
                     </button>
                     {canUpdatePluginItem(item) ? (
                       <button
@@ -230,7 +230,7 @@ export function PluginStoreListView({
       ) : null}
 
       {/* 公开 / 个人分段。 */}
-      <div className="flex items-center gap-1.5">
+      <div className="pk-catalog-segments flex items-center gap-1.5">
         <SegmentPill
           active={segment === "public"}
           testId="plugin-store-segment-public"
@@ -306,7 +306,7 @@ export function SegmentPill({
       data-testid={testId}
       aria-pressed={active}
       className={cn(
-        "rounded-full px-3 py-1 text-ui-base font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-input-border-focused",
+        "pk-catalog-segment rounded-full px-3 py-1 text-ui-base font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-input-border-focused",
         active
           ? "bg-selected text-foreground"
           : "text-foreground-subtle hover:bg-hover hover:text-foreground",
@@ -328,7 +328,7 @@ function StoreSection({
   className?: string;
 }) {
   return (
-    <section className={className}>
+    <section className={cn("pk-plugin-section", className)}>
       <div className="pb-2">
         <h2 className="text-ui-lg font-semibold text-foreground">{title}</h2>
       </div>
@@ -348,7 +348,7 @@ function CardGrid({
   locale: string;
 }) {
   return (
-    <div className="grid gap-x-6 gap-y-1 sm:grid-cols-2">
+    <div className="pk-plugin-grid grid gap-x-6 gap-y-1 sm:grid-cols-2">
       {items.map((item) => (
         <PluginStoreCard key={item.id} item={item} actions={actions} locale={locale} />
       ))}

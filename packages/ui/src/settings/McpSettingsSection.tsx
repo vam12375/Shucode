@@ -481,7 +481,7 @@ function PluginMcpServerList({
         const statusDescription = resolveStatusDescription(item);
         return (
           <div
-            className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 px-4 py-3 transition-colors hover:bg-hover"
+            className="pk-settings-resource-row grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 px-4 py-3 transition-colors hover:bg-hover"
             data-mcp-status={item.status ?? ""}
             data-mcp-tool-count={item.toolCount}
             data-testid={testId(TID_PLUGIN_MCP_SERVER_ROW, item.runtimeServerName)}
@@ -1363,7 +1363,7 @@ export function McpSettingsSection({
             showMarketplaceBreadcrumb && onOpenPluginStore ? onOpenPluginStore : closeFormView
           }
         />
-        <div className="space-y-4">
+        <div className="pk-settings-capability space-y-4">
           <div className="flex flex-wrap items-end justify-between gap-3">
             <div className="min-w-0 space-y-1">
               <h3 className="text-ui-xl font-semibold text-foreground">
@@ -1420,7 +1420,7 @@ export function McpSettingsSection({
   }
 
   return (
-    <div className="space-y-4">
+    <div className="pk-settings-capability space-y-4">
       {connectedRemoteSyncTarget ? (
         <div className="flex justify-end">
           <ControlHintTooltip title={intl.formatMessage({ id: "settings.mcp.remoteSync.open" })}>

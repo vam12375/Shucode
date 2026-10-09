@@ -158,7 +158,7 @@ export function OffPeakTaskList({
 
   if (sorted.length === 0) {
     return (
-      <div className="rounded-[10px] border border-card-border px-3 py-3 text-ui-base text-foreground-subtle">
+      <div className="pk-catalog-empty rounded-[10px] border border-card-border px-3 py-3 text-ui-base text-foreground-subtle">
         {intl.formatMessage({ id: "offPeak.list.empty" })}
       </div>
     );
@@ -167,7 +167,7 @@ export function OffPeakTaskList({
   return (
     <div
       className={cn(
-        "grid auto-rows-[132px] grid-cols-1 gap-x-4 gap-y-4 lg:grid-cols-2",
+        "pk-automation-grid grid auto-rows-[132px] grid-cols-1 gap-x-4 gap-y-4 lg:grid-cols-2",
         // 与定时任务列表同一口径：最多露出 8 张卡片，超出由 grid 自身滚动，避免页面无限拉长。
         sorted.length > OFFPEAK_LIST_SCROLL_THRESHOLD &&
           "max-h-[1198px] overflow-y-auto overscroll-contain lg:max-h-[606px]",
@@ -203,20 +203,20 @@ export function OffPeakTaskList({
             }}
             className={cn(
               // inset surface shadow 不是 Card 描边语义，明暗主题下会与首页卡片产生色差。
-              "group relative flex h-full min-h-0 cursor-pointer gap-3 overflow-hidden rounded-[10px] border border-card-border p-3 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-input-border-focused",
+              "pk-automation-card pk-idle-card group relative flex h-full min-h-0 cursor-pointer gap-3 overflow-hidden rounded-[10px] border border-card-border p-3 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-input-border-focused",
               // 完成态保持整体置灰，但仍需用 hover 背景反馈卡片可点击、更多菜单可操作。
               task.status === "completed" ? "opacity-60 hover:bg-hover" : "hover:bg-hover",
             )}
           >
             <div className="flex h-full min-w-0 flex-1 flex-col gap-3">
-              <span className="block truncate pr-14 text-ui-base font-medium leading-5 text-foreground">
+              <span className="pk-automation-card-title block truncate pr-14 text-ui-base font-medium leading-5 text-foreground">
                 {task.title || task.prompt}
               </span>
               {/* 任务卡正文与状态字号可缩放，固定 18px 行高会在大字号下挤压或裁切文字。*/}
-              <p className="line-clamp-2 h-9 text-ui-base font-normal leading-snug text-foreground-subtle">
+              <p className="pk-automation-card-body line-clamp-2 h-9 text-ui-base font-normal leading-snug text-foreground-subtle">
                 {task.prompt}
               </p>
-              <div className="mt-auto flex h-6 min-w-0 items-center gap-[10px] text-ui-base leading-snug">
+              <div className="pk-automation-card-footer mt-auto flex h-6 min-w-0 items-center gap-[10px] text-ui-base leading-snug">
                 {/* 状态徽章与右侧「运行会话：…」都允许收缩，长会话标题会把状态文字压到只剩一个字。
                    状态是脚注的主信息，改为 shrink-0 不可压缩，只让会话标题那一段 truncate。 */}
                 <div

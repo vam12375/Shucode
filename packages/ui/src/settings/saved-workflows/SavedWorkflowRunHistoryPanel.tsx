@@ -52,8 +52,8 @@ export function SavedWorkflowRunHistory({
     );
   }
   return (
-    <div className="flex flex-col gap-4">
-      <div className="overflow-hidden rounded-lg border border-border">
+    <div className="pk-workflow-history flex flex-col gap-4">
+      <div className="pk-catalog-table overflow-hidden rounded-lg border border-border">
         {runs.map((run, index) => {
           const kind = savedWorkflowRunBadgeKind(run.status);
           const project = resolveRunProject ? resolveRunProject(run) : null;
@@ -108,7 +108,7 @@ export function SavedWorkflowRunHistory({
               key={run.runId}
               data-testid={testId(TID_WORKFLOW_RUN_ROW, run.runId)}
               className={cn(
-                "grid grid-cols-[112px_minmax(0,1fr)_auto] items-center gap-4 px-3 py-2.5",
+                "pk-workflow-history-row grid grid-cols-[112px_minmax(0,1fr)_auto] items-center gap-4 px-3 py-2.5",
                 index > 0 && "border-t border-border",
               )}
             >

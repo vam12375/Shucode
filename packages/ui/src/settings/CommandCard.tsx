@@ -32,7 +32,7 @@ export function CommandCard({
 
   return (
     <div
-      className={`grid cursor-default grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 px-4 py-3 transition-colors ${editable ? "hover:bg-hover" : ""}`}
+      className={`pk-settings-resource-row grid cursor-default grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 px-4 py-3 transition-colors ${editable ? "hover:bg-hover" : ""}`}
       {...settingsResourceRowInteraction(editable ? () => onEdit?.(command) : undefined)}
     >
       {isPluginCommand(command) && pluginIconItem ? (

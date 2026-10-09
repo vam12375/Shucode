@@ -138,7 +138,7 @@ export function HooksList({
               actions={installedEmptyActions}
             />
           ) : (
-            <div className="overflow-hidden rounded-xl bg-surface">
+            <div className="pk-settings-resource-list overflow-hidden rounded-xl bg-surface">
               {section.kind === "plugin"
                 ? section.hooks.map((hook, index) => (
                     <div key={`${hook.pluginId}-${hook.detail.sourcePath}-${index}`}>
@@ -193,7 +193,7 @@ function HookItemFrame({
 }) {
   return (
     <div
-      className={`grid cursor-default grid-cols-[auto_minmax(0,1fr)] items-center gap-3 px-4 py-3 sm:grid-cols-[auto_minmax(0,1fr)_auto] ${onEdit ? "transition-colors hover:bg-hover" : ""}`}
+      className={`pk-settings-resource-row grid cursor-default grid-cols-[auto_minmax(0,1fr)] items-center gap-3 px-4 py-3 sm:grid-cols-[auto_minmax(0,1fr)_auto] ${onEdit ? "transition-colors hover:bg-hover" : ""}`}
       data-testid={testId}
       {...settingsResourceRowInteraction(onEdit)}
     >

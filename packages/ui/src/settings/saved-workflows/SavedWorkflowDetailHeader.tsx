@@ -50,9 +50,9 @@ export function SavedWorkflowDetailHeader({
 }: SavedWorkflowDetailHeaderProps) {
   const { intl } = useShucodeIntl();
   return (
-    <div className="flex items-start justify-between gap-4">
+    <div className="pk-workflow-detail-heading flex items-start justify-between gap-4">
       <div className="flex min-w-0 flex-col gap-1.5">
-        <h1 className="text-ui-xl font-semibold text-foreground">{name}</h1>
+        <h1 className="pk-catalog-title text-ui-xl font-semibold text-foreground">{name}</h1>
         {description ? <p className="text-ui-base text-foreground-subtle">{description}</p> : null}
       </div>
       <div className="flex shrink-0 items-center gap-2">

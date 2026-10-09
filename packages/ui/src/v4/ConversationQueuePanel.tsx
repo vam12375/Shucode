@@ -174,7 +174,7 @@ const QueueRow = memo(function QueueRow({
       data-dispatch-state={item.dispatch.state}
       data-edit-pending={editPending ? "true" : "false"}
       className={cn(
-        "relative flex items-center gap-2 rounded-xl px-1.5 py-1 pr-1 transition-colors hover:bg-hover/30",
+        "pk-queue-item relative flex items-center gap-2 rounded-xl px-1.5 py-1 pr-1 transition-colors hover:bg-hover/30",
         isDragging ? "bg-hover/40 shadow-sm" : null,
         editPending ? "opacity-60" : null,
       )}
@@ -326,7 +326,7 @@ function ConversationQueuePanelImpl({
       data-queue-count={queue.items.length}
       data-queue-auto-drain={queue.autoDrain ? "true" : "false"}
       className={cn(
-        "relative z-0 w-full overflow-hidden rounded-t-2xl border border-border bg-surface p-1 backdrop-blur-md",
+        "pk-conversation-queue relative z-0 w-full overflow-hidden rounded-t-2xl border border-border bg-surface p-1 backdrop-blur-md",
         "-mb-7 pb-7",
       )}
     >

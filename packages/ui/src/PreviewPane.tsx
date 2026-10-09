@@ -1524,11 +1524,11 @@ export function PreviewPane({
   return (
     <aside
       data-testid={TID_PREVIEW_PANE}
-      className="flex h-full flex-col overflow-hidden bg-background"
+      className="pk-preview-pane flex h-full flex-col overflow-hidden bg-background"
     >
       <div
         className={cn(
-          "flex h-10 items-center gap-8 bg-surface/30",
+          "pk-preview-toolbar flex h-10 items-center gap-8 bg-surface/30",
           showDocumentHeaderDivider && "border-b border-border",
         )}
       >

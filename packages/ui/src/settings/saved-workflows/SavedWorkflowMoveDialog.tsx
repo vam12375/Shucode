@@ -77,7 +77,10 @@ export function SavedWorkflowMoveDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[480px]" data-testid={TID_WORKFLOW_MOVE_DIALOG}>
+      <DialogContent
+        className="pk-catalog-dialog sm:max-w-[480px]"
+        data-testid={TID_WORKFLOW_MOVE_DIALOG}
+      >
         <DialogHeader>
           <DialogTitle>{intl.formatMessage({ id: "workflows.hub.moveDialog.title" })}</DialogTitle>
           {entryName ? (

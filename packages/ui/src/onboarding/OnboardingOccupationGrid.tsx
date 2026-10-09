@@ -25,7 +25,7 @@ export function OnboardingOccupationGrid({
 }: OccupationGridProps) {
   return (
     <div
-      className="mt-8 grid grid-cols-1 gap-3 sm:grid-cols-2 [@media(max-height:740px)]:mt-5 [@media(max-height:740px)]:gap-2"
+      className="pk-onboarding-options mt-8 grid grid-cols-1 gap-3 sm:grid-cols-2 [@media(max-height:740px)]:mt-5 [@media(max-height:740px)]:gap-2"
       role="group"
       aria-label={label}
     >

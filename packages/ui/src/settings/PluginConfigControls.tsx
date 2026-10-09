@@ -44,7 +44,7 @@ export function PluginConfigControls({
   const isSaving = operationId === `plugin:configure:${plugin.id}`;
   return (
     <div
-      className="mt-3 border-t border-border pt-3"
+      className="pk-plugin-config mt-3 border-t border-border pt-3"
       data-testid="plugin-store-config"
       data-plugin-id={plugin.id}
     >

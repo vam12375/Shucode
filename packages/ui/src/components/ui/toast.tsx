@@ -311,7 +311,7 @@ export function ToastMessageView({
   return (
     <div
       className={cn(
-        "rounded-2xl border bg-toast/60 text-ui-base shadow-lg backdrop-blur-xl transition-[transform,opacity] duration-200 ease-[cubic-bezier(0.77,0,0.175,1)] motion-reduce:transform-none motion-reduce:transition-opacity",
+        "pk-toast rounded-2xl border bg-toast/60 text-ui-base shadow-lg backdrop-blur-xl transition-[transform,opacity] duration-200 ease-[cubic-bezier(0.77,0,0.175,1)] motion-reduce:transform-none motion-reduce:transition-opacity",
         isUpdate
           ? "origin-bottom-left w-[min(300px,calc(100vw-1rem))] max-w-[min(300px,calc(100vw-1rem))] border-popover-border text-foreground shadow-lg"
           : isNotice
@@ -389,7 +389,7 @@ export function ToastMessageView({
               type="button"
               onClick={onDismiss}
               aria-label={item.dismissLabel ?? "Close"}
-              className="flex size-6 shrink-0 items-center justify-center rounded-md text-foreground-subtle hover:bg-hover hover:text-foreground"
+              className="pk-toast-dismiss flex size-6 shrink-0 items-center justify-center rounded-md text-foreground-subtle hover:bg-hover hover:text-foreground"
             >
               <X className="size-3.5" aria-hidden="true" />
             </button>

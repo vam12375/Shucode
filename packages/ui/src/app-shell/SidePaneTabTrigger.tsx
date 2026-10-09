@@ -137,7 +137,7 @@ export function SortableSidePaneTabTrigger({
           onCloseTab(tab.id);
         }}
         className={cn(
-          "group relative inline-flex items-center gap-1",
+          "pk-side-tab group relative inline-flex items-center gap-1",
           "flex-[1_1_9.75rem] !h-7 min-w-15 max-w-39 justify-start overflow-hidden rounded-md border px-1.5 pr-2 text-ui-base font-medium whitespace-nowrap transition-all focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-1 focus-visible:outline-ring",
           "!border-transparent !bg-transparent text-foreground-subtle !rounded-lg",
           "hover:text-foreground",
@@ -209,7 +209,7 @@ export function SidePaneTabDragOverlay({
   return (
     <div
       className={cn(
-        "inline-flex !h-7 w-39 min-w-15 max-w-39 items-center justify-start gap-1.5 whitespace-nowrap rounded-lg border border-transparent bg-selected px-1.5 pr-1 text-ui-base font-medium text-foreground shadow-md",
+        "pk-side-tab pk-side-tab-drag inline-flex !h-7 w-39 min-w-15 max-w-39 items-center justify-start gap-1.5 whitespace-nowrap rounded-lg border border-transparent bg-selected px-1.5 pr-1 text-ui-base font-medium text-foreground shadow-md",
         "cursor-grabbing",
       )}
     >

@@ -29,7 +29,7 @@ export function ApiKeyInput({
   const { intl } = useShucodeIntl();
 
   return (
-    <div className="relative">
+    <div className="pk-provider-api-key relative">
       <Input
         {...TECHNICAL_INPUT_ATTRIBUTES}
         type={visible && !readOnly ? "text" : "password"}

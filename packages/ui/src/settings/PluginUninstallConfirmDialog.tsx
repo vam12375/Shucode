@@ -33,7 +33,7 @@ export function PluginUninstallConfirmDialog({
         if (!next) onCancel();
       }}
     >
-      <AlertDialogContent data-testid="plugin-store-uninstall-dialog">
+      <AlertDialogContent className="pk-catalog-dialog" data-testid="plugin-store-uninstall-dialog">
         <AlertDialogHeader>
           <AlertDialogTitle>
             {intl.formatMessage(

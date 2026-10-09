@@ -64,7 +64,7 @@ export function RemoteConnectionKindStep({
   const { intl } = useShucodeIntl();
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col gap-6 h-full">
+    <div className="pk-connection-step flex min-h-0 flex-1 flex-col gap-6 h-full">
       <div className="flex-1 min-h-0 grid content-start gap-3 md:grid-cols-2">
         {availableKinds.map((value) => {
           const Icon = getKindIcon(value);
@@ -83,9 +83,9 @@ export function RemoteConnectionKindStep({
                     : TID_REMOTE_KIND_DOCKER
               }
               className={cn(
-                "flex min-h-32 flex-col items-start gap-4 rounded-2xl border p-4 text-left transition-colors",
+                "pk-connection-kind flex min-h-32 flex-col items-start gap-4 rounded-2xl border p-4 text-left transition-colors",
                 selected
-                  ? "border-border-hover bg-selected"
+                  ? "pk-active border-border-hover bg-selected"
                   : "border-border bg-card hover:border-border-hover hover:bg-surface",
               )}
             >
@@ -223,7 +223,7 @@ export function RemoteConnectionSettingsStep({
   const { intl } = useShucodeIntl();
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col gap-6 h-full">
+    <div className="pk-connection-step flex min-h-0 flex-1 flex-col gap-6 h-full">
       <div
         data-testid="remote-connection-settings-scroll"
         // SSH 配置项增多时，表单内容以前没有自己的滚动边界，会继续绘制到下方按钮区域。
@@ -382,7 +382,7 @@ export function RemoteConnectionDirectoryStep({
 
   if (!services) {
     return (
-      <div className="flex min-h-0 flex-1 flex-col gap-6 h-full">
+      <div className="pk-connection-step flex min-h-0 flex-1 flex-col gap-6 h-full">
         <div className="flex min-h-[22rem] flex-1 items-center justify-center rounded-2xl border border-border bg-card text-ui-base text-foreground-subtle">
           <LoaderIcon className="mr-2 size-4 animate-spin" />
           {intl.formatMessage({ id: "common.loading" })}
@@ -403,7 +403,10 @@ export function RemoteConnectionDirectoryStep({
   }
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col gap-6 h-full" aria-busy={selecting}>
+    <div
+      className="pk-connection-step flex min-h-0 flex-1 flex-col gap-6 h-full"
+      aria-busy={selecting}
+    >
       <div className="flex flex-col flex-1 min-h-0 space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-success bg-success px-4 py-3 text-ui-base text-success-foreground">
           <span>{intl.formatMessage({ id: "remote.success" })}</span>

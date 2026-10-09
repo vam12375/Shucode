@@ -192,10 +192,12 @@ export function ConversationDraftSuggestedPrompts({
     return (
       <div
         data-v4-draft-suggested-prompts="true"
-        className={cn("w-full min-w-0 px-2 py-4", className)}
+        className={cn("pk-draft-suggestions w-full min-w-0 px-2 py-4", className)}
       >
         <div className="flex items-center justify-between gap-2 px-3 pb-2 text-ui-sm text-foreground-subtle">
-          <span>{intl.formatMessage({ id: "occupationOnboarding.suggestionsHeading" })}</span>
+          <span className="pk-draft-suggestions-title">
+            {intl.formatMessage({ id: "occupationOnboarding.suggestionsHeading" })}
+          </span>
           <div className="flex shrink-0 items-center gap-2">
             {onRefresh ? (
               <Button
@@ -255,7 +257,7 @@ export function ConversationDraftSuggestedPrompts({
                     data-draft-suggested-prompt={item.id}
                     disabled={!onSelect || disabled}
                     onClick={() => onSelect?.(item)}
-                    className="flex w-full items-center gap-3 rounded-xl p-3 text-left text-ui-base text-foreground hover:bg-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-input-border-focused disabled:opacity-50"
+                    className="pk-draft-suggestion flex w-full items-center gap-3 rounded-xl p-3 text-left text-ui-base text-foreground hover:bg-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-input-border-focused disabled:opacity-50"
                   >
                     <span className="flex size-6 shrink-0 items-center justify-center overflow-hidden rounded-md bg-surface p-px">
                       <img
@@ -269,7 +271,7 @@ export function ConversationDraftSuggestedPrompts({
                         )}
                       />
                     </span>
-                    <span className="min-w-0 flex-1 break-words">
+                    <span className="pk-draft-suggestion-label min-w-0 flex-1 break-words">
                       {resolveDraftSuggestedPromptText(item.label, locale)}
                     </span>
                   </button>
@@ -289,7 +291,7 @@ export function ConversationDraftSuggestedPrompts({
     <div
       data-v4-draft-suggested-prompts="true"
       className={cn(
-        "w-full min-w-0 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
+        "pk-draft-suggestions w-full min-w-0 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
         className,
       )}
     >
@@ -318,7 +320,7 @@ export function ConversationDraftSuggestedPrompts({
                   title={label}
                   disabled={!onSelect || disabled}
                   onClick={onSelect ? () => onSelect(item) : undefined}
-                  className="shucode-draft-prompt-waterfall h-8 min-w-0 justify-start gap-1.5 overflow-hidden rounded-lg px-3 text-left text-ui-caption font-normal leading-4.5 text-foreground"
+                  className="pk-draft-suggestion shucode-draft-prompt-waterfall h-8 min-w-0 justify-start gap-1.5 overflow-hidden rounded-lg px-3 text-left text-ui-caption font-normal leading-4.5 text-foreground"
                   style={
                     {
                       "--shucode-draft-prompt-waterfall-delay": `${index * 65}ms`,
@@ -333,7 +335,7 @@ export function ConversationDraftSuggestedPrompts({
                   </span>
                   <span
                     data-draft-suggested-prompt-text="true"
-                    className="min-w-0 max-w-64 truncate text-ui-base text-foreground opacity-70 transition-opacity group-hover/button:opacity-100 motion-reduce:transition-none"
+                    className="pk-draft-suggestion-label min-w-0 max-w-64 truncate text-ui-base text-foreground opacity-70 transition-opacity group-hover/button:opacity-100 motion-reduce:transition-none"
                   >
                     {label}
                   </span>

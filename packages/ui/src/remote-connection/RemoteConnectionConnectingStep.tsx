@@ -77,9 +77,9 @@ export function RemoteConnectionConnectingStep({
   };
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col gap-6 h-full">
+    <div className="pk-connection-step flex min-h-0 flex-1 flex-col gap-6 h-full">
       <div className="flex flex-col flex-1 min-h-0 space-y-4">
-        <div className="min-h-0 flex-1 flex flex-col rounded-xl bg-background border border-border">
+        <div className="pk-connection-log min-h-0 flex-1 flex flex-col rounded-xl bg-background border border-border">
           <div className="flex items-center justify-between border-b border-border px-4 py-3">
             <p className="text-ui-base font-medium text-foreground">
               {intl.formatMessage({ id: "remote.connectionLog" })}

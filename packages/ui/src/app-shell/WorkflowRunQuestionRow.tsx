@@ -33,7 +33,7 @@ export function WorkflowRunQuestionRow({
   return (
     <div
       className={cn(
-        "mt-1 flex min-w-0 items-start gap-2 rounded-lg bg-[var(--color-interaction-confirmation-surface)] px-2 py-1.5 text-ui-sm text-[var(--color-interaction-confirmation-foreground)]",
+        "pk-workflow-question mt-1 flex min-w-0 items-start gap-2 rounded-lg bg-[var(--color-interaction-confirmation-surface)] px-2 py-1.5 text-ui-sm text-[var(--color-interaction-confirmation-foreground)]",
         className,
       )}
       data-qid={question.qid}

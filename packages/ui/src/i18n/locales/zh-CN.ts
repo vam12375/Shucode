@@ -784,6 +784,8 @@ const zhCN: Record<string, string> = {
   "login.expired.action": "重新登录",
   "login.expired.restart": "确认并重启",
   "login.useApiKey": "使用 API key",
+  "login.entry.chooseMethod": "选择开工方式",
+  "login.entry.supportedProviders": "支持 Z.ai 与 BigModel 的 API key",
   "login.apiKey.title": "API Key",
   "login.apiKey.placeholder": "输入 API key",
   "login.apiKey.providerLabel": "API key 提供方",

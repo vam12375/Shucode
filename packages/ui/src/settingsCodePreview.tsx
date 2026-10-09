@@ -109,7 +109,7 @@ export function AppearanceSectionContent({
             })}
           </p>
         </div>
-        <Card className="border border-border bg-card py-0 shadow-none">
+        <Card className="pk-settings-card border border-border bg-card py-0 shadow-none">
           <CardContent className="space-y-0 px-0">
             <SettingsRow
               label={intl.formatMessage({ id: "settings.themeMode" })}
@@ -168,7 +168,7 @@ export function AppearanceSectionContent({
               })}
             </p>
           </div>
-          <Card className="border border-border bg-card py-0 shadow-none [&_[data-slot=select-trigger]]:w-full">
+          <Card className="pk-settings-card border border-border bg-card py-0 shadow-none [&_[data-slot=select-trigger]]:w-full">
             <CardContent className="space-y-0 px-0">
               <SettingsRow
                 label={intl.formatMessage({ id: "settings.lightTheme" })}

@@ -90,7 +90,7 @@ export const WorkflowRunArtifactsSection = memo(function WorkflowRunArtifactsSec
 
   return (
     <section
-      className="wf-motion shrink-0 border-t border-border/60"
+      className="pk-workflow-artifacts-section wf-motion shrink-0 border-t border-border/60"
       data-artifacts-open={expanded ? "true" : "false"}
       data-testid={TID_WORKFLOW_ARTIFACTS_SECTION}
     >

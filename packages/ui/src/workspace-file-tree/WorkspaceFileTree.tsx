@@ -605,7 +605,7 @@ export function WorkspaceFileTree({
 
   return (
     <section
-      className="flex h-full min-h-0 flex-col text-foreground"
+      className="pk-file-tree flex h-full min-h-0 flex-col text-foreground"
       data-testid={TID_WORKSPACE_FILE_TREE_PANEL}
     >
       <div className="px-2 pb-3 pt-3">
@@ -629,7 +629,7 @@ export function WorkspaceFileTree({
             type="text"
             size="default"
             value={fileSearchQuery}
-            className="h-7 bg-transparent pl-7 pr-7 focus-visible:bg-input-focused"
+            className="pk-file-tree-search h-7 bg-transparent pl-7 pr-7 focus-visible:bg-input-focused"
             placeholder={intl.formatMessage({
               id: "workspaceFileTree.searchPlaceholder",
             })}
@@ -659,7 +659,7 @@ export function WorkspaceFileTree({
       </div>
       <div className="flex shrink-0 items-center px-2 pb-2">
         <div className="flex min-w-0 flex-1 items-center gap-1">
-          <h3 className="min-w-0 truncate py-1 pr-0.5 pl-2.5 text-ui-base font-medium text-foreground-subtlest">
+          <h3 className="pk-panel-title min-w-0 truncate py-1 pr-0.5 pl-2.5 text-ui-base font-medium text-foreground-subtlest">
             {workspaceTitle}
           </h3>
         </div>

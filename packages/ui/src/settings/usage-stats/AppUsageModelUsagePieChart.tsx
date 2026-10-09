@@ -64,7 +64,7 @@ export function AppUsageModelUsagePieChart({ snapshot }: { snapshot: AppUsageSna
   );
 
   return (
-    <section className="space-y-3 rounded-xl bg-surface p-4">
+    <section className="pk-usage-chart space-y-3 rounded-xl bg-surface p-4">
       <h3 className="text-ui-base font-medium text-foreground">
         {intl.formatMessage({ id: "settings.usage.modelChartTitle" })}
       </h3>

@@ -104,7 +104,7 @@ function McpServerItem({
 
   return (
     <div
-      className={`grid cursor-default grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 px-4 py-3 transition-colors ${canEdit ? "hover:bg-hover" : ""}`}
+      className={`pk-settings-resource-row grid cursor-default grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 px-4 py-3 transition-colors ${canEdit ? "hover:bg-hover" : ""}`}
       {...settingsResourceRowInteraction(canEdit ? () => onEdit(server) : undefined)}
       data-mcp-status={server.status ?? ""}
       data-mcp-tool-count={server.toolCount}

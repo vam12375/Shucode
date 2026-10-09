@@ -42,15 +42,15 @@ export function OccupationOnboardingVisual({
   return (
     <aside
       style={{ borderRadius }}
-      className="relative hidden min-h-0 flex-col items-center overflow-y-auto bg-surface-hover px-[clamp(64px,4vw,72px)] py-[clamp(32px,4vw,72px)] dark:bg-background-alt lg:flex"
+      className="pk-onboarding-art relative hidden min-h-0 flex-col items-center overflow-y-auto bg-surface-hover px-[clamp(64px,4vw,72px)] py-[clamp(32px,4vw,72px)] dark:bg-background-alt lg:flex"
     >
       <OnboardingMeshBackground />
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 z-10 rounded-[inherit] border border-border"
       />
-      <div className="relative my-auto flex w-full max-w-[640px] shrink-0 flex-col items-start [container-type:inline-size]">
-        <div aria-hidden="true" className="relative mb-10 rounded-3xl">
+      <div className="pk-onboarding-hero-content relative my-auto flex w-full max-w-[640px] shrink-0 flex-col items-start [container-type:inline-size]">
+        <div aria-hidden="true" className="pk-onboarding-logo relative mb-10 rounded-3xl">
           <ShucodeStartupLogoBadge animated={false} />
           <div className="onboarding-logo-sweep">
             <div />

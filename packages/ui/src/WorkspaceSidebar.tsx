@@ -1239,9 +1239,9 @@ export const WorkspaceSidebar = memo(function WorkspaceSidebarComponent({
     <aside
       data-testid={TID_SIDEBAR}
       // 这里用设计系统的结构面 token 固定侧栏层级，避免不同合成器把左侧容器混成异常灰块。
-      className="flex h-full flex-col overflow-hidden"
+      className="pk-sidebar flex h-full flex-col overflow-hidden"
     >
-      <div className="h-12 [app-region:drag]"></div>
+      <div className="pk-sidebar-chrome h-12 [app-region:drag]"></div>
       <div className="relative flex-1 min-h-0 overflow-hidden">
         <div
           className={cn(
@@ -1250,7 +1250,12 @@ export const WorkspaceSidebar = memo(function WorkspaceSidebarComponent({
           )}
           aria-hidden={isFileTreeOpen}
         >
-          <div className={cn("flex flex-col gap-1 px-2", isWindowsDesktop ? "py-2" : "py-3")}>
+          <div
+            className={cn(
+              "pk-sidebar-nav flex flex-col gap-1 px-2",
+              isWindowsDesktop ? "py-2" : "py-3",
+            )}
+          >
             <WorkspaceNewTaskTooltip disabledReason={workspaceReadOnlyReason}>
               <NewTaskButtonGroup
                 disabled={workspaceReadOnly}

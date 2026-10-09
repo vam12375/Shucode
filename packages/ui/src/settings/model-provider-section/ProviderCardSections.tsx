@@ -99,7 +99,10 @@ export function ProviderCardHeader({
   const secondaryActionsVisible = actionsVisible && (nameEditable || Boolean(onDelete));
 
   return (
-    <div className="flex items-center justify-between gap-3" data-testid="model-provider-header">
+    <div
+      className="pk-provider-card-header flex items-center justify-between gap-3"
+      data-testid="model-provider-header"
+    >
       <div className="flex min-w-0 items-center gap-2">
         <ProviderLogo logo={logo} className="size-5" />
         {editingName ? (
@@ -206,7 +209,7 @@ export function ProviderConnectionSection({
   const resolvedApiFormat = provider.config.api?.type ?? "anthropic-messages";
 
   const renderReadOnlyField = (label: string, value: string) => (
-    <div>
+    <div className="pk-provider-connection-field">
       <label className="mb-1 block text-ui-base text-foreground-subtle">{label}</label>
       <div className="flex min-h-8 items-center gap-2 rounded-lg border border-input-border bg-input px-3 py-1.5 text-ui-base text-foreground">
         <span className="min-w-0 flex-1 break-all">{value || "-"}</span>
@@ -243,7 +246,7 @@ export function ProviderConnectionSection({
 
   return (
     <>
-      <div>
+      <div className="pk-provider-connection-field">
         <label className="mb-1 block text-ui-base text-foreground-subtle">
           {intl.formatMessage({ id: "settings.modelProvider.baseUrl" })}
         </label>
@@ -264,7 +267,7 @@ export function ProviderConnectionSection({
         />
       </div>
       {showApiFormat ? (
-        <div>
+        <div className="pk-provider-connection-field">
           <label className="mb-1 block text-ui-base text-foreground-subtle">
             {intl.formatMessage({ id: "settings.modelProvider.apiFormat" })}
           </label>
@@ -303,7 +306,7 @@ export function ProviderApiKeySection({
   const { intl } = useShucodeIntl();
 
   return (
-    <div>
+    <div className="pk-provider-key-field">
       <div className="mb-1 flex items-center justify-between gap-2">
         <label className="block text-ui-base text-foreground-subtle">
           {intl.formatMessage({ id: "settings.modelProvider.apiKey" })}
@@ -465,7 +468,7 @@ export function ProviderModelsSection({
     : null;
 
   return (
-    <div>
+    <div className="pk-provider-models">
       <div className="mb-1 flex flex-wrap items-center justify-between gap-3">
         <span className="text-ui-base text-foreground-subtle">
           {intl.formatMessage({ id: "settings.modelProvider.models" })}
@@ -483,7 +486,7 @@ export function ProviderModelsSection({
         </Button>
       </div>
       {models.length > 0 ? (
-        <div className="overflow-hidden rounded-lg border border-input-border bg-input">
+        <div className="pk-provider-model-list overflow-hidden rounded-lg border border-input-border bg-input">
           <SortableProviderModelList
             modelIds={models.map((model) => model.modelId)}
             sortableModelIds={models.map((model) => model.modelId)}

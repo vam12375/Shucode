@@ -243,7 +243,7 @@ export function BrowserSettingsSection({
   const operationDisabled = !nativeActionsAvailable;
 
   return (
-    <div className="space-y-5">
+    <div className="pk-settings-browser space-y-5">
       <section className="space-y-3">
         <SettingsGroupCard>
           <SettingsRow

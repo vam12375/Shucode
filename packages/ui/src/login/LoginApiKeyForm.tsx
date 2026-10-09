@@ -10,6 +10,7 @@ import {
   TID_LOGIN_API_KEY_PROVIDER_ITEM,
   TID_LOGIN_API_KEY_PROVIDER_TRIGGER,
   TID_LOGIN_API_KEY_SKIP_BUTTON,
+  TID_LOGIN_USE_API_KEY_BUTTON,
   ZAI_PROVIDER_ID,
   testId,
 } from "@shucode/shared";
@@ -44,9 +45,15 @@ interface LoginApiKeyFormProps {
   onCancel: () => void;
   onSaved: () => void | Promise<void>;
   onSkipped: () => void | Promise<void>;
+  entryActions?: { onOpenApiKey: () => void };
 }
 
-export function LoginApiKeyForm({ onCancel, onSaved, onSkipped }: LoginApiKeyFormProps) {
+export function LoginApiKeyForm({
+  onCancel,
+  onSaved,
+  onSkipped,
+  entryActions,
+}: LoginApiKeyFormProps) {
   const { intl, locale } = useShucodeIntl();
   const platform = usePlatform();
   const { modelSelectionService, providerSettingsService, settingService } = useServices();
@@ -150,8 +157,60 @@ export function LoginApiKeyForm({ onCancel, onSaved, onSkipped }: LoginApiKeyFor
 
   const busy = saving || skipping;
 
+  const skipButton = (
+    <Button
+      type="button"
+      variant={entryActions ? "outline" : "link"}
+      className={
+        entryActions
+          ? "pk-welcome-entry-choice pk-welcome-entry-skip h-10 w-full justify-start text-ui-base"
+          : "h-7 w-full text-ui-base text-foreground-subtle hover:text-foreground"
+      }
+      data-testid={TID_LOGIN_API_KEY_SKIP_BUTTON}
+      disabled={busy}
+      onClick={() => void skipApiKeyProvider()}
+    >
+      {skipping ? <Loader2Icon className="size-4 animate-spin" /> : null}
+      {intl.formatMessage({ id: "login.skip" })}
+    </Button>
+  );
+
+  if (entryActions) {
+    // 欢迎页只提前展示同一跳过操作，busy/错误与持久化仍由本表单唯一拥有。
+    return (
+      <div className="pk-welcome-entry space-y-4">
+        <p className="pk-welcome-entry-label text-ui-base">
+          {intl.formatMessage({ id: "login.entry.chooseMethod" })}
+        </p>
+        <div className="space-y-2">
+          <Button
+            type="button"
+            variant="outline"
+            className="pk-welcome-entry-choice h-10 w-full justify-start text-ui-base"
+            size="lg"
+            data-testid={TID_LOGIN_USE_API_KEY_BUTTON}
+            disabled={busy}
+            onClick={entryActions.onOpenApiKey}
+          >
+            {intl.formatMessage({ id: "login.useApiKey" })}
+          </Button>
+          {skipButton}
+        </div>
+        <p className="pk-welcome-entry-hint text-ui-sm text-foreground-subtle">
+          {intl.formatMessage({ id: "login.entry.supportedProviders" })}
+        </p>
+        {error ? (
+          <Alert variant="destructive" data-testid={TID_LOGIN_API_KEY_ERROR}>
+            <TriangleAlertIcon className="size-4" />
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        ) : null}
+      </div>
+    );
+  }
+
   return (
-    <div className="space-y-4">
+    <div className="pk-login-form space-y-4">
       <div className="space-y-2">
         <h2 className="text-ui-base font-medium text-foreground">
           {intl.formatMessage({ id: "login.apiKey.title" })}
@@ -269,17 +328,7 @@ export function LoginApiKeyForm({ onCancel, onSaved, onSkipped }: LoginApiKeyFor
         >
           {intl.formatMessage({ id: "login.apiKey.cancel" })}
         </Button>
-        <Button
-          type="button"
-          variant="link"
-          className="h-7 w-full text-ui-base text-foreground-subtle hover:text-foreground"
-          data-testid={TID_LOGIN_API_KEY_SKIP_BUTTON}
-          disabled={busy}
-          onClick={() => void skipApiKeyProvider()}
-        >
-          {skipping ? <Loader2Icon className="size-4 animate-spin" /> : null}
-          {intl.formatMessage({ id: "login.skip" })}
-        </Button>
+        {skipButton}
       </div>
     </div>
   );

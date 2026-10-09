@@ -26,7 +26,7 @@ export function AutomationsPageTitle({
   if (!workflowTabEnabled) {
     // 字号与切换态同源：30/34 页面标题层级，切换在不在场不该改变标题的视觉层级。
     return (
-      <h1 className="text-[30px] font-medium leading-[34px] tracking-[0.114px] text-foreground">
+      <h1 className="pk-catalog-title text-[30px] font-medium leading-[34px] tracking-[0.114px] text-foreground">
         {intl.formatMessage({ id: "settings.automations.title" })}
       </h1>
     );
@@ -66,7 +66,7 @@ export function AutomationsPageTitleSwitch({
     <div
       role="tablist"
       aria-label={intl.formatMessage({ id: "automations.pageTab.ariaLabel" })}
-      className="flex items-baseline gap-5"
+      className="pk-catalog-title-tabs flex items-baseline gap-5"
       onKeyDown={handleKeyDown}
     >
       {AUTOMATIONS_PAGE_TABS.map((tab) => {

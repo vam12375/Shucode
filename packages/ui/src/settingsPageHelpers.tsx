@@ -280,7 +280,7 @@ export function GeneralSectionContent({
   }, [normalizedHttpProxyCaCertPath, onHttpProxyCaCertPathChange]);
 
   return (
-    <div className="space-y-4">
+    <div className="pk-settings-general space-y-4">
       <SettingsGroupCard>
         <SettingsRow
           label={intl.formatMessage({ id: "settings.locale" })}

@@ -52,7 +52,7 @@ export function OnboardingWizardSidebar(props: { currentStep: OnboardingWizardSt
   const currentIndex = WIZARD_STEPS.findIndex((step) => step.key === props.currentStep);
 
   return (
-    <aside className="hidden w-56 shrink-0 flex-col gap-2 p-1 md:flex">
+    <aside className="pk-onboarding-wizard-sidebar hidden w-56 shrink-0 flex-col gap-2 p-1 md:flex">
       <div className="flex h-full flex-col gap-4 rounded-xl border border-border bg-surface p-4">
         <div className="text-ui-base font-medium uppercase tracking-wide text-foreground-subtle">
           {intl.formatMessage({ id: "onboarding.wizard.label" })}
@@ -108,7 +108,9 @@ export function OnboardingWizardSidebar(props: { currentStep: OnboardingWizardSt
 export function OnboardingWizardHeader(props: { title: string; description: string }) {
   return (
     <div className="space-y-2">
-      <div className="text-lg font-medium text-foreground">{props.title}</div>
+      <div className="pk-onboarding-wizard-title text-lg font-medium text-foreground">
+        {props.title}
+      </div>
       {props.description.trim().length > 0 ? (
         <div className="text-ui-base leading-6 text-foreground-subtle">{props.description}</div>
       ) : null}

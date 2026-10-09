@@ -65,13 +65,13 @@ export function CodeContent({
     return (
       <div
         ref={scrollContainerRef}
-        className={cn("h-full w-full overflow-auto bg-background p-4", className)}
+        className={cn("pk-preview-code h-full w-full overflow-auto bg-background p-4", className)}
         onScroll={onScroll}
       >
         <MermaidBlock
           code={code}
           theme={theme}
-          className="min-h-full rounded-xl border border-border"
+          className="pk-preview-code-sheet min-h-full rounded-xl border border-border"
         />
       </div>
     );

@@ -77,7 +77,7 @@ const DirectoryRow = memo(function DirectoryRow({
       data-run-status={row.status}
       aria-label={intl.formatMessage({ id: "chat.toolCall.workflow.openRunDetails" })}
       onClick={() => onOpen(row)}
-      className="flex w-full min-w-0 items-start gap-3 rounded-lg px-3 py-2.5 text-left text-ui-base transition-colors hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-input-border-focused"
+      className="pk-workflow-directory-row flex w-full min-w-0 items-start gap-3 rounded-lg px-3 py-2.5 text-left text-ui-base transition-colors hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-input-border-focused"
     >
       {/* 状态永远有词（下一行），圆点只是冗余通道。 */}
       <span
@@ -185,9 +185,9 @@ const WorkflowRunDirectoryContents = memo(function WorkflowRunDirectoryContents(
   const isEmpty = !isUnavailable && directory.running.length + directory.ended.length === 0;
 
   return (
-    <div className="flex size-full min-h-0 flex-col bg-background">
-      <div className="border-b border-border px-4 py-3">
-        <h2 className="text-ui-base font-semibold text-foreground">
+    <div className="pk-workflow-directory flex size-full min-h-0 flex-col bg-background">
+      <div className="pk-workflow-pane-header border-b border-border px-4 py-3">
+        <h2 className="pk-panel-title text-ui-base font-semibold text-foreground">
           {intl.formatMessage({ id: "workflowDirectory.title" })}
         </h2>
       </div>

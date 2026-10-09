@@ -150,7 +150,7 @@ export function RemoteConnectionHistoryInput({
                   <CommandItem
                     key={item}
                     value={item}
-                    className="min-h-8 rounded-lg px-3 py-1.5 text-ui-base text-foreground data-selected:bg-menu-hover data-selected:text-foreground"
+                    className="pk-connection-history-value min-h-8 rounded-lg px-3 py-1.5 text-ui-base text-foreground data-selected:bg-menu-hover data-selected:text-foreground"
                     onPointerDown={() => {
                       skipNextBlurRef.current = true;
                     }}

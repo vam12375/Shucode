@@ -377,7 +377,7 @@ export function CommandsSection({
   }, [formScopeKey, isFormView, onEditorOpenChange, onFormScopeKeyChange]);
   if (isFormView) {
     return (
-      <div className="space-y-6">
+      <div className="pk-settings-capability space-y-6">
         <SettingsBreadcrumbReporter
           items={[
             {
@@ -430,7 +430,7 @@ export function CommandsSection({
   );
 
   return (
-    <div className="space-y-6">
+    <div className="pk-settings-capability space-y-6">
       {error ? (
         <div className="rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-ui-base text-destructive">
           {error}
@@ -448,7 +448,7 @@ export function CommandsSection({
           })}
         />
       ) : (
-        <div className="space-y-6">
+        <div className="pk-settings-capability space-y-6">
           <section className={hideInstalledGroup ? "hidden" : "space-y-4"}>
             <SettingsResourceGroupHeader
               actions={headerActions}

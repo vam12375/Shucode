@@ -284,7 +284,7 @@ export const WorkflowTimeline = memo(function WorkflowTimeline({
 
   return (
     <div
-      className={cn("wf-motion wf-timeline min-w-0", className)}
+      className={cn("pk-workflow-timeline wf-motion wf-timeline min-w-0", className)}
       data-testid="workflow-timeline"
       onKeyDown={onKeyDown}
     >

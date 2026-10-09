@@ -20,7 +20,7 @@ export function OnboardingModeSelector({
   formatLabel,
 }: ModeSelectorProps) {
   return (
-    <div className="mt-8 space-y-3" role="group" aria-label={label}>
+    <div className="pk-onboarding-options mt-8 space-y-3" role="group" aria-label={label}>
       {(["coding", "office"] as const).map((value) => {
         const Icon = modeOptionIcons[value];
         return (

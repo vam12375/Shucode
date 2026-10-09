@@ -143,7 +143,7 @@ function RowShell({
     <div
       data-row-id={rowId}
       data-testid={testId(TID_V4_ROW, String(rowId))}
-      className={cn(className)}
+      className={cn("pk-conversation-row", className)}
     >
       {children}
     </div>
@@ -721,6 +721,7 @@ const UserInputAttachmentList = memo(function UserInputAttachmentList({
         data-v4-user-input-attachment-pill={isThumbnail ? undefined : "true"}
         data-v4-user-input-media-attachment={isThumbnail ? "true" : undefined}
         className={cn(
+          "pk-message-attachment",
           isThumbnail &&
             (isEditingAttachment
               ? "relative size-12 overflow-hidden rounded-lg bg-surface p-0 after:pointer-events-none after:absolute after:inset-0 after:rounded-lg after:border after:border-border after:content-[''] hover:bg-surface-hover"
@@ -1256,7 +1257,7 @@ const UserInputRowView = memo(function UserInputRowView({
         // 气泡保留 flex item 的自动宽度；宿主至少 624px 时再以 36rem 封顶并保留 48px 余量。
         <div
           data-v4-user-input-bubble="true"
-          className="flex max-w-full flex-col gap-2 rounded-xl rounded-tr-xs border border-border bg-surface px-4 py-3 text-ui-base text-foreground @min-[624px]/conversation:max-w-xl"
+          className="pk-user-message flex max-w-full flex-col gap-2 rounded-xl rounded-tr-xs border border-border bg-surface px-4 py-3 text-ui-base text-foreground @min-[624px]/conversation:max-w-xl"
         >
           {hasVisibleText ? (
             <ConversationUserInputBody contentText={visibleText} rowId={row.rowId}>
@@ -1514,7 +1515,7 @@ const AssistantTextRowView = memo(function AssistantTextRowView({
   );
   const visiblePreviewCards = previewCards && previewCards.length > 0 ? previewCards : null;
   return (
-    <RowShell rowId={row.rowId} className="group/assistant-row">
+    <RowShell rowId={row.rowId} className="pk-assistant-message group/assistant-row">
       {/* assistant 文本走 streamdown（MessageResponse），
           markdown/代码块正式渲染；streaming 模式对未闭合 markdown 容错。 */}
       {/* MessageResponse 只消费自身声明的 props，不会把 data-* 透传到真实 DOM，

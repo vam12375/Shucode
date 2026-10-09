@@ -20,7 +20,7 @@ export function SettingsSearchInput({
   const canClear = Boolean(onClear && props.value && !props.disabled);
 
   return (
-    <div className={cn("relative", containerClassName)}>
+    <div className={cn("pk-settings-search relative", containerClassName)}>
       <Search
         className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-foreground-subtle"
         aria-hidden="true"

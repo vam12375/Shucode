@@ -21,7 +21,7 @@ export function SettingsSegmentedTabs<TValue extends string>({
       onValueChange={(nextValue) => onValueChange(nextValue as TValue)}
       className="gap-0"
     >
-      <TabsList className="flex h-8 rounded-full bg-surface p-0.5 group-data-horizontal/tabs:h-8">
+      <TabsList className="pk-settings-segments flex h-8 rounded-full bg-surface p-0.5 group-data-horizontal/tabs:h-8">
         {items.map((item) => (
           <TabsTrigger
             key={item.value}

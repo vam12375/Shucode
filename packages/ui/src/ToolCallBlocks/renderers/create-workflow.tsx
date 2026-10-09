@@ -317,7 +317,7 @@ export function CreateWorkflowToolCallBlock(context: ToolCallBlockRenderContext)
     <>
       <section
         aria-label={typeof kindText === "string" ? kindText : undefined}
-        className="wf-motion flex w-full min-w-0 flex-col gap-2"
+        className="pk-workflow-create-card wf-motion flex w-full min-w-0 flex-col gap-2"
         data-testid="workflow-card"
         data-workflow-card-state={workflowRun?.status ?? (writing ? "writing" : "static")}
         {...(workflowRun === undefined

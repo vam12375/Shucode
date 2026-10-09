@@ -136,10 +136,10 @@ function SettingsSidebarButton({
         type={buttonProps.type ?? "button"}
         aria-label={label}
         className={cn(
-          "flex h-8 w-full items-center gap-2 rounded-xl px-2.5 text-left transition-colors",
+          "pk-settings-nav-item flex h-8 w-full items-center gap-2 rounded-xl px-2.5 text-left transition-colors",
           "max-lg:mx-auto max-lg:size-10 max-lg:justify-center max-lg:px-0",
           active
-            ? "bg-surface-hover text-foreground"
+            ? "pk-active bg-surface-hover text-foreground"
             : "text-foreground-subtle hover:bg-surface-hover hover:text-foreground",
           className,
         )}
@@ -981,7 +981,7 @@ export function SettingsPage({
           data-active-section={activeSection}
           // 隐式 auto 行会按 Memory viewer 的内容高度撑出窗口，随后被 DesktopWindowFrame 裁切且没有滚动条。
           // 固定为单个 minmax(0, 1fr) 行，让普通设置页和内部滚动 viewer 都以窗口剩余高度为边界。
-          className="relative grid h-screen min-h-full w-full grid-cols-[68px_minmax(0,1fr)] grid-rows-[minmax(0,1fr)] lg:grid-cols-[268px_minmax(0,1fr)]"
+          className="pk-settings-page relative grid h-screen min-h-full w-full grid-cols-[68px_minmax(0,1fr)] grid-rows-[minmax(0,1fr)] lg:grid-cols-[268px_minmax(0,1fr)]"
         >
           {isWindowsDesktop ? <WindowsTopLeftLogo /> : null}
 
@@ -994,7 +994,7 @@ export function SettingsPage({
               <DesktopWindowControls />
             </div>
           ) : null}
-          <aside className="min-w-0">
+          <aside className="pk-settings-sidebar min-w-0">
             <div className="flex h-full flex-col">
               <div className="h-12 [app-region:drag]"></div>
               <div className="px-2 pb-3 pt-3">
@@ -1014,7 +1014,7 @@ export function SettingsPage({
                       aria-label={intl.formatMessage({
                         id: "workspace.backToWorkspace",
                       })}
-                      className="m-1 w-[calc(100%-0.5rem)] justify-start gap-2 rounded-xl px-1.5 text-foreground-subtle hover:bg-surface-hover hover:text-foreground max-lg:m-1 max-lg:size-10 max-lg:justify-center max-lg:px-0"
+                      className="pk-settings-back m-1 w-[calc(100%-0.5rem)] justify-start gap-2 rounded-xl px-1.5 text-foreground-subtle hover:bg-surface-hover hover:text-foreground max-lg:m-1 max-lg:size-10 max-lg:justify-center max-lg:px-0"
                       onClick={() => {
                         runUserAction({
                           input: {
@@ -1052,7 +1052,7 @@ export function SettingsPage({
 
               <nav
                 aria-label={intl.formatMessage({ id: "settings.navLabel" })}
-                className="flex-1 overflow-y-auto px-2 pb-3"
+                className="pk-settings-nav flex-1 overflow-y-auto px-2 pb-3"
               >
                 <div className="space-y-4">
                   {settingsSectionGroups.map((group, groupIndex) => {
@@ -1073,7 +1073,7 @@ export function SettingsPage({
                       >
                         <div
                           id={groupLabelId}
-                          className="px-2.5 pb-1 text-ui-sm font-medium text-foreground-subtlest max-lg:sr-only"
+                          className="pk-settings-nav-caption px-2.5 pb-1 text-ui-sm font-medium text-foreground-subtlest max-lg:sr-only"
                         >
                           {groupLabel}
                         </div>
@@ -1172,7 +1172,7 @@ export function SettingsPage({
             <div
               data-settings-panel-frame="true"
               className={cn(
-                "relative flex flex-col min-h-0 h-full border border-border bg-background",
+                "pk-settings-panel relative flex flex-col min-h-0 h-full border border-border bg-background",
                 // Windows 设置页已有 4px 外层留白，不再承担系统窗口外沿；圆角与主工作区统一为 5px。
                 isWindowsDesktop ? "rounded-[5px]" : "rounded-xl",
               )}
@@ -1220,11 +1220,11 @@ export function SettingsPage({
                       />
                     </div>
                   </div>
-                  <main className="min-h-0 flex-1 overflow-y-auto [scrollbar-gutter:stable]">
+                  <main className="pk-settings-content-scroll min-h-0 flex-1 overflow-y-auto [scrollbar-gutter:stable]">
                     <div
                       className={cn(
                         SETTINGS_FRAME_CONTENT_CLASSNAME,
-                        "flex flex-col gap-8",
+                        "pk-settings-content flex flex-col gap-8",
                         isMacDesktop && "pt-0",
                         // isWindowsDesktop && "pt-12",
                       )}
@@ -1233,7 +1233,7 @@ export function SettingsPage({
                         <div className="flex flex-wrap items-center justify-between gap-3">
                           <div className="flex min-w-0 flex-wrap items-center gap-3">
                             {showActiveSectionTitle ? (
-                              <h2 className="text-2xl font-semibold tracking-tight text-foreground lg:text-3xl">
+                              <h2 className="pk-settings-title text-2xl font-semibold tracking-tight text-foreground lg:text-3xl">
                                 {activeSectionLabel}
                               </h2>
                             ) : null}
@@ -1250,7 +1250,7 @@ export function SettingsPage({
                           <GeneralSectionHeader localePreference={localePreference} />
                         ) : null}
                       </div>
-                      <div className="space-y-8">
+                      <div className="pk-settings-section-stack space-y-8">
                         {activeSection === "general" ? (
                           <GeneralSectionContent
                             localePreference={localePreference}

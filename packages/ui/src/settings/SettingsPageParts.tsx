@@ -72,7 +72,7 @@ export function ThemePreviewCard({
   } as CSSProperties;
 
   return (
-    <div className="overflow-hidden rounded-xl border border-border bg-card">
+    <div className="pk-code-theme-preview overflow-hidden rounded-xl border border-border bg-card">
       <div className="flex items-center justify-between gap-3 border-b border-border px-4 py-3">
         <div>
           <div className="text-ui-base font-semibold text-foreground">{title}</div>
@@ -120,10 +120,10 @@ export function SettingsRow({
   controlLayout?: "default" | "wide";
 }) {
   return (
-    <div className="border-t border-border px-4 py-3 first:border-t-0">
+    <div className="pk-setting-row border-t border-border px-4 py-3 first:border-t-0">
       <div
         className={cn(
-          "grid items-center gap-4",
+          "pk-setting-row-grid grid items-center gap-4",
           controlLayout === "wide"
             ? "grid-cols-1 sm:grid-cols-[minmax(0,1fr)_280px]"
             : "grid-cols-[minmax(0,1fr)_192px]",
@@ -135,7 +135,7 @@ export function SettingsRow({
             <div className="mt-1 text-ui-base leading-6 text-foreground-subtle">{description}</div>
           ) : null}
         </div>
-        <div className="flex w-full flex-nowrap items-center justify-end gap-2">
+        <div className="pk-setting-control flex w-full flex-nowrap items-center justify-end gap-2">
           {controlLayout === "wide" ? detail : null}
           {control}
         </div>
@@ -147,7 +147,7 @@ export function SettingsRow({
 
 export function SettingsGroupCard({ children }: { children: ReactNode }) {
   return (
-    <Card className="overflow-hidden rounded-xl border border-border bg-card py-0 shadow-none">
+    <Card className="pk-settings-card overflow-hidden rounded-xl border border-border bg-card py-0 shadow-none">
       <CardContent className="space-y-0 px-0">{children}</CardContent>
     </Card>
   );
@@ -155,7 +155,7 @@ export function SettingsGroupCard({ children }: { children: ReactNode }) {
 
 export function SettingsBadge({ children }: { children: ReactNode }) {
   return (
-    <span className="rounded-md bg-surface px-2.5 py-1 text-ui-base font-medium text-foreground-subtle">
+    <span className="pk-settings-badge rounded-md bg-surface px-2.5 py-1 text-ui-base font-medium text-foreground-subtle">
       {children}
     </span>
   );

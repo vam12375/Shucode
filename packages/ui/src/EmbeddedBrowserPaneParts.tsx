@@ -82,7 +82,7 @@ export function BrowserToolbar({
           failureStage: "browser_navigate",
         })
       }
-      className="flex items-center h-12 px-3 gap-2"
+      className="pk-browser-toolbar flex items-center h-12 px-3 gap-2"
     >
       <BrowserIconButton
         icon={<ChevronLeft className="h-4 w-4" />}
@@ -110,7 +110,7 @@ export function BrowserToolbar({
         value={addressValue}
         data-testid={TID_BROWSER_ADDRESS_INPUT}
         size="sm"
-        className="h-7 rounded-lg"
+        className="pk-browser-address h-7 rounded-lg"
         onChange={(event) => onAddressChange(event.target.value)}
         placeholder={formatMessage({ id: "browser.addressPlaceholder" })}
         spellCheck={false}
@@ -219,7 +219,7 @@ export function BrowserEmptyState({
         ) : (
           <Globe className="mb-6 size-16 text-foreground opacity-30" />
         )}
-        <h3 className="text-ui-base font-medium text-foreground">
+        <h3 className="pk-panel-title text-ui-base font-medium text-foreground">
           {formatMessage({ id: "browser.title" })}
         </h3>
         <p className="mt-2 text-ui-base text-foreground-subtle">
@@ -255,7 +255,7 @@ export function BrowserLoadErrorState({
     >
       <div className="flex max-w-sm flex-col items-center pb-10 text-center">
         <TriangleAlertIcon className="mb-6 size-16 text-warning opacity-60" />
-        <h3 className="text-ui-base font-medium text-foreground">
+        <h3 className="pk-panel-title text-ui-base font-medium text-foreground">
           {formatMessage({
             id: isCertificateError ? "browser.loadError.certTitle" : "browser.loadError.title",
           })}
@@ -294,7 +294,7 @@ export function BrowserGuestFailureState({
     <div className="absolute inset-0 z-10 flex items-center justify-center bg-background px-6">
       <div className="flex max-w-sm flex-col items-center pb-10 text-center">
         <TriangleAlertIcon className="mb-6 size-16 text-warning opacity-60" />
-        <h3 className="text-ui-base font-medium text-foreground">
+        <h3 className="pk-panel-title text-ui-base font-medium text-foreground">
           {formatMessage({ id: "browser.guestFailed.title" })}
         </h3>
         <p className="mt-2 text-ui-base text-foreground-subtle">

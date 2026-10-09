@@ -976,7 +976,7 @@ function RootInner({
         {rootModelSelectionErrorNode}
         {remoteConnectionDialog}
         {directoryBrowserDialog}
-        <WelcomeScreen onComplete={handleWelcomeScreenComplete} />
+        <WelcomeScreen onComplete={handleWelcomeScreenComplete} isDesktop={isDesktop} />
       </RootShell>
     );
   }

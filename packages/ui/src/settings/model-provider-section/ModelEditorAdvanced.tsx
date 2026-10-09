@@ -60,7 +60,7 @@ export function ModelEditorAdvanced({
         aria-expanded={expanded}
         aria-controls={contentId}
         onClick={() => setExpanded((value) => !value)}
-        className="flex w-fit cursor-pointer items-center gap-2 rounded-sm bg-transparent px-2 py-1 text-ui-base text-foreground hover:bg-hover focus-visible:outline-2 focus-visible:outline-primary"
+        className="pk-settings-action-pixel flex w-fit cursor-pointer items-center gap-2 rounded-sm bg-transparent px-2 py-1 text-ui-base text-foreground hover:bg-hover focus-visible:outline-2 focus-visible:outline-primary"
       >
         <ChevronRightIcon
           className={`size-4 transition-transform motion-reduce:transition-none ${expanded ? "rotate-90" : ""}`}

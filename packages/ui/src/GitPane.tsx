@@ -448,8 +448,11 @@ export function GitPane({
   );
 
   return (
-    <section data-testid={TID_GIT_PANE} className="flex h-full min-h-0 flex-col bg-background">
-      <div className="flex items-center justify-between gap-3 p-3">
+    <section
+      data-testid={TID_GIT_PANE}
+      className="pk-git-pane flex h-full min-h-0 flex-col bg-background"
+    >
+      <div className="pk-git-toolbar flex items-center justify-between gap-3 p-3">
         <Select value={currentSourceOption.id} onValueChange={handleSelectSource}>
           <SelectTrigger className="max-w-full" size="lg">
             <SelectValue />

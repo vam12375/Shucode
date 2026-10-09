@@ -53,7 +53,7 @@ function ConversationHeaderImpl({ title, onClosePane, workspaceBadge }: Conversa
               data-testid={TID_V4_PANE_WORKSPACE_BADGE}
               data-remote={workspaceBadge.remote ? "true" : "false"}
               title={workspaceBadge.workspacePath}
-              className="pointer-events-auto flex h-7 max-w-[10rem] shrink items-center gap-1 rounded-md border border-[var(--color-border)] bg-[var(--color-popover)] px-2 font-mono text-ui-base text-[var(--color-foreground-subtle)] shadow-md"
+              className="pk-conversation-pane-badge pointer-events-auto flex h-7 max-w-[10rem] shrink items-center gap-1 rounded-md border border-[var(--color-border)] bg-[var(--color-popover)] px-2 font-mono text-ui-base text-[var(--color-foreground-subtle)] shadow-md"
             >
               <span className="truncate">{workspaceBadge.label}</span>
               {workspaceBadge.remote ? (
@@ -71,7 +71,7 @@ function ConversationHeaderImpl({ title, onClosePane, workspaceBadge }: Conversa
               onClick={onSplitRight}
               title={intl.formatMessage({ id: "v4Pane.splitRightTitle" })}
               aria-label={intl.formatMessage({ id: "v4Pane.splitRight" })}
-              className="pointer-events-auto bg-[var(--color-popover)] shadow-md"
+              className="pk-conversation-pane-control pointer-events-auto bg-[var(--color-popover)] shadow-md"
             >
               <SquareSplitHorizontalIcon className="size-4" />
             </Button>
@@ -85,7 +85,7 @@ function ConversationHeaderImpl({ title, onClosePane, workspaceBadge }: Conversa
               onClick={onSplitDown}
               title={intl.formatMessage({ id: "v4Pane.splitDownTitle" })}
               aria-label={intl.formatMessage({ id: "v4Pane.splitDown" })}
-              className="pointer-events-auto bg-[var(--color-popover)] shadow-md"
+              className="pk-conversation-pane-control pointer-events-auto bg-[var(--color-popover)] shadow-md"
             >
               <SquareSplitVerticalIcon className="size-4" />
             </Button>
@@ -106,7 +106,7 @@ function ConversationHeaderImpl({ title, onClosePane, workspaceBadge }: Conversa
               }
               title={intl.formatMessage({ id: "v4Pane.closePaneTitle" })}
               aria-label={intl.formatMessage({ id: "v4Pane.closePane" })}
-              className="pointer-events-auto bg-[var(--color-popover)] shadow-md"
+              className="pk-conversation-pane-control pointer-events-auto bg-[var(--color-popover)] shadow-md"
             >
               <XIcon className="size-4" />
             </Button>

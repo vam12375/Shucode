@@ -815,7 +815,7 @@ export function AnimatedSidePanePanel({
       </div>
     ) : null;
   const openTabLauncher = (
-    <div className="side-pane-open-tab-shell flex h-full min-h-0 flex-col bg-background">
+    <div className="pk-side-launcher side-pane-open-tab-shell flex h-full min-h-0 flex-col bg-background">
       {
         <div
           className={cn(
@@ -830,7 +830,7 @@ export function AnimatedSidePanePanel({
       <div className="flex min-h-0 flex-1 items-center justify-center overflow-y-auto px-5 py-10">
         <div className="side-pane-open-tab-content flex w-full max-w-[20rem] flex-col gap-5">
           <div className="flex flex-col gap-2 text-center">
-            <h2 className="text-xl font-semibold leading-7 text-foreground">
+            <h2 className="pk-panel-title text-ui-xl font-semibold leading-7 text-foreground">
               {intl.formatMessage({ id: "sidePane.openTab" })}
             </h2>
             <p className="text-ui-base leading-5 text-foreground-subtle">
@@ -845,7 +845,7 @@ export function AnimatedSidePanePanel({
                   key={item.id}
                   type="button"
                   data-side-pane-open-tab-item={item.id}
-                  className="side-pane-open-tab-button flex h-12 min-w-0 items-center gap-3 rounded-xl bg-surface px-3 text-ui-base font-medium text-foreground transition-colors hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  className="pk-side-launcher-option side-pane-open-tab-button flex h-12 min-w-0 items-center gap-3 rounded-xl bg-surface px-3 text-ui-base font-medium text-foreground transition-colors hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   onClick={item.onOpen}
                 >
                   <Icon className="size-4 text-foreground-subtle" />
@@ -918,7 +918,7 @@ export function AnimatedSidePanePanel({
       data-workspace-side-frame="true"
       className={cn(
         // 独立外框放在内容层：关闭仍保留 Browser Guest 和 tab 实例，不改变面板持久化边界。
-        "h-full overflow-hidden bg-background",
+        "pk-side-frame h-full overflow-hidden bg-background",
         frameClassName,
       )}
       style={lockedContentStyle}
@@ -950,7 +950,7 @@ export function AnimatedSidePanePanel({
                 <TabsList
                   style={captionControlsStyle}
                   className={cn(
-                    "flex justify-start w-full rounded-none p-0 border-0 border-b border-border/50 bg-transparent shadow-none !h-12 overflow-hidden",
+                    "pk-side-tab-bar flex justify-start w-full rounded-none p-0 border-0 border-b border-border/50 bg-transparent shadow-none !h-12 overflow-hidden",
                     // 独立面板将标签栏移至窗口顶部，需补充窗口拖拽区域；标签和按钮仍处理自身交互。
                     isDesktop &&
                       "[app-region:drag] [&_button]:[app-region:no-drag] [&_[data-side-pane-tab-id]]:[app-region:no-drag]",

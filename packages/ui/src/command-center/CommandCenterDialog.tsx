@@ -987,11 +987,11 @@ export const CommandCenterDialog = memo(function CommandCenterDialogComponent({
       onOpenChange={onOpenChange}
       title={intl.formatMessage({ id: "quickPick.title" })}
       description={intl.formatMessage({ id: "quickPick.description" })}
-      className={commandCenterDialogClassName}
+      className={`${commandCenterDialogClassName} pk-command-center`}
     >
       <Command shouldFilter={false} loop className={quickPickCommandClassName}>
         <div className="border-b border-border px-2 pt-2 pb-2">
-          <div className="flex h-8 items-center gap-2 rounded-full border border-input-border bg-input px-2.5 transition-colors hover:border-input-border-hover focus-within:border-input-border-focused focus-within:bg-input-focused">
+          <div className="pk-search-shell flex h-8 items-center gap-2 rounded-full border border-input-border bg-input px-2.5 transition-colors hover:border-input-border-hover focus-within:border-input-border-focused focus-within:bg-input-focused">
             <SearchIcon className="size-4 shrink-0 text-foreground-subtlest" />
             <CommandPrimitive.Input
               value={rawQuery}

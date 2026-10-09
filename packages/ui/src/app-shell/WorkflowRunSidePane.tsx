@@ -339,7 +339,7 @@ const WorkflowRunContent = memo(function WorkflowRunContent({
 
   return (
     <div
-      className="flex h-full min-h-0 flex-col bg-background"
+      className="pk-workflow-run-pane flex h-full min-h-0 flex-col bg-background"
       data-workflow-run-id={tab.runId}
       data-workflow-run-status={run?.status ?? "absent"}
     >

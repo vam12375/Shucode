@@ -761,7 +761,7 @@ function ElicitationDialogContent({
         onFocus={() => setActiveOptionIndex(index)}
         onKeyDown={handleOptionKeyDown}
         className={cn(
-          "flex w-full items-center gap-3 rounded-xl px-3 py-2 text-left outline-none transition-colors focus-visible:bg-hover",
+          "pk-interaction-option flex w-full items-center gap-3 rounded-xl px-3 py-2 text-left outline-none transition-colors focus-visible:bg-hover",
           isSelected ? "bg-selected" : isActive ? "bg-hover" : "hover:bg-hover",
         )}
       >
@@ -816,7 +816,7 @@ function ElicitationDialogContent({
           }
         }}
         className={cn(
-          "flex w-full cursor-text items-center gap-3 rounded-xl px-3 py-2 transition-colors",
+          "pk-interaction-free-option flex w-full cursor-text items-center gap-3 rounded-xl px-3 py-2 transition-colors",
           isSelected ? "bg-selected" : isActive ? "bg-hover" : "hover:bg-hover",
         )}
       >
@@ -963,7 +963,7 @@ function ElicitationDialogContent({
         ref={cardRef}
         tabIndex={activeOptionIndex < 0 ? 0 : -1}
         data-elicitation-dialog-card="true"
-        className="relative z-1 flex w-full max-h-[min(72dvh,42rem)] flex-col overflow-hidden rounded-2xl border border-border bg-popover shadow-xs outline-none"
+        className="pk-interaction-card relative z-1 flex w-full max-h-[min(72dvh,42rem)] flex-col overflow-hidden rounded-2xl border border-border bg-popover shadow-xs outline-none"
         onMouseEnter={() => reportFirstInteraction("panelHover")}
         onKeyDown={handleCardKeyDown}
       >

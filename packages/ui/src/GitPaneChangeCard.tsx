@@ -82,14 +82,14 @@ export function GitPaneChangeCard({
   ]);
 
   return (
-    <div className="w-full min-w-0">
+    <div className="pk-git-change w-full min-w-0">
       <ContextMenu>
         <ContextMenuTrigger asChild>
           <button
             type="button"
             aria-expanded={isExpanded}
             className={cn(
-              "sticky top-0 z-10 flex h-8 w-full items-center gap-3 bg-background px-3 text-left transition-colors hover:bg-surface-hover supports-[backdrop-filter]:backdrop-blur-sm",
+              "pk-git-change-header sticky top-0 z-10 flex h-8 w-full items-center gap-3 bg-background px-3 text-left transition-colors hover:bg-surface-hover supports-[backdrop-filter]:backdrop-blur-sm",
               isExpanded && "bg-surface-hover",
             )}
             onClick={() => onOpenChange(change, !isExpanded)}

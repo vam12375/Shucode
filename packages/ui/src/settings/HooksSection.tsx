@@ -484,7 +484,7 @@ export function HooksSection({ workspacePath, workspaceIdentity }: HooksSectionP
     targetWorkspaceKey,
   });
   return (
-    <div className="space-y-6" data-testid="hooks-settings-section">
+    <div className="pk-settings-capability space-y-6" data-testid="hooks-settings-section">
       <div className="flex min-w-0 flex-wrap items-center gap-3">
         <div className="flex min-w-0 flex-wrap items-center gap-3">
           <PluginScopeMenu

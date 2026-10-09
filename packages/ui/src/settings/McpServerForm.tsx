@@ -373,7 +373,7 @@ export function McpServerForm({
           <div>
             <button
               type="button"
-              className="flex items-center gap-1 text-ui-base text-foreground-subtle hover:text-foreground"
+              className="pk-settings-action-pixel flex items-center gap-1 text-ui-base text-foreground-subtle hover:text-foreground"
               onClick={() => setShowEnv((v) => !v)}
             >
               {showEnv ? <ChevronUp className="size-3.5" /> : <ChevronDown className="size-3.5" />}

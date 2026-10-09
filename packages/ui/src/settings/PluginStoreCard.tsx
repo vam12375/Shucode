@@ -307,7 +307,7 @@ export function PluginStoreCard({
       tabIndex={0}
       data-testid="plugin-store-card"
       data-plugin-id={item.id}
-      className="group/card flex min-w-0 cursor-pointer items-center gap-3 rounded-xl px-2 py-2.5 transition-colors hover:bg-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-input-border-focused"
+      className="pk-plugin-card group/card flex min-w-0 cursor-pointer items-center gap-3 rounded-xl px-2 py-2.5 transition-colors hover:bg-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-input-border-focused"
       onClick={() => actions.onOpenDetail(item.id)}
       onKeyDown={(event) => {
         if (event.key === "Enter" || event.key === " ") {
@@ -316,7 +316,7 @@ export function PluginStoreCard({
         }
       }}
     >
-      <PluginStoreAvatar item={item} className="size-10" />
+      <PluginStoreAvatar item={item} className="pk-plugin-icon size-10" />
       <div className="min-w-0 flex-1">
         <div className="flex min-w-0 items-center gap-1.5">
           <span className="min-w-0 truncate text-ui-base font-semibold text-foreground">
@@ -338,7 +338,9 @@ export function PluginStoreCard({
           </div>
         ) : null}
         {description ? (
-          <div className="mt-0.5 truncate text-ui-sm text-foreground-subtle">{description}</div>
+          <div className="pk-plugin-description mt-0.5 truncate text-ui-sm text-foreground-subtle">
+            {description}
+          </div>
         ) : null}
       </div>
       <div className="flex shrink-0 items-center gap-1.5">
