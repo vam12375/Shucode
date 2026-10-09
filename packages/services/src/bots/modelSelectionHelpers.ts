@@ -1,0 +1,13 @@
+import {
+  type ShucodeProvider,
+} from "@shucode/shared";
+
+const BOT_NATIVE_MODEL_PROVIDER_PREFIX = "native:";
+
+export function resolveTaskModel(model: string | undefined): string | undefined {
+  return model && model !== "default" ? model : undefined;
+}
+
+export function getNativeModelProviderId(shucodeProvider: ShucodeProvider): string {
+  return `${BOT_NATIVE_MODEL_PROVIDER_PREFIX}${shucodeProvider}`;
+}
