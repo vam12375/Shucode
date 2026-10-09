@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#161616" />
+    <meta name="color-scheme" content="dark" />
+    <!-- Chrome dev 下可能不发 favicon 网络请求；内嵌小尺寸 App 图标，避免标签页回退到默认图标。-->
+    <link
+      rel="icon"
+      type="image/png"
+      href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAACZElEQVR4Ae3BsY3rVhCG0e/KCv5wQocsweELVYJKYAm3hHEHtwSWsKHLcPhCljDhBAtcU7CEJQhKK+1bwInP4b9W+EWSOjsys/CEwoskdTYiZm7MBm4ys/CJwgskdRYRM58xG7jIzMIDB54kqbOImHmFpM4DhR2SOiuZWST1iJlXmA1cZGbhjiMrkjqL6hNrzcfOk8wGImZuMrPwQOFKUmdRfWJP85G1iJk9ZgM3mVn4xJGFpM4iWgOCGw/jqzKz8IQjD7gFFx5G9YnmI8+S1FnJzMKOA1fRnM9Un/gqSV1SZ+PIE9wCD+MV1Se2mo9I6plZuDpyVwDGVvWJ5iNmA1sRM3vcAg9jT2EhqUdrfAg+GBcexpbXExdmA3uiNdY8jOYjmVm4OvCQcY/XEzcRMzcRMxEzETNWK2tuwdaBK6uVD8a/gmdFzHzFgbsMMC6sVta8ntgyG1gzG3jGkUVmFkndamVP9YnvkpmFlSNXmVlYSOp8UcTMPVYrmVnYKNwhqbOoPrHVfCRi5hGzgbXMLCwkdRaZWVgc2CGp80D1iS2zgbXqE2uSuqTOlaTOorAhqbNRfeKi+Uj1iRuvJ8wGLqpP3NN8ZE9mlsKGpM6O6hO/ovnIVmaWAzsys7DIzJKZhUXzke+SmSUzC4sDG5lZuKP5SPORVzUfuafwBEmdq+oTN81HXpWZhZXf+ISkzqL6xI/TmbUfpzO/24mfP//ikcwsx+PRWby/v//JypFvcD433t4qmVm4ktRZyczCjsIDkjqL6hP3zH8HF29vlYvMLLzgwB2SOk8Y/jAuzufGhaTO/17wD8cuCic+9msiAAAAAElFTkSuQmCC"
+      sizes="32x32"
+    />
+    <title>Shucode</title>
+    <script>
+      (() => {
+        // JS bundle 执行前先按本地主题偏好决定首屏底色，避免 dark 用户在这一帧看到白底闪烁。
+        const STORAGE_KEY = "shucode-theme";
+        const DEFAULT_THEME = "zai-dark";
+        const BROWSER_THEME_COLORS = {
+          dark: "#161616",
+          light: "#f8f8f8",
+        };
+
+        const normalizeResolvedTheme = (theme) => {
+          if (theme === "dark") return "dark";
+          if (theme === "light") return "light";
+          if (theme === "zai-dark") return "dark";
+          if (theme === "zai-light") return "light";
+          return theme;
+        };
+
+        const syncBrowserThemeSurface = (theme) => {
+          document.documentElement.setAttribute("data-shucode-browser-theme-surface", theme);
+          document.documentElement.style.colorScheme = theme;
+          document
+            .querySelector('meta[name="theme-color"]')
+            ?.setAttribute("content", BROWSER_THEME_COLORS[theme]);
+          document.querySelector('meta[name="color-scheme"]')?.setAttribute("content", theme);
+        };
+
+        try {
+          const saved = localStorage.getItem(STORAGE_KEY) || DEFAULT_THEME;
+          const resolved =
+            saved === "system"
+              ? window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches
+                ? "dark"
+                : "light"
+              : normalizeResolvedTheme(saved);
+          const finalTheme = resolved === "dark" ? "dark" : "light";
+          document.documentElement.setAttribute("data-shucode-bootstrap-theme", finalTheme);
+          syncBrowserThemeSurface(finalTheme);
+          if (finalTheme === "dark") {
+            document.documentElement.classList.add("dark");
+          }
+        } catch {
+          document.documentElement.setAttribute("data-shucode-bootstrap-theme", "dark");
+          syncBrowserThemeSurface("dark");
+          document.documentElement.classList.add("dark");
+        }
+      })();
+    </script>
+    <style>
+      html,
+      body,
+      #root {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+      }
+
+      body {
+        background: var(--shucode-bootstrap-bg, var(--color-background, #0f172a));
+        color: var(--shucode-bootstrap-fg, var(--color-foreground, #e2e8f0));
+        font-family:
+          Inter,
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          sans-serif;
+      }
+
+      html[data-shucode-bootstrap-theme="light"] body {
+        background: var(--shucode-bootstrap-bg, var(--color-background, #f8fafc));
+        color: var(--shucode-bootstrap-fg, var(--color-foreground, #334155));
+      }
+
+      html[data-shucode-browser-theme-surface],
+      html[data-shucode-browser-theme-surface] body,
+      html[data-shucode-browser-theme-surface] #root {
+        /* 共享 UI 样式为 Electron vibrancy 强制透明根背景；浏览器入口必须用语义背景
+           覆盖该桌面专属行为，否则浏览器工具栏、overscroll 和页面画布会回退为系统白色。 */
+        background: var(--color-background, var(--shucode-bootstrap-bg, #161616)) !important;
+      }
+
+      html[data-shucode-browser-theme-surface="light"],
+      html[data-shucode-browser-theme-surface="light"] body,
+      html[data-shucode-browser-theme-surface="light"] #root {
+        background: var(--color-background, var(--shucode-bootstrap-bg, #f8f8f8)) !important;
+      }
+
+      .shucode-boot-loading {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        height: 100%;
+        /* UI 全局样式会把 body/#root 置为透明，预渲染壳必须自己承接主题背景，否则深色主题会露出浏览器白底。*/
+        background: var(--shucode-bootstrap-bg, var(--color-background, #0f172a));
+        color: var(--shucode-bootstrap-fg, var(--color-foreground, #e2e8f0));
+      }
+
+      html[data-shucode-bootstrap-theme="light"] .shucode-boot-loading {
+        background: var(--shucode-bootstrap-bg, var(--color-background, #f8fafc));
+        color: var(--shucode-bootstrap-fg, var(--color-foreground, #334155));
+      }
+
+      .shucode-boot-loading__logo-shell {
+        position: relative;
+        display: flex;
+        width: 96px;
+        height: 96px;
+        align-items: center;
+        justify-content: center;
+        /* 品牌 Logo 自带红底与圆角，壳只负责投影，避免叠出第二层底色。*/
+        background: transparent;
+        box-shadow:
+          0 20px 25px -5px rgb(0 0 0 / 0.2),
+          0 8px 10px -6px rgb(0 0 0 / 0.2);
+      }
+
+      .shucode-boot-loading__logo {
+        width: 96px;
+        height: 96px;
+        border-radius: 24px;
+        animation: shucode-boot-loading-pulse 1.5s ease-in-out infinite;
+      }
+
+      @keyframes shucode-boot-loading-pulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.3;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root">
+      <!-- 远程控制跨 workspace 时会整页跳转；在 JS 入口执行前先给出 loading 壳，避免出现白屏空档。-->
+      <div
+        class="shucode-boot-loading"
+        role="status"
+        aria-live="polite"
+        aria-busy="true"
+        aria-label="Loading..."
+      >
+        <div class="shucode-boot-loading__logo-shell">
+          <img
+            class="shucode-boot-loading__logo"
+            src="data:image/png;base64,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"
+            alt=""
+            aria-hidden="true"
+            width="96"
+            height="96"
+          />
+        </div>
+      </div>
+    </div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
