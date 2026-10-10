@@ -2,6 +2,7 @@
 import { createInMemorySessionEventStore } from "@shucode/adapters/storage";
 import type { ModelSelection } from "@shucode/contracts";
 import {
+  shucodeProviderListModelsParamsSchema,
   shucodeProviderTestModelConnectivityParamsSchema,
   shucodeWorkspaceReadPresentationParamsSchema,
   type ShucodeWorkspaceRef,
@@ -15,6 +16,7 @@ import {
 } from "./server-types.js";
 import { runSessionModelConfigMutation } from "../shucode-protocol-v4/model-config-mutation.js";
 import { createProviderRuntimeHeadersPort } from "./provider-runtime-headers.js";
+import { listProviderModels } from "./provider-model-listing.js";
 
 export async function readWorkspacePresentation(
   context: ShucodeProtocolAgentServerContext,
@@ -64,6 +66,31 @@ export async function testProviderModelConnectivity(
   } finally {
     if (!active) await app.close?.();
   }
+}
+
+/**
+ * 「获取模型列表」：按设置页当前（可能尚未保存的）连接信息，从供应商拉取模型 ID。
+ *
+ * 这里刻意不建 ShucodeApp、不读 Provider Registry：候选端点与鉴权头只依赖请求参数，
+ * 少了「表单草稿未落盘就拉不到列表」的时序耦合。请求只读，不写任何配置事实。
+ */
+export async function listProviderModelIds(
+  context: ShucodeProtocolAgentServerContext,
+  rawParams: unknown,
+) {
+  const params = parseParams(shucodeProviderListModelsParamsSchema, rawParams);
+  const result = await listProviderModels(params.connection);
+  context.logger?.info("Shucode Protocol provider/listModels completed", {
+    providerId: params.providerId,
+    // 只记录命中的端点与数量，不记录 API Key 或自定义头。
+    endpoint: result.endpoint,
+    modelCount: result.models.length,
+  });
+  return {
+    success: true as const,
+    endpoint: result.endpoint,
+    models: [...result.models],
+  };
 }
 
 export async function createWorkspaceShucodeApp(

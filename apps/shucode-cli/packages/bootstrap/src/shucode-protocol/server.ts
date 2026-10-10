@@ -49,6 +49,7 @@ import {
 import { listChildProcesses } from "./process-child-processes.js";
 import { ProtocolRuntimeResources } from "./runtime-resources.js";
 import {
+  listProviderModelIds,
   readWorkspacePresentation,
   testProviderModelConnectivity,
 } from "./workspace-model-runtime.js";
@@ -641,6 +642,8 @@ export class ShucodeProtocolAgentServer {
         return this.cancelWorkspaceGenerateText(request.params);
       case shucodeProtocolMethods.providerTestModelConnectivity:
         return await testProviderModelConnectivity(this.context, request.params);
+      case shucodeProtocolMethods.providerListModels:
+        return await listProviderModelIds(this.context, request.params);
       case shucodeProtocolMethods.mcpList:
         return await listMcpServers(this.context, request.params);
       case shucodeProtocolMethods.pluginsList:
