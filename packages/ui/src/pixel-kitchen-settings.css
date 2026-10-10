@@ -749,4 +749,60 @@
       border: 0;
     }
   }
+
+  /* 新仪表盘只有四项指标，不沿用活动页五指标与分隔符节点的 nth-child 布局。 */
+  .pk-usage-dashboard-summary {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .pk-usage-dashboard-summary > .pk-usage-stat {
+    grid-column: auto;
+    border: 0;
+    border-right: 1px solid var(--pk-line);
+  }
+
+  .pk-usage-dashboard-summary > .pk-usage-stat:last-child {
+    border: 0;
+  }
+
+  .pk-usage-scope [data-slot="tabs-list"],
+  .pk-usage-clients [data-slot="tabs-list"] {
+    height: 34px;
+    padding: 2px;
+    border: 1px solid var(--pk-line);
+    border-radius: 999px;
+    background: var(--pk-panel);
+  }
+
+  .pk-usage-scope [data-slot="tabs-trigger"],
+  .pk-usage-clients [data-slot="tabs-trigger"] {
+    min-height: 28px;
+    border-radius: 999px;
+    color: var(--pk-ink-muted);
+  }
+
+  .pk-usage-scope [data-slot="tabs-trigger"][data-state="active"],
+  .pk-usage-clients [data-slot="tabs-trigger"][data-state="active"] {
+    background: var(--pk-input);
+    color: var(--pk-ink);
+    box-shadow: 0 1px 2px var(--pk-line);
+  }
+
+  @media (max-width: 1023px) {
+    .pk-usage-dashboard-summary {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .pk-usage-dashboard-summary > .pk-usage-stat {
+      border-bottom: 1px solid var(--pk-line);
+    }
+
+    .pk-usage-dashboard-summary > .pk-usage-stat:nth-child(2n) {
+      border-right: 0;
+    }
+
+    .pk-usage-dashboard-summary > .pk-usage-stat:nth-child(n + 3) {
+      border-bottom: 0;
+    }
+  }
 }

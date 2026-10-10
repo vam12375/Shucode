@@ -43,6 +43,7 @@ import {
 } from "@/lib/settingsNavigation.js";
 import { ModelProviderSection } from "@/settings/ModelProviderSection.js";
 import { UsageStatsSection } from "@/settings/UsageStatsSection.js";
+import { UsageScopeSelector, type UsageScope } from "@/settings/usage-stats/UsageClientSelector.js";
 import { SubagentsSection } from "@/settings/SubagentsSection.js";
 import { AutomationsSection } from "@/settings/AutomationsSection.js";
 import { PluginsSection } from "@/settings/PluginsSection.js";
@@ -183,6 +184,7 @@ export function SettingsPage({
   user?: UserInfo | null;
 }) {
   const { intl, localePreference, setLocalePreference } = useShucodeIntl();
+  const [usageScope, setUsageScope] = useState<UsageScope>("shucode");
   const { settingsSectionGroups, settingsSections } = useMemo(
     () =>
       createSettingsPageConfig({
@@ -1245,6 +1247,9 @@ export function SettingsPage({
                               </span>
                             ) : null}
                           </div>
+                          {activeSection === "usage" ? (
+                            <UsageScopeSelector scope={usageScope} onChange={setUsageScope} />
+                          ) : null}
                         </div>
                         {activeSection === "general" ? (
                           <GeneralSectionHeader localePreference={localePreference} />
@@ -1485,7 +1490,11 @@ export function SettingsPage({
                             isDesktop={isDesktop}
                           />
                         ) : activeSection === "usage" ? (
-                          <UsageStatsSection />
+                          <UsageStatsSection
+                            key={usageScope}
+                            scope={usageScope}
+                            onScopeChange={setUsageScope}
+                          />
                         ) : activeSection === "subagents" ? (
                           <SubagentsSection
                             onManageModels={handleOpenModelProviderSettings}

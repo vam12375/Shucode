@@ -1,5 +1,7 @@
 /** 中文翻译 */
+import { usageDashboardZh } from "./usageDashboardMessages.js";
 const zhCN: Record<string, string> = {
+  ...usageDashboardZh,
   "occupationOnboarding.stepMode": "UI 模式",
   "occupationOnboarding.modeTitle": "选择适合你的 UI 模式",
   "occupationOnboarding.modeDescription": "你希望 Shucode 如何呈现工作过程？",

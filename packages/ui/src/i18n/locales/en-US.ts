@@ -1,5 +1,7 @@
 /** English translations */
+import { usageDashboardEn } from "./usageDashboardMessages.js";
 const enUS: Record<string, string> = {
+  ...usageDashboardEn,
   "occupationOnboarding.stepMode": "UI mode",
   "occupationOnboarding.modeTitle": "Choose your UI mode",
   "occupationOnboarding.modeDescription": "How would you like Shucode to show its work?",

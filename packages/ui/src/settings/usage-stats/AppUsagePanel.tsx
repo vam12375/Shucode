@@ -31,7 +31,7 @@ const AppUsageModelUsagePieChart = lazy(() =>
   })),
 );
 
-export function AppUsagePanel() {
+export function AppUsagePanel({ showSummary = true }: { showSummary?: boolean }) {
   const { intl, locale } = useShucodeIntl();
   const [range, setRange] = useState<AppUsageRange>("7d");
   const { snapshot: lifetimeSnapshot, refresh: refreshLifetime } = useAppUsageStats("all");
@@ -40,7 +40,7 @@ export function AppUsagePanel() {
   if (loading && !snapshot) {
     return (
       <div className="pk-usage-panel space-y-5">
-        <AppUsageLifetimeSummaryStrip snapshot={lifetimeSnapshot} />
+        {showSummary ? <AppUsageLifetimeSummaryStrip snapshot={lifetimeSnapshot} /> : null}
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="text-ui-base font-medium text-foreground">
             {intl.formatMessage({ id: "settings.usage.appUsageRangeTitle" })}
@@ -61,7 +61,7 @@ export function AppUsagePanel() {
   if (!snapshot) {
     return (
       <div className="pk-usage-panel space-y-5">
-        <AppUsageLifetimeSummaryStrip snapshot={lifetimeSnapshot} />
+        {showSummary ? <AppUsageLifetimeSummaryStrip snapshot={lifetimeSnapshot} /> : null}
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="text-ui-base font-medium text-foreground">
             {intl.formatMessage({ id: "settings.usage.appUsageRangeTitle" })}
@@ -81,7 +81,7 @@ export function AppUsagePanel() {
 
   return (
     <div className="pk-usage-panel space-y-5">
-      <AppUsageLifetimeSummaryStrip snapshot={lifetimeSnapshot} />
+      {showSummary ? <AppUsageLifetimeSummaryStrip snapshot={lifetimeSnapshot} /> : null}
       {lifetimeSnapshot?.heatmap.weeks.length ? (
         <UsageHeatmap locale={locale} intl={intl} weeks={lifetimeSnapshot.heatmap.weeks} />
       ) : null}
@@ -220,7 +220,7 @@ function AppUsageRangeTabs({
       className="shrink-0"
     >
       <TabsList className={USAGE_STATS_TABS_LIST_CLASS}>
-        {APP_USAGE_RANGES.filter((option) => option !== "all").map((option) => (
+        {APP_USAGE_RANGES.filter((option) => option === "7d" || option === "30d").map((option) => (
           <TabsTrigger key={option} value={option} className={USAGE_STATS_TABS_TRIGGER_CLASS}>
             {intl.formatMessage({ id: `settings.usage.range.${option}` })}
           </TabsTrigger>
