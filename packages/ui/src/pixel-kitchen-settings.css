@@ -53,9 +53,15 @@
     box-shadow: var(--pk-shadow);
   }
 
+  /* 设置导航是常驻侧栏：滚动条本身不承载进度信息，露出的槽位还会压窄像素风的导航项。
+   * 隐藏滚动条但保留 overflow-y-auto 的滚动能力，不改动导航的键盘/滚轮访问路径。 */
   .pk-settings-nav {
     padding-inline: 12px;
-    scrollbar-color: var(--pk-line) transparent;
+    scrollbar-width: none;
+  }
+
+  .pk-settings-nav::-webkit-scrollbar {
+    display: none;
   }
 
   .pk-settings-nav-caption {
@@ -386,10 +392,14 @@
     outline: none !important;
   }
 
+  /* 按钮由 flex 的 align-items 居中，所以这里要退掉绝对定位与位移；
+   * Tailwind v4 的 -translate-y-1/2 写在独立的 translate 属性上，只重置 transform
+   * 会让眼睛图标整体上移半个自身高度（实测 12px），必须一并清掉 translate。 */
   .pk-provider-api-key > button {
     position: static;
     flex: none;
     transform: none;
+    translate: none;
     margin-right: 2px;
     border-radius: 0 var(--pk-radius-control) var(--pk-radius-control) 0;
   }
