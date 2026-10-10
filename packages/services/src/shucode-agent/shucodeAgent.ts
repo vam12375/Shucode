@@ -2,7 +2,11 @@ import type { BackgroundBashOutputResult, SessionDebugSnapshot } from "@shucode/
 /* eslint-disable max-lines -- Shucode agent service 接口集中声明 protocol/session/workspace 方法，拆分会增加 service descriptor 迁移成本。 */
 import type { Event, IDisposable } from "@shucode/rpc";
 import { ServiceChannels } from "@shucode/shared";
-import type { AppUsageRange, AppUsageSnapshot, ShucodeTaskTokenUsageResult } from "@shucode/shared";
+import type {
+  AppUsageRequest,
+  AppUsageSnapshot,
+  ShucodeTaskTokenUsageResult,
+} from "@shucode/shared";
 import type { ShucodeAutomation, ShucodeAutomationRun } from "@shucode/shared";
 import type {
   ShucodeStorageStartupState,
@@ -221,10 +225,7 @@ export interface ShucodeAgentListSessionSubagentsParams extends ShucodeAgentSess
   remoteSessionId?: string;
 }
 
-export interface ShucodeAgentAppUsageParams {
-  range: AppUsageRange;
-  timeZone?: string;
-}
+export type ShucodeAgentAppUsageParams = AppUsageRequest;
 
 export interface ShucodeAgentTaskTokenUsageParams extends ShucodeAgentSessionTarget {}
 

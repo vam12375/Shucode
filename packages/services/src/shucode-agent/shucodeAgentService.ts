@@ -3653,18 +3653,19 @@ export function createShucodeAgentService(
     },
 
     async getAppUsageStats(params: ShucodeAgentAppUsageParams) {
-      // usage 表位于全局 session 库；复用任意已连接的 workspace client 即可拿到全应用范围数据。
-      const active = activeClientsByWorkspaceKey.values().next().value;
+      // 同一 Environment 的 workspace 共用全局用量库；不能选远端或已回收的 client，
+      // 否则本机统计会串到另一份数据库。只读查询不为手机或空设置页另起 Agent。
+      const active = Array.from(activeClientsByWorkspaceKey.values()).find(
+        (entry) =>
+          isLocalActiveWorkspaceClient(entry.workspace) &&
+          isReusableActiveClientEntry(entry.workspace, entry),
+      );
       if (!active) {
         throw new Error("no_active_workspace");
       }
       // usage/stats → v4/usage/stats（additive query，事实源在 CLI usage store，
       // 载荷同形；旧词消费清零，CLI 旧 case 留到旧词删除之时）。
-      return active.client.request(
-        V4_METHODS.usageStats,
-        { range: params.range, timeZone: params.timeZone },
-        v4UsageStatsResultSchema,
-      );
+      return active.client.request(V4_METHODS.usageStats, params, v4UsageStatsResultSchema);
     },
 
     async getTaskTokenUsage(params: ShucodeAgentTaskTokenUsageParams) {

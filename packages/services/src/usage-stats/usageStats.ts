@@ -3,12 +3,26 @@
  * ——即从 agent 本地数据库读取的真实用量统计（`getAppUsageSnapshot`）。
  * 远端套餐额度、重置机会与权益快照（entitlement）已整体移除。
  */
-import type { AppUsageRequest, AppUsageSnapshot } from "@shucode/shared";
+import type {
+  AppUsageRequest,
+  AppUsageSnapshot,
+  UsageModelPrice,
+  UsagePricingImportResult,
+  UsagePricingSettings,
+} from "@shucode/shared";
 import { ServiceChannels } from "@shucode/shared";
 import { createServiceDescriptor } from "../descriptors.js";
 
 export interface IUsageStatsService {
   getAppUsageSnapshot(request: AppUsageRequest): Promise<AppUsageSnapshot>;
+  getPricing(): Promise<UsagePricingSettings>;
+  savePrice(price: UsageModelPrice, previousKey?: string): Promise<UsagePricingSettings>;
+  deletePrice(key: string): Promise<UsagePricingSettings>;
+  getModelsDevPrices(): Promise<UsageModelPrice[]>;
+  importModelsDevPrices(keys: string[]): Promise<UsagePricingSettings>;
+  importCcSwitchPrices(json: string): Promise<UsagePricingImportResult>;
+  setModelsDevAutoSync(enabled: boolean): Promise<UsagePricingSettings>;
+  syncModelsDevPrices(): Promise<UsagePricingSettings>;
 }
 
 export const IUsageStatsService = createServiceDescriptor<IUsageStatsService>(

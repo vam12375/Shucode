@@ -2458,7 +2458,10 @@ export function createLocalServices(options: {
     )
     .register(IFileWatcherService, createFileWatcherService())
     .register(IOAuthService, oauthService)
-    .register(IUsageStatsService, createUsageStatsService({ shucodeAgentService }))
+    .register(
+      IUsageStatsService,
+      createUsageStatsService({ shucodeAgentService, settingService, apiClient }),
+    )
     .register(ICodingPlanSubscriptionService, codingPlanSubscriptionService)
     .register(
       IClientConfigService,
@@ -2731,6 +2734,7 @@ export function disposeServiceResources(services: ServiceCollection): void {
     services.getOptional(IBotsService),
     services.getOptional(IFileWatcherService),
     services.getOptional(IOffPeakTaskService),
+    services.getOptional(IUsageStatsService),
   ].filter((service) => service !== undefined);
 
   for (const service of disposableServices) {
@@ -2765,6 +2769,7 @@ export async function disposeServiceResourcesAndWait(services: ServiceCollection
     services.getOptional(IBotsService),
     services.getOptional(IFileWatcherService),
     services.getOptional(IOffPeakTaskService),
+    services.getOptional(IUsageStatsService),
   ].filter((service) => service !== undefined);
 
   for (const service of disposableServices) {
