@@ -6,6 +6,8 @@ import {
   AppErrorBoundary,
   Root,
   GlobalDatabaseStartupLoading,
+  DesktopStartupWindowControls,
+  PlatformProvider,
   UpdateStatusWindowRoot,
   ShucodeIntlProvider,
   registerBaseWorkspaceServices,
@@ -170,6 +172,10 @@ function renderDatabaseStartup(): void {
         resolveSystemLocale={desktopPlatform.getSystemLocale}
       >
         <StartupReadyNotifier />
+        {/* 数据库恢复首屏也会被启动壳覆盖，窗控必须复用同一平台接口和国际化上下文。 */}
+        <PlatformProvider platform={desktopPlatform}>
+          <DesktopStartupWindowControls enabled={isWindowsDesktop || isLinuxDesktop} />
+        </PlatformProvider>
         <GlobalDatabaseStartupLoading
           state={databaseStartupAdmission.state}
           onRetry={() => {
@@ -331,6 +337,9 @@ function initializeBusinessRoot(port: MessagePort): void {
         resolveSystemLocale={desktopPlatform.getSystemLocale}
       >
         <StartupReadyNotifier />
+        <PlatformProvider platform={desktopPlatform}>
+          <DesktopStartupWindowControls enabled={isWindowsDesktop || isLinuxDesktop} />
+        </PlatformProvider>
         <Root
           services={services}
           platform={desktopPlatform}

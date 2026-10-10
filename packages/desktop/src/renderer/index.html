@@ -5,18 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Shucode</title>
     <style>
-      /*
-       * 启动壳沿用桌面「像素厨房」语义：米纸底、墨色字、品牌红、硬阴影。
-       * 内联像素字文件在 public/fonts 下，font-display: block 保证字标首帧不闪系统字体。
-       */
       @font-face {
         font-family: "Kitchen Pixel";
         src: url("./fonts/fusion-pixel-12.woff2") format("woff2");
         font-weight: 400;
         font-style: normal;
-        font-display: block;
+        font-display: swap;
       }
-
       html,
       body,
       #root {
@@ -24,204 +19,55 @@
         width: 100%;
         height: 100%;
       }
-
       #root {
         opacity: 0;
         transition: opacity 0.16s ease;
       }
-
       body.shucode-startup-ready #root {
         opacity: 1;
       }
-
-      /* 启动壳是首帧唯一可见内容，必须自带不透明底色；Electron 窗口本体是透明的。 */
+      /* Electron 窗口首帧可能透明：启动壳在 UI 样式之前提供完整不透明底色。 */
       #loading {
+        --splash-paper: #f7f4e9;
+        --splash-ink: #22251f;
+        --splash-red: #e74728;
         position: fixed;
         inset: 0;
         z-index: 2147483647;
-        display: flex;
-        align-items: center;
-        justify-content: center;
+        overflow: hidden;
         background: var(--splash-paper);
-        transition:
-          opacity 0.34s cubic-bezier(0.33, 0, 0.2, 1),
-          transform 0.34s cubic-bezier(0.33, 0, 0.2, 1),
-          filter 0.34s cubic-bezier(0.33, 0, 0.2, 1);
+        color: var(--splash-ink);
+        display: grid;
+        place-items: center;
+        -webkit-app-region: drag;
+        transition: opacity 0.34s cubic-bezier(0.33, 0, 0.2, 1);
       }
-
-      /* 退场不只是淡出：整体轻微前推并提亮，像灶火被吹散开的一瞬。 */
       body.shucode-startup-ready #loading {
-        pointer-events: none;
         opacity: 0;
-        transform: translateY(-6px) scale(1.02);
-        filter: brightness(1.12);
+        pointer-events: none;
       }
-
-      #loading {
-        /* 与 desktop-pixel-kitchen.css 的 --pk-* 同源；这里独立声明，
-           启动壳必须在 UI 包 CSS 加载前就成立，不能依赖外部 token。 */
-        --splash-paper: #f1efdc;
-        --splash-ink: #17120f;
-        --splash-red: #c91d1f;
-        --splash-line: #c9c4ad;
-      }
-
       @media (prefers-color-scheme: dark) {
         #loading {
           --splash-paper: #211f1b;
           --splash-ink: #eee9d7;
           --splash-red: #e9796e;
-          --splash-line: #575043;
         }
       }
-
-      .splash {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        font-family: "Kitchen Pixel", ui-monospace, "PingFang SC", "Microsoft YaHei", monospace;
-        font-size: 12px;
-        line-height: 1.6;
-        color: var(--splash-ink);
-      }
-
-      /*
-       * 品牌 mark 逐格绘制。后备缓冲必须是格子数的整数倍（64 格 × 3 = 192），
-       * 否则每格尺寸出现小数，像素边缘会发虚。显示尺寸与后备缓冲 1:1，
-       * 再由 image-rendering 保证高 DPI 缩放后仍是硬边。
-       */
       .splash-mark {
+        position: absolute;
+        inset: 0;
         display: block;
-        width: 192px;
-        height: 192px;
-        image-rendering: pixelated;
+        width: 100%;
+        height: 100%;
+        visibility: hidden;
       }
-
-      .splash-title {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        margin-top: 16px;
+      /* 资源失败时保留可读品牌，不依赖 canvas、JS 字体或真实业务状态。 */
+      .splash-fallback {
+        font-family: "Kitchen Pixel", ui-monospace, "SFMono-Regular", Consolas, monospace;
+        font-size: clamp(48px, 8vw, 112px);
+        line-height: 1;
+        letter-spacing: 0.01em;
       }
-
-      .splash-eyebrow {
-        font-size: 11px;
-        letter-spacing: 0.18em;
-        text-transform: uppercase;
-        color: var(--splash-red);
-        animation: splash-fade-up 0.4s ease-out 0.34s both;
-      }
-
-      /* 字标与红色光标同一行，光标贴在文字右侧基线处。 */
-      .splash-wordmark-row {
-        display: flex;
-        align-items: flex-end;
-        margin-top: 6px;
-      }
-
-      .splash-wordmark {
-        display: flex;
-        font-size: 34px;
-        line-height: 1.1;
-        letter-spacing: 0.02em;
-      }
-
-      /* 逐字旋起；纯展示节点，完整名称由 .splash-sr 提供给辅助技术。 */
-      .splash-wordmark span {
-        animation: splash-letter-rise 0.42s cubic-bezier(0.22, 1, 0.36, 1) both;
-        transform-origin: center bottom;
-      }
-
-      .splash-wordmark span:nth-child(1) { animation-delay: 0.66s; }
-      .splash-wordmark span:nth-child(2) { animation-delay: 0.69s; }
-      .splash-wordmark span:nth-child(3) { animation-delay: 0.72s; }
-      .splash-wordmark span:nth-child(4) { animation-delay: 0.75s; }
-      .splash-wordmark span:nth-child(5) { animation-delay: 0.78s; }
-      .splash-wordmark span:nth-child(6) { animation-delay: 0.81s; }
-      .splash-wordmark span:nth-child(7) { animation-delay: 0.84s; }
-
-      .splash-caret {
-        width: 8px;
-        height: 3px;
-        margin-bottom: 5px;
-        margin-left: 4px;
-        background: var(--splash-red);
-        animation:
-          splash-caret-in 0.3s ease-out 1.04s both,
-          splash-caret-blink 0.92s step-end 1.34s infinite;
-      }
-
-      @keyframes splash-letter-rise {
-        0% {
-          opacity: 0;
-          transform: translateY(8px) rotate(7deg);
-        }
-
-        100% {
-          opacity: 1;
-          transform: translateY(0) rotate(0deg);
-        }
-      }
-
-      @keyframes splash-fade-up {
-        0% {
-          opacity: 0;
-          transform: translateY(4px);
-        }
-
-        100% {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
-
-      @keyframes splash-caret-in {
-        0% {
-          opacity: 0;
-          transform: scaleX(0.2);
-        }
-
-        100% {
-          opacity: 1;
-          transform: scaleX(1);
-        }
-      }
-
-      @keyframes splash-caret-blink {
-        0%,
-        100% {
-          opacity: 1;
-        }
-
-        50% {
-          opacity: 0.15;
-        }
-      }
-
-      /* 三格对应三个真实里程碑：像素组装完成、字标显形、React 首屏接管；
-         纯展示，不承诺进度，进度语义仍由 RootStartupLoading 负责。 */
-      .splash-timeline {
-        display: flex;
-        gap: 5px;
-        margin-top: 22px;
-      }
-
-      .splash-tick {
-        width: 6px;
-        height: 6px;
-        background: var(--splash-line);
-        transition:
-          background 0.26s ease,
-          transform 0.26s ease;
-      }
-
-      .splash[data-stage="1"] .splash-tick:nth-child(-n + 1),
-      .splash[data-stage="2"] .splash-tick:nth-child(-n + 2),
-      .splash[data-stage="3"] .splash-tick:nth-child(-n + 3) {
-        background: var(--splash-red);
-        transform: translateY(-1px);
-      }
-
       .splash-sr {
         position: absolute;
         width: 1px;
@@ -230,364 +76,504 @@
         clip-path: inset(50%);
         white-space: nowrap;
       }
-
+      .splash-window-controls {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        height: 48px;
+        display: flex;
+        align-items: center;
+        color: var(--splash-ink);
+        -webkit-app-region: no-drag;
+      }
+      #loading[data-stage="kinetic"] .splash-window-controls {
+        color: #f7f4e9;
+      }
+      .splash-window-controls button {
+        color: inherit;
+      }
+      .splash-window-controls button:hover {
+        background: color-mix(in srgb, currentColor 12%, transparent);
+      }
+      .splash-window-controls button[data-testid="window-control-close"]:hover {
+        color: #f7f4e9;
+        background: #b82e27;
+      }
       @media (prefers-reduced-motion: reduce) {
-        /* 减少动态效果：mark 直接呈现组装完成的终态，文字无延迟显示。 */
-        .splash-eyebrow,
-        .splash-wordmark span,
-        .splash-caret {
-          opacity: 1;
-          transform: none;
-          animation: none;
-        }
-
-        .splash-caret {
-          animation: splash-caret-blink 0.92s step-end infinite;
+        #root,
+        #loading {
+          transition: none;
         }
       }
     </style>
   </head>
   <body>
     <div id="root"></div>
-    <div
-      id="loading"
-      class="[app-region:drag]"
-      role="status"
-      aria-busy="true"
-      aria-label="Loading..."
-    >
-      <div class="splash" data-stage="0">
-        <canvas class="splash-mark" width="192" height="192" aria-hidden="true"></canvas>
-        <div class="splash-title">
-          <span class="splash-eyebrow">Pixel Kitchen</span>
-          <span class="splash-wordmark-row">
-            <span class="splash-wordmark" aria-hidden="true">
-              <span>S</span><span>h</span><span>u</span><span>c</span><span>o</span
-              ><span>d</span><span>e</span>
-            </span>
-            <span class="splash-caret" aria-hidden="true"></span>
-          </span>
-          <span class="splash-sr">Shucode</span>
-        </div>
-        <div class="splash-timeline" aria-hidden="true">
-          <span class="splash-tick"></span>
-          <span class="splash-tick"></span>
-          <span class="splash-tick"></span>
-        </div>
-      </div>
+    <div id="loading" role="status" aria-busy="true" aria-label="Loading Shucode">
+      <canvas class="splash-mark" aria-hidden="true"></canvas>
+      <span class="splash-fallback" aria-hidden="true">Shucode</span>
+      <span class="splash-sr">Shucode</span>
+      <div id="splash-window-controls" class="splash-window-controls"></div>
     </div>
-    <script type="module">
-      /*
-       * 启动壳动画：品牌 mark 由 64×64 个像素格组装而成。
-       *
-       * 时间轴（毫秒）：
-       *   0–720     像素从散落状态逐格吸附，径向波次，带落下过冲
-       *   760–1180  组装完成后，一道暖光沿对角线横扫过 mark
-       *   660–1260  字标逐字旋起，光标与进度格点亮
-       *   退场      React 就绪后像素向外炸开消散，同时整壳前推提亮
-       *
-       * 动画只负责展示；启动完成判定仍由「动画结束 + React 就绪」两个条件共同决定。
-       */
-      const splash = document.querySelector(".splash");
-      const startupLoading = document.getElementById("loading");
-      const markCanvas = document.querySelector(".splash-mark");
-      const markData = document.getElementById("splash-mark-data");
-      const isUpdateStatusWindow =
-        new URLSearchParams(window.location.search).get("windowKind") === "update-status";
-      const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-      /** 单格落下的时长；与延迟之和决定所有像素到位的时刻。 */
-      const FALL_MS = 380;
-      /** 径向波次的最远延迟，中心格先落，边缘格随后收拢。 */
-      const STAGGER_MS = 260;
-      const JITTER_MS = 80;
-      const SWEEP_START_MS = 760;
-      const SWEEP_MS = 420;
-      /** 组装与暖光全部结束的时刻，之后停帧保持终态等待 React。 */
-      const HOLD_MS = SWEEP_START_MS + SWEEP_MS;
-      /** 退场时像素炸开的时长。 */
-      const DISSOLVE_MS = 420;
-
-      let finished = false;
-      let animationDone = false;
-      let reactReady = false;
-
-      // 三格进度只由真实里程碑点亮，且必须单调推进：里程碑可能乱序到达。
-      let stage = 0;
-      const markStage = (next) => {
-        if (next <= stage) return;
-        stage = next;
-        if (splash) splash.dataset.stage = String(next);
-      };
-
-      // 主入口不能依赖动画结束后的动态 import；一旦导入路径在 Electron/Vite 下失败，
-      // 页面会永久停在 HTML loading。这里让主入口静态加载，只把启动壳作为动画遮罩延迟移除。
-      const tryFinishStartupAnimation = () => {
-        if (finished || !animationDone || !reactReady) return;
-        finished = true;
-        // 先让像素炸开，再整壳退场，避免遮罩瞬间消失造成闪白。
-        dissolveMark();
-        document.body.classList.add("shucode-startup-ready");
-        window.setTimeout(() => startupLoading?.remove(), 440);
-      };
-
-      const markAnimationDone = () => {
-        if (animationDone) return;
-        animationDone = true;
-        markStage(2);
-        tryFinishStartupAnimation();
-      };
-
-      const markReactReady = () => {
-        reactReady = true;
-        markStage(3);
-        tryFinishStartupAnimation();
-      };
-
-      /* ---------- 像素数据解析 ---------- */
-
-      /**
-       * 解析内联的像素网格：调色板是逗号分隔的 6 位 hex 字符串，
-       * 索引串每字符是一个 4bit 索引，0 表示透明，实体色从 1 开始。
-       */
-      function parseMarkData() {
-        if (!markData) return null;
-        let raw;
-        try {
-          raw = JSON.parse(markData.textContent ?? "");
-        } catch {
-          return null;
-        }
-        if (!raw || typeof raw.grid !== "number" || typeof raw.packed !== "string") return null;
-        if (typeof raw.palette !== "string" || raw.palette.length === 0) return null;
-
-        const palette = raw.palette.split(",").map((hex) => {
-          const value = Number.parseInt(hex, 16);
-          return [(value >> 16) & 255, (value >> 8) & 255, value & 255];
-        });
-        if (palette.some((rgb) => rgb.some((channel) => Number.isNaN(channel)))) return null;
-
-        return { grid: raw.grid, packed: raw.packed, palette };
-      }
-
-      /** 把索引串展开成待绘制的像素格，并预计算每个格子的落点参数。 */
-      function createMark(raw) {
-        const { grid, packed, palette } = raw;
-        // 每字符一个 4bit 索引，格子总数必须与索引串长度一致。
-        if (packed.length !== grid * grid) return null;
-
-        const cells = [];
-        const half = grid / 2;
-        for (let index = 0; index < packed.length; index++) {
-          const colorIndex = Number.parseInt(packed.charAt(index), 16);
-          if (!Number.isFinite(colorIndex) || colorIndex === 0) continue;
-          const rgb = palette[colorIndex - 1];
-          if (!rgb) continue;
-
-          const x = index % grid;
-          const y = (index - x) / grid;
-          const dx = x + 0.5 - half;
-          const dy = y + 0.5 - half;
-          const radius = Math.min(1, Math.hypot(dx, dy) / half);
-
-          cells.push({
-            x,
-            y,
-            rgb,
-            // 径向波次：中心先落位，边缘随后追上，形成一次收拢。
-            delay: radius * STAGGER_MS + Math.random() * JITTER_MS,
-            // 每个像素从 mark 上方不同高度、带水平漂移落下。
-            fromX: (Math.random() - 0.5) * 22,
-            fromY: -(14 + Math.random() * 20),
-            // 过冲挤压的相位偏移，避免所有像素同时鼓起来。
-            squeeze: 0.6 + Math.random() * 0.8,
-          });
-        }
-        return { grid, palette, cells };
-      }
-
-      /* ---------- 绘制 ---------- */
-
-      let mark = null;
-      let dissolveMark = () => undefined;
-
-      function markScale() {
-        // 后备缓冲必须是格子数的整数倍，格子边长才是整数像素。
-        return markCanvas.width / mark.grid;
-      }
-
-      function drawStatic() {
-        const ctx = markCanvas.getContext("2d");
-        const scale = markScale();
-        ctx.clearRect(0, 0, markCanvas.width, markCanvas.height);
-        for (const cell of mark.cells) {
-          const [r, g, b] = cell.rgb;
-          ctx.fillStyle = `rgb(${r},${g},${b})`;
-          ctx.fillRect(cell.x * scale, cell.y * scale, scale, scale);
-        }
-      }
-
-      function drawFrame(elapsed, sweepProgress, sweeping) {
-        const ctx = markCanvas.getContext("2d");
-        const scale = markScale();
-        const grid = mark.grid;
-        const span = grid * 2 - 2;
-        ctx.clearRect(0, 0, markCanvas.width, markCanvas.height);
-
-        for (const cell of mark.cells) {
-          const t = (elapsed - cell.delay) / FALL_MS;
-          if (t <= 0) continue;
-          const settled = t >= 1;
-
-          // 落下轨迹：三次缓出，落位前速度收住。
-          const eased = settled ? 1 : 1 - (1 - t) ** 3;
-          // 未落位的部分按 1-eased 距离插值回位。
-          const remaining = 1 - eased;
-          const px = cell.x + cell.fromX * remaining;
-          const py = cell.y + cell.fromY * remaining;
-
-          // 落点挤压：t 接近 1 时轻微横向拉伸、纵向压缩，落地后复原。
-          const impact = settled ? 0 : Math.sin(t * Math.PI) * cell.squeeze;
-          const w = scale * (1 + impact * 0.16);
-          const h = scale * (1 - impact * 0.12);
-
-          let [r, g, b] = cell.rgb;
-          if (sweeping) {
-            // 暖光沿对角线扫过：命中窗口内的像素向米白提亮。
-            const band = (grid - 1 - cell.x + cell.y) / span;
-            const distance = Math.abs(band - sweepProgress);
-            if (distance < 0.11) {
-              const glow = (1 - Math.sqrt(distance / 0.11)) * 0.9;
-              r += (255 - r) * glow;
-              g += (250 - g) * glow;
-              b += (228 - b) * glow;
-            }
-          }
-
-          ctx.fillStyle = `rgb(${r | 0},${g | 0},${b | 0})`;
-          // 未落位的像素半透明，落位后完全不透明，像是在「显影」。
-          ctx.globalAlpha = settled ? 1 : 0.3 + eased * 0.7;
-          ctx.fillRect(px * scale, py * scale, w, h);
-        }
-        ctx.globalAlpha = 1;
-      }
-
-      function drawDissolve(t) {
-        const ctx = markCanvas.getContext("2d");
-        const scale = markScale();
-        const grid = mark.grid;
-        const half = grid / 2;
-        ctx.clearRect(0, 0, markCanvas.width, markCanvas.height);
-
-        const eased = t * t;
-        for (const cell of mark.cells) {
-          const dx = cell.x + 0.5 - half;
-          const dy = cell.y + 0.5 - half;
-          const length = Math.hypot(dx, dy) || 1;
-          // 消散：像素沿各自径向向外飞散并缩小，像被灶火吹开。
-          const push = (10 + length * 2.2) * eased;
-          const px = cell.x + (dx / length) * push;
-          const py = cell.y + (dy / length) * push - eased * 6;
-          const size = scale * (1 - t);
-          if (size <= 0) continue;
-          const [r, g, b] = cell.rgb;
-          ctx.globalAlpha = 1 - t;
-          ctx.fillStyle = `rgb(${r},${g},${b})`;
-          ctx.fillRect(px * scale, py * scale, size, size);
-        }
-        ctx.globalAlpha = 1;
-      }
-
-      function startMarkAnimation() {
-        const started = performance.now();
-        let burstAt = 0;
-        let raf = 0;
-        let stopped = false;
-
-        const frame = (now) => {
-          if (stopped) return;
-
-          if (burstAt > 0) {
-            const t = (now - burstAt) / DISSOLVE_MS;
-            if (t >= 1) {
-              markCanvas.getContext("2d").clearRect(0, 0, markCanvas.width, markCanvas.height);
-              return;
-            }
-            drawDissolve(t);
-            raf = requestAnimationFrame(frame);
-            return;
-          }
-
-          const elapsed = now - started;
-          const sweeping = elapsed > SWEEP_START_MS;
-          const sweepProgress = sweeping
-            ? Math.min(1, (elapsed - SWEEP_START_MS) / SWEEP_MS)
-            : 0;
-          drawFrame(elapsed, sweepProgress, sweeping);
-
-          if (elapsed >= HOLD_MS) {
-            // 停帧保持组装终态，等 React 就绪后再由 dissolveMark 接管。
-            drawStatic();
-            markAnimationDone();
-            return;
-          }
-          raf = requestAnimationFrame(frame);
-        };
-
-        raf = requestAnimationFrame(frame);
-
-        // 窗口被遮挡时 rAF 可能长时间不调度，用一次定时器兜底，
-        // 保证启动壳不会因为动画没跑完而一直盖住界面。
-        window.setTimeout(markAnimationDone, HOLD_MS + 400);
-
-        dissolveMark = () => {
-          burstAt = performance.now();
-          cancelAnimationFrame(raf);
-          raf = requestAnimationFrame(frame);
-        };
-
-        return () => {
-          stopped = true;
-          cancelAnimationFrame(raf);
-        };
-      }
-
-      /* ---------- 启动编排 ---------- */
-
-      if (isUpdateStatusWindow) {
-        // 更新状态窗口本身就是一个轻量弹窗，复用主入口 HTML 时不应再显示启动壳。
-        // 否则透明独立窗口里的启动 mark 会短暂或持续盖在更新按钮上，看起来像弹窗 UI 异常。
-        finished = true;
-        document.body.classList.add("shucode-startup-ready");
-        startupLoading?.remove();
-      } else {
-        markStage(1);
-        window.addEventListener("shucode-react-startup-ready", markReactReady, { once: true });
-      }
-
-      const rawMark = parseMarkData();
-      mark = rawMark ? createMark(rawMark) : null;
-      if (mark) {
-        markCanvas.getContext("2d").imageSmoothingEnabled = false;
-      }
-
-      if (isUpdateStatusWindow) {
-        // 该窗口已直接退场，无需再跑动画。
-      } else if (!mark || reduceMotion) {
-        // 数据缺失或偏好减少动态效果：直接呈现组装完成的终态，不延迟任何内容。
-        if (mark) drawStatic();
-        markAnimationDone();
-      } else {
-        startMarkAnimation();
-      }
-
-      if (!isUpdateStatusWindow) {
-        window.setTimeout(markReactReady, 3000);
+    <!-- splash-mark-data:start（由 packages/desktop/scripts/build-splash-mark.mjs 生成，勿手改） -->
+    <script type="application/json" id="splash-mark-data">
+      {
+        "grid": 64,
+        "cell": 8,
+        "palette": "080808,7888a8,f8f8e8,f89898,f89888,585898,180808,485888",
+        "packed": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000011111000000000000000000000000000000000000000000000000000000000001111100000000000000000000000000000000000000000000000000000000011333331110000000000000000000000000000000000000000000000000011111333333311111000000000000000000000000000000000000000000011113333333333333333110000000000000000000000000000000000000000011333333333333333333331100000000000000000000000000000000000000011333333333333333333333111000000000000000000000000000000000000011333333333333333333333331100000000000000000000000000001110000001333333333333333333333333110000000000000000000000000000111000000133333333333333333333333311000000000000000000000000001111110000013333333333333333333333331000000000000000000000000011222222111101133333333333333331133331000000000000000000000000012222222222111011331113333333333111111000000000000000000000000112222222222222111111111333333333331100000000000000000000000000012444444422222221000111333333333333110000000000000000000000000012444444444422222110011133333333333311000000000000000000000000001544444444444222221101113333333333331100000000000000000000000000154444444444422222110111333333333333110000000000000000000000001115444444444442222221111133333333333110000011110000000000000000115544444444444422222111113333333333310000111111111100000000000011554444444444442222221111333333333331001112222222211000000000001155444444454444442222111111133333333111112222222222110000000000115554445555444444222212221111111111331122222224444221000000000011455445445555444442222122222111111111111112244444442110000000001144444455555444444222212221133333122111331144444444421000000000114444445555544444422221222113333312211133114444444442100000000011454444555544444442222222133333331121133331144444444210000000001114444555555444444222222213333333311133333311444444441000000000001444445555554444422222113333333333133333333144444444100000000000114444444444444412222211333333333313333333114444444100000000000001144444444444111222213333333333311333333111444444410000000000000011144444444111222221333333333311133333311144444440000000000000000111111111111122222133333333331113333331114444441000000000000000011111111111112222213333333333111333333111444444100000000000000000011111111222222221333333333311133333311144444100000000000000000000000001122222222133333333331113333331114444110000000000000000000000001122222222211133333333313333333111411100000000000000000000000000112222222222113333333331333333311110000000110000000000000000000111222221222222133333337213333312211100000111110000000000000011110112222112222221333311122111112222110000111111100000000000001100011122221111222211111122222222222221111111111110000000000000110001112222111122221111112222222222222111111111111000000000000100000111112222212222221222222222222222221111111111100000000000010000111111222221222222222222222222222211222111111100000000000010000100001112222222222222222222222222222211281110000000000000000000010000001111122222222222222222222222222211111000000000000000000001000000001112222112222222222222222221111110000000000000000000000000000001112222211111222222222222211100010000000000000000000000000000000112222222611111111111111111100001100000000000000000000000000000011222222261111111111111111110000110000000000000000000000000000011222222222661111111111111100000001000000000000000000000000000111222222222266111100000001100000000000000000000000000000000001111222222222222661110000000011100000000000000000000000000000000112222222222222266661100000000000000000000000000000000000000000012222222222222226666611000000000000000000000000000000000000000011222222222222222266661100000000000000000000000000000000000000011222222222222222222666611000000000000000000000000000000000000001122222222222222222266661100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
       }
     </script>
-    <!-- splash-mark-data:start（由 packages/desktop/scripts/build-splash-mark.mjs 生成，勿手改） -->
-    <script type="application/json" id="splash-mark-data">{"grid":64,"cell":8,"palette":"c91d1f,080808,7888a8,f8f8e8,f89898,f89888,585898,180808,485888","packed":"0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001111111111111111111111000000000000000000000000000000000111111111111111111111111111111111111111100000000000000000000011111111111111111111111111111111111111111111100000000000000000011111111111111111111111111111111111111111111111100000000000000011111111111111111111111111122222111111111111111111000000000000011111111111111111111111111122444422211111111111111110000000000011111111111111111111111122222444444222211111111111111000000000001111111111111111111112224444444444444422111111111111110000000000111111111111111111122244444444444444444221111111111111000000000111111111111111111112244444444444444444422211111111111110000000011111111111111111112244444444444444444444221111111111111000000001111111111122211111244444444444444444444422111111111111100000000111111112222222221124444444444444444444442111111111111110000000011111112223333322212244444444444444224442111111111111111000000001111112233333333322122442244444444422222111111111111111100000000111112233333333333222222224444444444221111111111111111110000000011111235555553333332111224444444444422111111111111111111000000001111235555555553333221122444444444442211111111111111111100000001111226555555555533332212244444444444211111111111111111110000000111122655555555553333322224444444444221111222211111111111000000011222665555555555533332222444444444421112222222221111111100000001111266555555555553333322244444444442112233333332211111110000000111126655555565555533332222224444444222233333333322111111000000011112666555666555553333233222222222442233333355533211111100000001111256655656666555533332333322222222222233555555322111110000000112225555556666555553333233224444233222422555555553211111000000011222565555666555555333333244444422322444225555555321111100000001111225555666665555533333324444444222444442255555552111110000000111122555556666655553333324444444442444444425555555211111000000011111225555555555552333332444444444244444422555555211111100000001111112255555555552233332444444444224444422255555521111110000000111111122255555552233333244444444222444442225555551111111000000011111111222222222223333324444444422244444222555552111111100000001111111111222222233333332444444442224444422255552111111110000000111111111111111223333333244444444222444442225552111111111000000011111111111111223333333322444444442444444222522111111111100000001111111111111122333333333244444444244444422221111112211110000000111111111111122233332333332444444832444423322211112222111000000011111111111222122333223333324444223322223333221112222221100000001111111111221112223332222333222223333333333332222222222110000000011111111121111222233333233333233333333333333322222222211000000001111111112112222223333323333333333333333333223322222211100000000111111112111211112233333333333333333333333333239222211110000000011111111111121111122222333333333333333333333332222211111000000001111111111112111111122233322333333333333333322222111111100000000111111111111111111122233332222233333333333222212111111110000000011111111111111111112233333372222222222222222111221111111000000001111111111111111112233333333772222222222222111112111111100000000111111111111111112233333333377222111111221111111111111100000000001111111111111122233333333333772211111112221111111111110000000000111111111111112233333333333377722111111111111111111111000000000001111111111111233333333333337777221111111111111111111000000000000111111111111223333333333333377722111111111111111111100000000000001111111111223333333333333333777221111111111111111100000000000000011111111111111111111111111111111111111111111111100000000000000000011111111111111111111111111111111111111111111000000000000000000000011111111111111111111111111111111111111100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"}</script>
     <!-- splash-mark-data:end -->
+    <script type="module">
+      (() => {
+        const loading = document.getElementById("loading");
+        if (new URLSearchParams(location.search).get("windowKind") === "update-status") {
+          document.body.classList.add("shucode-startup-ready");
+          loading?.remove();
+          return;
+        }
+        const canvas = loading.querySelector("canvas");
+        const fallback = loading.querySelector(".splash-fallback");
+        const dataNode = document.getElementById("splash-mark-data");
+        const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+        const colors = getComputedStyle(loading);
+        const paper = colors.getPropertyValue("--splash-paper").trim();
+        const ink = colors.getPropertyValue("--splash-ink").trim();
+        const red = colors.getPropertyValue("--splash-red").trim();
+        const duration = 7000;
+        const exitDuration = reduced ? 0 : 340;
+        let animationDone = false;
+        let reactReady = Boolean(window.__SHUCODE_REACT_COMMIT_AT__);
+        let finished = false;
+        let disposed = false;
+        let started = 0;
+        let time = 0;
+        let frame = 0;
+        let animationTimer = 0;
+        let readyTimer = 0;
+        let removeTimer = 0;
+        let font = 'ui-monospace, "SFMono-Regular", Consolas, monospace';
+        let ctx = null;
+        try {
+          ctx = canvas?.getContext("2d", { alpha: false }) ?? null;
+        } catch {
+          /* 无画布时使用可读 DOM 字标。 */
+        }
+        const cells = [];
+        let gridSize = 64;
+        // 旧解析在 bit 运算后检查 NaN 会把非法颜色变成黑色；先验证原始数据再解包。
+        function parseChef() {
+          try {
+            const data = JSON.parse(dataNode?.textContent ?? "");
+            if (
+              !data ||
+              data.grid !== 64 ||
+              typeof data.palette !== "string" ||
+              typeof data.packed !== "string"
+            )
+              return false;
+            const palette = data.palette.split(",");
+            if (
+              palette.length < 1 ||
+              palette.length > 15 ||
+              palette.some((hex) => !/^[0-9a-f]{6}$/iu.test(hex))
+            )
+              return false;
+            if (data.packed.length !== data.grid * data.grid || !/^[0-9a-f]+$/iu.test(data.packed))
+              return false;
+            for (let i = 0; i < data.packed.length; i++) {
+              const index = Number.parseInt(data.packed[i], 16);
+              if (index > palette.length) return false;
+              if (index > 0)
+                cells.push({
+                  x: i % data.grid,
+                  y: Math.floor(i / data.grid),
+                  color: `#${palette[index - 1]}`,
+                  r: hash(i),
+                });
+            }
+            gridSize = data.grid;
+            return cells.length > 0;
+          } catch {
+            return false;
+          }
+        }
+        const hasChef = parseChef();
+        const image = document.createElement("canvas");
+        image.width = gridSize;
+        image.height = gridSize;
+        let chefContext = null;
+        if (ctx && hasChef) {
+          try {
+            chefContext = image.getContext("2d");
+          } catch {
+            /* 与主画布共同降级。 */
+          }
+          if (chefContext)
+            for (const cell of cells) {
+              chefContext.fillStyle = cell.color;
+              chefContext.fillRect(cell.x, cell.y, 1, 1);
+            }
+        }
+        const canDraw = Boolean(ctx && chefContext && hasChef);
+        const clamp = (x) => Math.max(0, Math.min(1, x));
+        const ease = (x) => 1 - Math.pow(1 - clamp(x), 3);
+        const smooth = (x) => {
+          const a = clamp(x);
+          return a * a * (3 - 2 * a);
+        };
+        function hash(n) {
+          const a = Math.sin(n * 78.233 + 9.32) * 43758.5453;
+          return a - Math.floor(a);
+        }
+        function text(value, x, y, size, color = ink, align = "center") {
+          ctx.fillStyle = color;
+          ctx.textAlign = align;
+          ctx.textBaseline = "middle";
+          ctx.font = `400 ${size}px ${font}`;
+          ctx.fillText(value, x, y);
+        }
+        function cross(x, y, color, size = 8) {
+          ctx.strokeStyle = color;
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(x - size, y);
+          ctx.lineTo(x + size, y);
+          ctx.moveTo(x, y - size);
+          ctx.lineTo(x, y + size);
+          ctx.stroke();
+        }
+        function grid(W, H, t, bright, cssUnit) {
+          ctx.fillStyle = bright ? "#f7f4e917" : ink + "16";
+          const step = 28;
+          for (let y = 18; y < H; y += step)
+            for (let x = 18; x < W; x += step) ctx.fillRect(x, y, 1.8, 1.8);
+          const col = bright ? "#f7f4e950" : ink + "50";
+          const headerY = 12 * cssUnit;
+          cross(38, headerY, col, 6 * cssUnit);
+          cross(W - 38, headerY, col, 6 * cssUnit);
+          cross(38, H - 38, col);
+          cross(W - 38, H - 38, col);
+          const headerSize = 12 * cssUnit;
+          const brand = "SHUCODE® / PIXEL KITCHEN";
+          const edition = "02 — OVERDRIVE";
+          text(brand, 60, headerY, headerSize, col, "left");
+          // 小窗口叠加页面放大时只收起装饰编号，避免两侧角标压字或互相覆盖。
+          if (
+            W - 120 - ctx.measureText(brand).width - ctx.measureText(edition).width >=
+            12 * cssUnit
+          )
+            text(edition, W - 60, headerY, headerSize, col, "right");
+          text("BUILD SOMETHING THAT MATTERS.", 60, H - 40, 12, col, "left");
+          const bars = 31,
+            progress = clamp(t / 6.3);
+          for (let i = 0; i < bars; i++) {
+            ctx.globalAlpha = i / bars < progress ? 0.8 : 0.18;
+            ctx.fillStyle = bright ? paper : red;
+            ctx.fillRect(W - 216 + i * 5, H - 45, 3, 10);
+          }
+          ctx.globalAlpha = 1;
+        }
+        function particles(t, W, H) {
+          const cx = W / 2,
+            cy = H / 2;
+          const size = 300;
+          for (let i = 0; i < cells.length; i++) {
+            const c = cells[i];
+            const p = ease((t - 1.05 - c.r * 0.48) / 1.02);
+            const angle = c.r * Math.PI * 8 + t * 0.6;
+            const radius = 550 + hash(i + 3) * 750;
+            const tx = cx + ((c.x - gridSize / 2) * size) / gridSize,
+              ty = cy + ((c.y - gridSize / 2) * size) / gridSize;
+            const ox = cx + Math.cos(angle) * radius,
+              oy = cy + Math.sin(angle) * radius;
+            const x = ox + (tx - ox) * p,
+              y = oy + (ty - oy) * p;
+            ctx.globalAlpha = clamp((t - 0.95) * 2);
+            ctx.fillStyle = p > 0.7 ? c.color : i % 5 === 0 ? ink : red;
+            const cellSize = size / gridSize + (1 - p) * 4;
+            ctx.fillRect(Math.round(x), Math.round(y), cellSize, cellSize);
+          }
+          ctx.globalAlpha = 1;
+          const orbit = 1 - smooth((t - 2.0) / 0.55);
+          if (orbit > 0) {
+            ctx.save();
+            ctx.translate(cx, cy);
+            ctx.rotate(t * 0.4);
+            ctx.strokeStyle = red;
+            ctx.lineWidth = 1.4;
+            ctx.globalAlpha = orbit;
+            const r = 205;
+            for (let i = 0; i < 4; i++) {
+              ctx.rotate(Math.PI / 2);
+              ctx.strokeRect(r, -9, 18, 18);
+              ctx.beginPath();
+              ctx.moveTo(175, 0);
+              ctx.lineTo(195, 0);
+              ctx.stroke();
+            }
+            ctx.restore();
+          }
+          text("CRAFTED FROM PIXELS.", cx, cy + 202, 14, red);
+        }
+        function ignition(t, W, H) {
+          const cx = W / 2,
+            cy = H / 2;
+          const p = ease(t / 0.8);
+          ctx.fillStyle = ink;
+          ctx.fillRect(cx - 132, cy - 1, 264 * p, 2);
+          for (let i = 0; i < 9; i++) {
+            const e = clamp((t - i * 0.06) / 0.35);
+            ctx.fillStyle = i === 8 ? red : ink;
+            ctx.fillRect(cx - 132 + i * 30, cy - 20 - 18 * e, 18, 18 * e);
+          }
+          const scale = 12 + smooth((t - 0.5) / 0.45) * 16;
+          ctx.save();
+          ctx.translate(cx + 132 * p, cy);
+          ctx.rotate((Math.PI / 4) * t);
+          ctx.fillStyle = red;
+          ctx.fillRect(-scale / 2, -scale / 2, scale, scale);
+          ctx.restore();
+          text("ONE PIXEL. INFINITE POSSIBILITIES.", cx, cy + 55, 13, red);
+          text(String(Math.floor(p * 99)).padStart(2, "0"), cx, cy - 94, 52, ink);
+        }
+        function kinetic(t, W, H) {
+          const local = t - 2.85,
+            cx = W / 2,
+            cy = H / 2;
+
+          const fs = 242;
+          ctx.save();
+          ctx.translate(cx, cy - 118);
+          ctx.translate((1 - ease(local / 0.4)) * -W, 0);
+          text("SHU", 0, 0, fs, "#f7f4e9");
+          ctx.restore();
+          ctx.save();
+          ctx.translate(cx, cy + 124);
+          ctx.translate((1 - ease((local - 0.17) / 0.5)) * W, 0);
+          text("CODE", 0, 0, fs, "#f7f4e9");
+          ctx.restore();
+          const x = ((local * 1100) % 1500) - 180;
+          ctx.save();
+          ctx.beginPath();
+          ctx.rect(x, 0, 32, H);
+          ctx.clip();
+          ctx.fillStyle = ink;
+          ctx.fillRect(x, 0, 32, H);
+          text("SHU", cx, cy - 118, fs, "#f7f4e9");
+          text("CODE", cx, cy + 124, fs, "#f7f4e9");
+          ctx.restore();
+          for (let i = 0; i < 20; i++) {
+            ctx.fillStyle = i % 2 ? "#f7f4e9" : "#22251f";
+            ctx.fillRect(50 + i * 16, cy - 8, 16, 16);
+            ctx.fillRect(W - 370 + i * 16, cy - 8, 16, 16);
+          }
+          text("COOK UP THE EXTRAORDINARY", cx, H - 76, 12, "#f7f4e9");
+        }
+        function final(t, W, H) {
+          const cx = W / 2,
+            cy = H / 2;
+          const reveal = smooth((t - 4.32) / 0.65);
+          const chefScale = 1 + 0.2 * (1 - ease((t - 4.32) / 0.7));
+          ctx.save();
+          ctx.translate(cx, cy - 122);
+          ctx.scale(chefScale, chefScale);
+          ctx.globalAlpha = reveal;
+          ctx.imageSmoothingEnabled = false;
+          if (chefContext) ctx.drawImage(image, -70, -80, 140, 140);
+          ctx.restore();
+          const letters = "Shucode",
+            fs = 142;
+          ctx.font = `400 ${fs}px ${font}`;
+          const total = ctx.measureText(letters).width;
+          let x = cx - total / 2;
+          for (let i = 0; i < letters.length; i++) {
+            const char = letters[i],
+              width = ctx.measureText(char).width;
+            const v = ease((t - 4.42 - i * 0.042) / 0.6);
+            ctx.save();
+            ctx.beginPath();
+            ctx.rect(x - 5, cy - 10, width + 10, 145);
+            ctx.clip();
+            text(char, x, cy + 61 + (1 - v) * 130, fs, ink, "left");
+            ctx.restore();
+            x += width;
+          }
+          const subtitle = smooth((t - 5.1) / 0.5);
+          ctx.globalAlpha = subtitle;
+          text("YOUR IDEAS. WELL DONE.", cx, cy + 166, 14, red);
+          ctx.globalAlpha = 1;
+          const cursor = smooth((t - 5.35) / 0.3);
+          ctx.fillStyle = red;
+          ctx.fillRect(cx + total / 2 + 20, cy + 80, 14, 28 * cursor);
+          const box = smooth((t - 5.55) / 0.6);
+          ctx.strokeStyle = ink + "38";
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(cx - 380, cy - 245);
+          ctx.lineTo(cx - 380 + box * 760, cy - 245);
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.moveTo(cx + 380, cy + 245);
+          ctx.lineTo(cx + 380 - box * 760, cy + 245);
+          ctx.stroke();
+          const flare = 1 - smooth((t - 5.65) / 0.5);
+          if (t > 5.65 && flare > 0)
+            for (let i = 0; i < 12; i++) {
+              const a = (i / 12) * Math.PI * 2,
+                rad = 250 + (1 - flare) * 160;
+              ctx.globalAlpha = flare;
+              ctx.fillStyle = i % 3 === 0 ? ink : red;
+              ctx.fillRect(cx + Math.cos(a) * rad, cy + Math.sin(a) * rad, 8, 8);
+            }
+          ctx.globalAlpha = 1;
+          if (t > 6.0) {
+            ctx.save();
+            ctx.globalAlpha = smooth((t - 6) / 0.4);
+            ctx.translate(W - 112, H - 112);
+            ctx.rotate(-0.15);
+            ctx.strokeStyle = red;
+            ctx.lineWidth = 2;
+            ctx.strokeRect(-41, -16, 82, 32);
+            text("LET’S COOK", 0, 0, 10, red);
+            ctx.restore();
+          }
+        }
+        function render(next) {
+          if (!canDraw || disposed) return;
+          const rect = loading.getBoundingClientRect();
+          const dpr = Math.min(devicePixelRatio || 1, 2);
+          const pixelW = Math.max(1, Math.round(rect.width * dpr));
+          const pixelH = Math.max(1, Math.round(rect.height * dpr));
+          if (canvas.width !== pixelW || canvas.height !== pixelH) {
+            canvas.width = pixelW;
+            canvas.height = pixelH;
+          }
+          const W = 1200,
+            H = (pixelH / pixelW) * W;
+          // 半像素尺寸会让底行残留上一帧；每次覆盖完整后备缓冲，再进入艺术坐标。
+          ctx.setTransform(1, 0, 0, 1, 0, 0);
+          ctx.globalAlpha = 1;
+          const kineticPhase = next >= 2.85 && next < 4.34;
+          ctx.fillStyle = kineticPhase ? "#e74728" : paper;
+          ctx.fillRect(0, 0, pixelW, pixelH);
+          ctx.setTransform(pixelW / W, 0, 0, pixelW / W, 0, 0);
+          ctx.imageSmoothingEnabled = false;
+          // 原生红绿灯与自绘窗控只约束顶部角标；动效本身必须连续铺满窗口，不能被安全区裁成内嵌画框。
+          const safeTop = (64 / rect.height) * H;
+          const contentH = Math.max(1, H - safeTop);
+          ctx.save();
+          ctx.translate(0, safeTop);
+          grid(W, contentH, next, kineticPhase, W / rect.width);
+          ctx.restore();
+          const artScale = Math.min(1, Math.max(0.25, (H - 120) / 530));
+          ctx.save();
+          ctx.translate(W / 2, H / 2);
+          ctx.scale(artScale, artScale);
+          ctx.translate(-W / 2, -H / 2);
+          if (next < 1.13) ignition(next, W, H);
+          else if (next < 2.85) particles(next, W, H);
+          else if (next < 4.34) kinetic(next, W, H);
+          else final(next, W, H);
+          ctx.restore();
+          const phase =
+            next < 1.13 ? "ignition" : next < 2.85 ? "assembly" : next < 4.34 ? "kinetic" : "brand";
+          if (loading.dataset.stage !== phase) loading.dataset.stage = phase;
+          canvas.style.visibility = "visible";
+          fallback.hidden = true;
+        }
+        function dispose() {
+          if (disposed) return;
+          disposed = true;
+          cancelAnimationFrame(frame);
+          clearTimeout(animationTimer);
+          clearTimeout(readyTimer);
+          clearTimeout(removeTimer);
+          removeEventListener("resize", onResize);
+          removeEventListener("pagehide", dispose);
+          removeEventListener("shucode-react-startup-ready", markReactReady);
+        }
+        function removeLoading() {
+          dispose();
+          loading.remove();
+        }
+        function tryFinish() {
+          if (finished || !animationDone || !reactReady) return;
+          finished = true;
+          cancelAnimationFrame(frame);
+          clearTimeout(animationTimer);
+          clearTimeout(readyTimer);
+          removeEventListener("resize", onResize);
+          removeEventListener("shucode-react-startup-ready", markReactReady);
+          loading.setAttribute("aria-busy", "false");
+          document.body.classList.add("shucode-startup-ready");
+          if (exitDuration === 0) removeLoading();
+          else removeTimer = setTimeout(removeLoading, exitDuration + 40);
+        }
+        function markReactReady() {
+          if (disposed) return;
+          reactReady = true;
+          clearTimeout(readyTimer);
+          tryFinish();
+        }
+        function completeAnimation() {
+          if (animationDone || disposed) return;
+          // 旧后台兜底只改完成标记，迟到 rAF 会继续画；统一先停帧并绘终态再交接。
+          cancelAnimationFrame(frame);
+          clearTimeout(animationTimer);
+          time = duration;
+          if (canDraw) render(7);
+          animationDone = true;
+          tryFinish();
+        }
+        function onResize() {
+          if (disposed || finished) return;
+          // 窗口缩放只重画当前派生时间，不重新开始入场或启动第二条 rAF。
+          render(time / 1000);
+        }
+        function tick(now) {
+          if (animationDone || disposed) return;
+          time = Math.min(duration, Math.max(0, now - started));
+          render(time / 1000);
+          if (time >= duration) completeAnimation();
+          else frame = requestAnimationFrame(tick);
+        }
+        function startAnimation(fontAvailable = true) {
+          if (disposed || animationDone) return;
+          if (fontAvailable)
+            font = '"Kitchen Pixel", ui-monospace, "SFMono-Regular", Consolas, monospace';
+          time = 0;
+          started = performance.now();
+          clearTimeout(animationTimer);
+          animationTimer = setTimeout(completeAnimation, duration + 400);
+          render(0);
+          frame = requestAnimationFrame(tick);
+        }
+        // 先监听再等待字体；React 可能在本地资源加载前已 commit，回读已有 commit 标记防丢事件。
+        addEventListener("shucode-react-startup-ready", markReactReady, { once: true });
+        addEventListener("pagehide", dispose, { once: true });
+        if (reactReady) tryFinish();
+        else readyTimer = setTimeout(markReactReady, 3000);
+        if (!canDraw) {
+          fallback.hidden = false;
+          if (canvas) canvas.style.visibility = "hidden";
+          completeAnimation();
+        } else if (reduced) {
+          completeAnimation();
+        } else {
+          addEventListener("resize", onResize, { passive: true });
+          // 只延续既有展示恢复时限，不参与业务初始化；字体失败/永久挂起也不能卡住遮罩。
+          animationTimer = setTimeout(completeAnimation, duration + 400);
+          if (document.fonts) {
+            document.fonts.load('400 96px "Kitchen Pixel"').then(
+              () => startAnimation(),
+              () => startAnimation(false),
+            );
+          } else startAnimation(false);
+        }
+      })();
+    </script>
     <script type="module" src="./src/main.tsx"></script>
   </body>
 </html>
