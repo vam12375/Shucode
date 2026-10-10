@@ -88,6 +88,7 @@ function LoginPanel({ active, onComplete, isDesktop }: LoginPanelProps) {
   const clearLoginEntryRequest = useShucodeStore((s) => s.clearLoginEntryRequest);
   const markLoginEntryAttemptStatus = useShucodeStore((s) => s.markLoginEntryAttemptStatus);
   const [loginMode, setLoginMode] = useState<"entry" | "apiKey">("entry");
+  const [hasInteractedWithActions, setHasInteractedWithActions] = useState(false);
   const wasActiveRef = useRef(active);
   const consumedLoginRequestRef = useRef<number | null>(null);
   const observedOAuthSuccessSeqRef = useRef(oauthSuccessSeq);
@@ -296,7 +297,13 @@ function LoginPanel({ active, onComplete, isDesktop }: LoginPanelProps) {
         {null}
       </LoginPanelHeader>
 
-      <div className="pk-welcome-actions space-y-6">
+      <div
+        className="pk-welcome-actions space-y-6"
+        data-welcome-actions-interacted={hasInteractedWithActions ? "true" : undefined}
+        // 模式切换会卸载聚焦按钮；只靠 :focus-within 会重播入场延迟，需保留已交互展示态。
+        onFocusCapture={() => setHasInteractedWithActions(true)}
+        onPointerDownCapture={() => setHasInteractedWithActions(true)}
+      >
         {/* Root 层写入 oauthError（轮询/回调失败）后 effect 会把 useOAuth reset 回 idle，
             若只判断 status==="idle" 会让失败块和登录入口按钮同屏、状态纠缠。
             失败期间统一由下方失败块接管（重新登录/取消），入口按钮等错误清掉后再回来。 */}

@@ -636,7 +636,8 @@ html:not(:is(.platform-mac-desktop, .platform-windows-desktop, .platform-linux-d
     animation: pk-welcome-rise 0.2s steps(3) 0.85s both;
   }
 
-  .pk-welcome-page .pk-welcome-actions:focus-within {
+  /* 聚焦按钮随入口/表单切换被卸载后也保持可见，避免重新等待首屏入场动画。 */
+  .pk-welcome-page .pk-welcome-actions[data-welcome-actions-interacted="true"] {
     animation: none;
     opacity: 1;
     transform: none;
