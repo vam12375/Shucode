@@ -45,6 +45,8 @@ import type {
   ShucodePluginOperationProgressNotification,
   ShucodeProviderTestModelConnectivityParams,
   ShucodeProviderTestModelConnectivityResult,
+  ShucodeProviderListModelsParams,
+  ShucodeProviderListModelsResult,
   ShucodeUserInputRequestParams,
   ShucodeUserInputResponse,
   ShucodeSessionEvent,
@@ -322,6 +324,16 @@ export interface ShucodeAgentGenerateWorkspaceTextParams extends ShucodeAgentWor
 
 export interface ShucodeAgentTestModelConnectivityParams extends ShucodeAgentWorkspaceTarget {
   selection: ShucodeProviderTestModelConnectivityParams["selection"];
+  signal?: AbortSignal;
+}
+
+/**
+ * 模型发现走与连接测试同一条进程边界：供应商鉴权头、代理与自定义头语义都由 CLI
+ * 侧统一处理，Renderer 只提供本次请求要用的连接信息（可能是尚未保存的表单草稿）。
+ */
+export interface ShucodeAgentListProviderModelsParams extends ShucodeAgentWorkspaceTarget {
+  providerId: string;
+  connection: ShucodeProviderListModelsParams["connection"];
   signal?: AbortSignal;
 }
 
@@ -704,6 +716,9 @@ export interface IShucodeAgentService {
   testModelConnectivity(
     params: ShucodeAgentTestModelConnectivityParams,
   ): Promise<ShucodeProviderTestModelConnectivityResult>;
+  listProviderModels(
+    params: ShucodeAgentListProviderModelsParams,
+  ): Promise<ShucodeProviderListModelsResult>;
   /**
    * @deprecated：send 主路径已收敛 v4 sendText 命令。仅剩两个消费点——
    * adapter 带附件输入回退（待附件命令面落地后移除）与 shucodeSessionService

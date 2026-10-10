@@ -17,7 +17,11 @@ import {
   type SavePersonalModelDraftInput,
 } from "@shucode/provider";
 import { createServiceDescriptor } from "../descriptors.js";
-import type { ModelConnectivityResult } from "@shucode/shared";
+import type {
+  ModelConnectivityResult,
+  ProviderModelListingResult,
+  ShucodeProviderListModelsConnection,
+} from "@shucode/shared";
 import { createServiceLogger } from "../logger/serviceLogger.js";
 
 export type {
@@ -68,6 +72,11 @@ export interface IProviderSettingsService {
   testModelConnectivity(
     input: ProviderSettingsConnectivityRequest,
   ): Promise<ModelConnectivityResult>;
+  /**
+   * 从供应商拉取模型 ID 列表。传入的是「这一次请求要用的连接信息」，可以是尚未保存的
+   * 表单草稿；本方法不写任何配置事实，结果只回给设置页由用户挑选。
+   */
+  listProviderModels(input: ProviderSettingsListModelsRequest): Promise<ProviderModelListingResult>;
 }
 
 export const IProviderSettingsService = createServiceDescriptor<IProviderSettingsService>(
@@ -92,6 +101,18 @@ export type ProviderSettingsConnectivityTester = (
   input: ProviderSettingsConnectivityTestInput,
 ) => Promise<ModelConnectivityResult>;
 
+/** 模型发现请求：连接信息来自设置页表单，不要求对应 Provider 已经落盘。 */
+export interface ProviderSettingsListModelsRequest {
+  readonly workspacePath: string;
+  readonly workspaceIdentity?: string;
+  readonly providerId: ProviderId;
+  readonly connection: ShucodeProviderListModelsConnection;
+}
+
+export type ProviderModelListingExecutor = (
+  input: ProviderSettingsListModelsRequest,
+) => Promise<ProviderModelListingResult>;
+
 export interface IModelSelectionService {
   readonly onDidChange: Event<ModelSelectionView>;
   getView(input?: ModelSelectionViewInput): Promise<ModelSelectionView>;
@@ -110,6 +131,7 @@ export function createProviderSettingsService(
   facade: ProviderSettingsFacade,
   ensureReady: () => Promise<void> = async () => {},
   testConnectivity?: ProviderSettingsConnectivityTester,
+  listModels?: ProviderModelListingExecutor,
 ): IProviderSettingsService {
   return {
     onDidChange: toEvent((listener) => facade.onDidChange(listener)),
@@ -204,6 +226,21 @@ export function createProviderSettingsService(
         ...(input.workspaceIdentity ? { workspaceIdentity: input.workspaceIdentity } : {}),
         providerId: input.providerId,
         modelId: input.modelId,
+      });
+    },
+    listProviderModels: async (input) => {
+      // 只等待同 Provider 的在途写操作，避免用刚被覆盖的旧配置发出请求；
+      // 不要求 Provider 已进入 Registry，因为设置页允许保存前先试拉。
+      await ensureReady();
+      if (!listModels) {
+        throw new Error("当前 Environment 未装配模型列表获取能力");
+      }
+      await facade.waitForProviderOperations(input.providerId);
+      return listModels({
+        workspacePath: input.workspacePath,
+        ...(input.workspaceIdentity ? { workspaceIdentity: input.workspaceIdentity } : {}),
+        providerId: input.providerId,
+        connection: input.connection,
       });
     },
   };

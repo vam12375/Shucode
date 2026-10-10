@@ -375,7 +375,10 @@ import {
   IModelSelectionService,
   IProviderSettingsService,
 } from "./model-provider/providerFacadeServices.js";
-import { createProviderSettingsConnectivityTester } from "./model-provider/providerSettingsConnectivity.js";
+import {
+  createProviderSettingsConnectivityTester,
+  createProviderSettingsModelLister,
+} from "./model-provider/providerSettingsConnectivity.js";
 import {
   createProviderProvisioningSource,
   listProviderProvisioningCredentialKeys,
@@ -1609,6 +1612,11 @@ export function createLocalServices(options: {
   let providerConnectivityAgentService:
     | Pick<IShucodeAgentService, "testModelConnectivity">
     | undefined;
+  // 模型发现与连接测试共用同一份 Agent Service 装配点：两者都必须经过 Agent 进程，
+  // 才能复用供应商鉴权头、代理与自定义头的统一语义。
+  let providerModelListingAgentService:
+    | Pick<IShucodeAgentService, "listProviderModels">
+    | undefined;
   const providerRuntime = createProviderRuntimeFromConfigRuntime({
     configRuntime: providerConfigRuntime,
     accountSource: accountProviderConfigSource,
@@ -1621,6 +1629,14 @@ export function createLocalServices(options: {
           throw new Error("Agent Service 尚未完成模型连通性测试装配");
         }
         return providerConnectivityAgentService.testModelConnectivity(input);
+      },
+    }),
+    listModels: createProviderSettingsModelLister({
+      listProviderModels: async (input) => {
+        if (!providerModelListingAgentService) {
+          throw new Error("Agent Service 尚未完成模型列表获取装配");
+        }
+        return providerModelListingAgentService.listProviderModels(input);
       },
     }),
     disposeAccountSource: () => {
@@ -2247,6 +2263,7 @@ export function createLocalServices(options: {
         }),
   });
   providerConnectivityAgentService = shucodeAgentService;
+  providerModelListingAgentService = shucodeAgentService;
   // Helper health probe 短暂超时不应在 Computer Use turn 中途回收 Agent。resolver 会把 restart
   // 推迟到下一个 request/turn 边界；若 broker 确实已失效，当前 turn 会自然失败并由下一次请求恢复。
   hasActiveTurnRef = () => shucodeAgentService.hasActiveCuaOperationTurn();

@@ -22,12 +22,14 @@ import {
   type IModelSelectionService,
   type IProviderSettingsService,
   type ModelSelectionConfiguredDefaultSource,
+  type ProviderModelListingExecutor,
   type ProviderSettingsConnectivityTester,
 } from "./providerFacadeServices.js";
 
 export interface ProviderRuntimeOptions extends ProviderConfigRuntimeOptions {
   readonly accountSource?: RefreshableProviderSource<AccountProviderConfigSnapshot>;
   readonly testConnectivity?: ProviderSettingsConnectivityTester;
+  readonly listModels?: ProviderModelListingExecutor;
 }
 
 export interface ProviderRuntimeDependencies {
@@ -35,6 +37,7 @@ export interface ProviderRuntimeDependencies {
   readonly accountSource?: RefreshableProviderSource<AccountProviderConfigSnapshot>;
   readonly disposeAccountSource?: () => void;
   readonly testConnectivity?: ProviderSettingsConnectivityTester;
+  readonly listModels?: ProviderModelListingExecutor;
   readonly modelSelectionConfiguredDefaultSource?: ModelSelectionConfiguredDefaultSource;
   readonly disposeModelSelectionConfiguredDefaultSource?: () => void;
 }
@@ -108,6 +111,7 @@ export class ProviderRuntime {
       settingsFacade,
       ensureReady,
       dependencies.testConnectivity,
+      dependencies.listModels,
     );
     this.#modelSelectionRuntime = createModelSelectionService(
       createNodeModelSelectionFacade(this.registryService),

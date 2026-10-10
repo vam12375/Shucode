@@ -68,6 +68,7 @@ import {
   shucodeProviderRuntimeHeadersCancelledSchema,
   shucodeProviderRuntimeHeadersRequestParamsSchema,
   shucodeProviderTestModelConnectivityResultSchema,
+  shucodeProviderListModelsResultSchema,
   shucodeOfficialMcpAuthHeadersRequestParamsSchema,
   summarizeOfficialMcpIdentityHeaders,
   shucodeProtocolEmptyResultSchema,
@@ -104,6 +105,7 @@ import {
   type ShucodeAutomationRun,
   shucodeWorkspaceUpdateOffPeakToolPolicyResultSchema,
   shucodeWorkspaceUpdateDynamicWorkflowPolicyResultSchema,
+  PROVIDER_LIST_MODELS_REQUEST_TIMEOUT_MS,
   type DynamicWorkflowClientConfig,
   type AgentLaneResourceSample,
   type ProcessResourceCliLane,
@@ -151,6 +153,7 @@ import type {
   ShucodeAgentInstallPluginParams,
   ShucodeAgentGenerateWorkspaceTextParams,
   ShucodeAgentTestModelConnectivityParams,
+  ShucodeAgentListProviderModelsParams,
   ShucodeAgentGoalParams,
   ShucodeAgentGrantWorkspaceHookTrustParams,
   ShucodeAgentInitializeResult,
@@ -4428,6 +4431,28 @@ export function createShucodeAgentService(
         },
         shucodeProviderTestModelConnectivityResultSchema,
         { signal: params.signal },
+      );
+    },
+
+    async listProviderModels(params: ShucodeAgentListProviderModelsParams) {
+      const client = await getClient(params);
+      // 与连接测试同样先补齐账号 Provider 配置：模型发现要读的是同一份有效配置事实，
+      // 否则刚同步过的账号 Provider 可能还看不到自己。
+      await ensureAccountProviderConfigSynced({
+        client,
+        reason: "provider_list_models",
+        workspace: params,
+      });
+      return client.request(
+        shucodeProtocolMethods.providerListModels,
+        {
+          workspace: buildWorkspaceRef(params),
+          providerId: params.providerId,
+          connection: params.connection,
+        },
+        shucodeProviderListModelsResultSchema,
+        // 候选端点可能逐个尝试，给足单个端点 15s 之外的排队与建连余量。
+        { signal: params.signal, timeoutMs: PROVIDER_LIST_MODELS_REQUEST_TIMEOUT_MS },
       );
     },
 
