@@ -19,6 +19,7 @@ import type {
   InputHistoryStorePort,
   ListSessionsInput,
   AppUsageQueryInput,
+  AppUsageDashboardInput,
   AppUsageQueryResult,
   LocalSettingStorePort,
   MessageId,
@@ -101,6 +102,7 @@ import * as sessionInputRepository from "./repositories/session-inputs.js";
 import * as sessionRepository from "./repositories/sessions.js";
 import * as todoRepository from "./repositories/todos.js";
 import * as usageRepository from "./repositories/usage.js";
+import { queryAppUsageDashboard } from "./repositories/usage-dashboard.js";
 
 function forkChildSessionId(entry: SessionEntryInfo): SessionId | null {
   if (!entry.data || typeof entry.data !== "object" || Array.isArray(entry.data)) return null;
@@ -847,12 +849,16 @@ export class SqliteSessionStore
     return usageRepository.upsertToolUsage(this.db, input);
   }
 
-  async pruneUsage(input?: { beforeTime?: number }): Promise<void> {
+  async pruneUsage(input: { beforeTime: number }): Promise<void> {
     return usageRepository.pruneUsage(this.db, input);
   }
 
   async queryAppUsage(input: AppUsageQueryInput): Promise<AppUsageQueryResult> {
     return usageRepository.queryAppUsage(this.db, input);
+  }
+
+  async queryAppUsageDashboard(input: AppUsageDashboardInput) {
+    return queryAppUsageDashboard(this.db, input);
   }
 
   async queryTaskUsage(input: TaskUsageQueryInput): Promise<TaskUsageQueryResult> {

@@ -1,4 +1,5 @@
 import { PROVIDER_MODEL_SELECTION_MIGRATION_SQL } from "./migrations/0020-provider-model-selection.js";
+import { DURABLE_USAGE_MIGRATION_SQL } from "./migrations/0023-durable-usage.js";
 
 interface SqliteMigration {
   appVersion: string;
@@ -924,6 +925,11 @@ export const SQLITE_MIGRATIONS: readonly SqliteMigration[] = [
     appVersion: "0.16.5",
     id: "0022_backfilled_session_reasoning",
     sql: BACKFILLED_SESSION_REASONING_MIGRATION_SQL,
+  },
+  {
+    appVersion: "0.16.9",
+    id: "0023_durable_usage",
+    sql: DURABLE_USAGE_MIGRATION_SQL,
   },
 ];
 import { OFFICIAL_GLM_SELECTION_MIGRATION_SQL } from "./migrations/0021-official-glm-selection.js";

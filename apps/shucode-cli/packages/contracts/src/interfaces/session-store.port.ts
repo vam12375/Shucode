@@ -1,6 +1,8 @@
 // Session Store Port：为会话输入、消息和投影提供稳定的存储边界。
 // ============================================================
 
+import type { AppUsageDashboard, AppUsageDashboardQuery, AppUsageRange } from "@shucode/shared";
+
 import type {
   MessageId,
   PartId,
@@ -988,6 +990,14 @@ export interface AppUsageQueryInput {
   tzOffsetMs: number;
 }
 
+export interface AppUsageDashboardInput {
+  range: AppUsageRange;
+  timeZone: string;
+  since?: number;
+  until: number;
+  query: AppUsageDashboardQuery;
+}
+
 export interface AppUsageTotalsRow {
   totalTokens: number;
   inputTokens: number;
@@ -1071,8 +1081,9 @@ export interface UsageStorePort {
   recordModelUsage(input: ModelUsageRecord): Promise<void>;
   upsertTurnUsage(input: TurnUsageRecord): Promise<void>;
   upsertToolUsage(input: ToolUsageRecord): Promise<void>;
-  pruneUsage(input?: { beforeTime?: number }): Promise<void>;
+  pruneUsage(input: { beforeTime: number }): Promise<void>;
   queryAppUsage(input: AppUsageQueryInput): Promise<AppUsageQueryResult>;
+  queryAppUsageDashboard(input: AppUsageDashboardInput): Promise<AppUsageDashboard>;
   queryTaskUsage(input: TaskUsageQueryInput): Promise<TaskUsageQueryResult>;
 }
 
