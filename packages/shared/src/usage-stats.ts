@@ -6,9 +6,10 @@
  * 对应的 `usage-quota.ts`（Coding Plan 额度类型）已删除。
  */
 import { z } from "zod";
+import { appUsageDashboardQuerySchema, appUsageDashboardSchema } from "./usage-dashboard.js";
 
 // ── App Usage（agent 数据库真实统计）────────────────────────────────
-export const APP_USAGE_RANGES = ["all", "7d", "30d"] as const;
+export const APP_USAGE_RANGES = ["all", "7d", "30d", "today", "24h", "14d", "custom"] as const;
 export type AppUsageRange = (typeof APP_USAGE_RANGES)[number];
 
 export const appUsageFavoriteModelSchema = z.object({
@@ -91,12 +92,13 @@ export const appUsageSnapshotSchema = z.object({
   range: z.enum(APP_USAGE_RANGES),
   generatedAt: z.number(),
   timeZone: z.string(),
-  source: z.literal("agent-db"),
+  source: z.enum(["agent-db", "federated"]),
   summary: appUsageSummarySchema,
   heatmap: appUsageHeatmapSchema,
   dailyModelUsage: z.array(appUsageDailyModelUsageSchema),
   models: z.array(appUsageModelUsageSchema),
   tools: z.array(appUsageToolUsageSchema),
+  dashboard: appUsageDashboardSchema.optional(),
 });
 
 export type AppUsageSummary = z.infer<typeof appUsageSummarySchema>;
@@ -110,7 +112,13 @@ export type AppUsageToolUsage = z.infer<typeof appUsageToolUsageSchema>;
 export type AppUsageFavoriteModel = z.infer<typeof appUsageFavoriteModelSchema>;
 export type AppUsageSnapshot = z.infer<typeof appUsageSnapshotSchema>;
 
-export interface AppUsageRequest {
-  range: AppUsageRange;
-  timeZone?: string;
-}
+export const appUsageRequestSchema = z
+  .object({
+    range: z.enum(APP_USAGE_RANGES),
+    timeZone: z.string().optional(),
+    since: z.number().int().nonnegative().optional(),
+    until: z.number().int().nonnegative().optional(),
+    dashboard: appUsageDashboardQuerySchema.optional(),
+  })
+  .strict();
+export type AppUsageRequest = z.input<typeof appUsageRequestSchema>;

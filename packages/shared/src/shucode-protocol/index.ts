@@ -27,7 +27,7 @@ import { modelSelectionSchema } from "../model-selection.js";
 import { completeModelPropertiesDataSchema } from "../model-config.js";
 import { accountProviderUnavailableReasonSchema } from "../account-provider-state.js";
 import { modelExecutionSchema } from "../model-execution.js";
-import { APP_USAGE_RANGES, appUsageSnapshotSchema } from "../usage-stats.js";
+import { appUsageRequestSchema, appUsageSnapshotSchema } from "../usage-stats.js";
 import { shucodeAutomationBotDeliveryTargetSchema } from "../bots.js";
 // browser-use 命令/结果契约单一来源：agent 构造、协议校验和 main executor 共用同一 schema。
 import { browserClientModeSchema, browserCommandSchema } from "../browser-use/commands.js";
@@ -1635,12 +1635,7 @@ export const shucodeSessionSubagentsParamsSchema = z
   .strict();
 export type ShucodeSessionSubagentsParams = z.infer<typeof shucodeSessionSubagentsParamsSchema>;
 
-export const shucodeUsageStatsParamsSchema = z
-  .object({
-    range: z.enum(APP_USAGE_RANGES),
-    timeZone: z.string().optional(),
-  })
-  .strict();
+export const shucodeUsageStatsParamsSchema = appUsageRequestSchema;
 export const shucodeUsageStatsResultSchema = appUsageSnapshotSchema;
 export const shucodeTaskTokenUsageParamsSchema = z
   .object({
