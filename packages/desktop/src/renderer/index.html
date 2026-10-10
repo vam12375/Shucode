@@ -5,6 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Shucode</title>
     <style>
+      /*
+       * 启动壳沿用桌面「像素厨房」语义：米纸底、墨色字、品牌红、硬阴影。
+       * 内联像素字文件在 public/fonts 下，font-display: block 保证字标首帧不闪系统字体。
+       */
+      @font-face {
+        font-family: "Kitchen Pixel";
+        src: url("./fonts/fusion-pixel-12.woff2") format("woff2");
+        font-weight: 400;
+        font-style: normal;
+        font-display: block;
+      }
+
       html,
       body,
       #root {
@@ -22,6 +34,7 @@
         opacity: 1;
       }
 
+      /* 启动壳是首帧唯一可见内容，必须自带不透明底色；Electron 窗口本体是透明的。 */
       #loading {
         position: fixed;
         inset: 0;
@@ -29,79 +42,207 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        transition: opacity 0.16s ease;
+        background: var(--splash-paper);
+        transition:
+          opacity 0.34s cubic-bezier(0.33, 0, 0.2, 1),
+          transform 0.34s cubic-bezier(0.33, 0, 0.2, 1),
+          filter 0.34s cubic-bezier(0.33, 0, 0.2, 1);
       }
 
+      /* 退场不只是淡出：整体轻微前推并提亮，像灶火被吹散开的一瞬。 */
       body.shucode-startup-ready #loading {
         pointer-events: none;
         opacity: 0;
+        transform: translateY(-6px) scale(1.02);
+        filter: brightness(1.12);
       }
 
-      .startup-logo-shell {
-        position: relative;
+      #loading {
+        /* 与 desktop-pixel-kitchen.css 的 --pk-* 同源；这里独立声明，
+           启动壳必须在 UI 包 CSS 加载前就成立，不能依赖外部 token。 */
+        --splash-paper: #f1efdc;
+        --splash-ink: #17120f;
+        --splash-red: #c91d1f;
+        --splash-line: #c9c4ad;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        #loading {
+          --splash-paper: #211f1b;
+          --splash-ink: #eee9d7;
+          --splash-red: #e9796e;
+          --splash-line: #575043;
+        }
+      }
+
+      .splash {
         display: flex;
-        width: 96px;
-        height: 96px;
+        flex-direction: column;
         align-items: center;
-        justify-content: center;
-        border-radius: 24px;
-        /* 品牌 Logo 自带红底与圆角，壳只负责投影，避免叠出第二层底色。*/
-        background: transparent;
-        box-shadow:
-          0 20px 25px -5px rgb(0 0 0 / 0.2),
-          0 8px 10px -6px rgb(0 0 0 / 0.2);
-        transform: scale(0.72);
-        opacity: 0;
-        animation: startup-logo-pop 0.72s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-        transform-origin: center;
+        font-family: "Kitchen Pixel", ui-monospace, "PingFang SC", "Microsoft YaHei", monospace;
+        font-size: 12px;
+        line-height: 1.6;
+        color: var(--splash-ink);
       }
 
-      .startup-logo-shell::before {
-        position: absolute;
-        inset: 0;
-        pointer-events: none;
-        content: "";
-        /* 启动 logo 壳是固定深色底，边框不能跟随浅色主题 token，否则首屏边框过重。*/
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: inherit;
+      /*
+       * 品牌 mark 逐格绘制。后备缓冲必须是格子数的整数倍（64 格 × 3 = 192），
+       * 否则每格尺寸出现小数，像素边缘会发虚。显示尺寸与后备缓冲 1:1，
+       * 再由 image-rendering 保证高 DPI 缩放后仍是硬边。
+       */
+      .splash-mark {
+        display: block;
+        width: 192px;
+        height: 192px;
+        image-rendering: pixelated;
       }
 
-      .startup-logo {
-        width: 96px;
-        height: 96px;
-        border-radius: 24px;
+      .splash-title {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-top: 16px;
       }
 
-      @keyframes startup-logo-pop {
+      .splash-eyebrow {
+        font-size: 11px;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--splash-red);
+        animation: splash-fade-up 0.4s ease-out 0.34s both;
+      }
+
+      /* 字标与红色光标同一行，光标贴在文字右侧基线处。 */
+      .splash-wordmark-row {
+        display: flex;
+        align-items: flex-end;
+        margin-top: 6px;
+      }
+
+      .splash-wordmark {
+        display: flex;
+        font-size: 34px;
+        line-height: 1.1;
+        letter-spacing: 0.02em;
+      }
+
+      /* 逐字旋起；纯展示节点，完整名称由 .splash-sr 提供给辅助技术。 */
+      .splash-wordmark span {
+        animation: splash-letter-rise 0.42s cubic-bezier(0.22, 1, 0.36, 1) both;
+        transform-origin: center bottom;
+      }
+
+      .splash-wordmark span:nth-child(1) { animation-delay: 0.66s; }
+      .splash-wordmark span:nth-child(2) { animation-delay: 0.69s; }
+      .splash-wordmark span:nth-child(3) { animation-delay: 0.72s; }
+      .splash-wordmark span:nth-child(4) { animation-delay: 0.75s; }
+      .splash-wordmark span:nth-child(5) { animation-delay: 0.78s; }
+      .splash-wordmark span:nth-child(6) { animation-delay: 0.81s; }
+      .splash-wordmark span:nth-child(7) { animation-delay: 0.84s; }
+
+      .splash-caret {
+        width: 8px;
+        height: 3px;
+        margin-bottom: 5px;
+        margin-left: 4px;
+        background: var(--splash-red);
+        animation:
+          splash-caret-in 0.3s ease-out 1.04s both,
+          splash-caret-blink 0.92s step-end 1.34s infinite;
+      }
+
+      @keyframes splash-letter-rise {
         0% {
           opacity: 0;
-          transform: scale(0.72);
-        }
-
-        38% {
-          opacity: 1;
-          transform: scale(1.045);
-        }
-
-        58% {
-          transform: scale(0.985);
-        }
-
-        76% {
-          transform: scale(1.008);
+          transform: translateY(8px) rotate(7deg);
         }
 
         100% {
           opacity: 1;
-          transform: scale(1);
+          transform: translateY(0) rotate(0deg);
         }
       }
 
-      @media (prefers-reduced-motion: reduce) {
-        .startup-logo-shell {
+      @keyframes splash-fade-up {
+        0% {
+          opacity: 0;
+          transform: translateY(4px);
+        }
+
+        100% {
           opacity: 1;
-          transform: scale(1);
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes splash-caret-in {
+        0% {
+          opacity: 0;
+          transform: scaleX(0.2);
+        }
+
+        100% {
+          opacity: 1;
+          transform: scaleX(1);
+        }
+      }
+
+      @keyframes splash-caret-blink {
+        0%,
+        100% {
+          opacity: 1;
+        }
+
+        50% {
+          opacity: 0.15;
+        }
+      }
+
+      /* 三格对应三个真实里程碑：像素组装完成、字标显形、React 首屏接管；
+         纯展示，不承诺进度，进度语义仍由 RootStartupLoading 负责。 */
+      .splash-timeline {
+        display: flex;
+        gap: 5px;
+        margin-top: 22px;
+      }
+
+      .splash-tick {
+        width: 6px;
+        height: 6px;
+        background: var(--splash-line);
+        transition:
+          background 0.26s ease,
+          transform 0.26s ease;
+      }
+
+      .splash[data-stage="1"] .splash-tick:nth-child(-n + 1),
+      .splash[data-stage="2"] .splash-tick:nth-child(-n + 2),
+      .splash[data-stage="3"] .splash-tick:nth-child(-n + 3) {
+        background: var(--splash-red);
+        transform: translateY(-1px);
+      }
+
+      .splash-sr {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip-path: inset(50%);
+        white-space: nowrap;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        /* 减少动态效果：mark 直接呈现组装完成的终态，文字无延迟显示。 */
+        .splash-eyebrow,
+        .splash-wordmark span,
+        .splash-caret {
+          opacity: 1;
+          transform: none;
           animation: none;
+        }
+
+        .splash-caret {
+          animation: splash-caret-blink 0.92s step-end infinite;
         }
       }
     </style>
@@ -115,67 +256,338 @@
       aria-busy="true"
       aria-label="Loading..."
     >
-      <div class="startup-logo-shell">
-        <img
-          class="startup-logo"
-          src="data:image/png;base64,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"
-          alt=""
-          aria-hidden="true"
-          width="96"
-          height="96"
-        />
+      <div class="splash" data-stage="0">
+        <canvas class="splash-mark" width="192" height="192" aria-hidden="true"></canvas>
+        <div class="splash-title">
+          <span class="splash-eyebrow">Pixel Kitchen</span>
+          <span class="splash-wordmark-row">
+            <span class="splash-wordmark" aria-hidden="true">
+              <span>S</span><span>h</span><span>u</span><span>c</span><span>o</span
+              ><span>d</span><span>e</span>
+            </span>
+            <span class="splash-caret" aria-hidden="true"></span>
+          </span>
+          <span class="splash-sr">Shucode</span>
+        </div>
+        <div class="splash-timeline" aria-hidden="true">
+          <span class="splash-tick"></span>
+          <span class="splash-tick"></span>
+          <span class="splash-tick"></span>
+        </div>
       </div>
     </div>
     <script type="module">
-      const startupLogoShell = document.querySelector(".startup-logo-shell");
+      /*
+       * 启动壳动画：品牌 mark 由 64×64 个像素格组装而成。
+       *
+       * 时间轴（毫秒）：
+       *   0–720     像素从散落状态逐格吸附，径向波次，带落下过冲
+       *   760–1180  组装完成后，一道暖光沿对角线横扫过 mark
+       *   660–1260  字标逐字旋起，光标与进度格点亮
+       *   退场      React 就绪后像素向外炸开消散，同时整壳前推提亮
+       *
+       * 动画只负责展示；启动完成判定仍由「动画结束 + React 就绪」两个条件共同决定。
+       */
+      const splash = document.querySelector(".splash");
       const startupLoading = document.getElementById("loading");
+      const markCanvas = document.querySelector(".splash-mark");
+      const markData = document.getElementById("splash-mark-data");
       const isUpdateStatusWindow =
         new URLSearchParams(window.location.search).get("windowKind") === "update-status";
       const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+      /** 单格落下的时长；与延迟之和决定所有像素到位的时刻。 */
+      const FALL_MS = 380;
+      /** 径向波次的最远延迟，中心格先落，边缘格随后收拢。 */
+      const STAGGER_MS = 260;
+      const JITTER_MS = 80;
+      const SWEEP_START_MS = 760;
+      const SWEEP_MS = 420;
+      /** 组装与暖光全部结束的时刻，之后停帧保持终态等待 React。 */
+      const HOLD_MS = SWEEP_START_MS + SWEEP_MS;
+      /** 退场时像素炸开的时长。 */
+      const DISSOLVE_MS = 420;
+
       let finished = false;
       let animationDone = false;
       let reactReady = false;
+
+      // 三格进度只由真实里程碑点亮，且必须单调推进：里程碑可能乱序到达。
+      let stage = 0;
+      const markStage = (next) => {
+        if (next <= stage) return;
+        stage = next;
+        if (splash) splash.dataset.stage = String(next);
+      };
 
       // 主入口不能依赖动画结束后的动态 import；一旦导入路径在 Electron/Vite 下失败，
       // 页面会永久停在 HTML loading。这里让主入口静态加载，只把启动壳作为动画遮罩延迟移除。
       const tryFinishStartupAnimation = () => {
         if (finished || !animationDone || !reactReady) return;
         finished = true;
+        // 先让像素炸开，再整壳退场，避免遮罩瞬间消失造成闪白。
+        dissolveMark();
         document.body.classList.add("shucode-startup-ready");
-        window.setTimeout(() => startupLoading?.remove(), 500);
+        window.setTimeout(() => startupLoading?.remove(), 440);
       };
 
       const markAnimationDone = () => {
+        if (animationDone) return;
         animationDone = true;
+        markStage(2);
         tryFinishStartupAnimation();
       };
 
       const markReactReady = () => {
         reactReady = true;
+        markStage(3);
         tryFinishStartupAnimation();
       };
 
+      /* ---------- 像素数据解析 ---------- */
+
+      /**
+       * 解析内联的像素网格：调色板是逗号分隔的 6 位 hex 字符串，
+       * 索引串每字符是一个 4bit 索引，0 表示透明，实体色从 1 开始。
+       */
+      function parseMarkData() {
+        if (!markData) return null;
+        let raw;
+        try {
+          raw = JSON.parse(markData.textContent ?? "");
+        } catch {
+          return null;
+        }
+        if (!raw || typeof raw.grid !== "number" || typeof raw.packed !== "string") return null;
+        if (typeof raw.palette !== "string" || raw.palette.length === 0) return null;
+
+        const palette = raw.palette.split(",").map((hex) => {
+          const value = Number.parseInt(hex, 16);
+          return [(value >> 16) & 255, (value >> 8) & 255, value & 255];
+        });
+        if (palette.some((rgb) => rgb.some((channel) => Number.isNaN(channel)))) return null;
+
+        return { grid: raw.grid, packed: raw.packed, palette };
+      }
+
+      /** 把索引串展开成待绘制的像素格，并预计算每个格子的落点参数。 */
+      function createMark(raw) {
+        const { grid, packed, palette } = raw;
+        // 每字符一个 4bit 索引，格子总数必须与索引串长度一致。
+        if (packed.length !== grid * grid) return null;
+
+        const cells = [];
+        const half = grid / 2;
+        for (let index = 0; index < packed.length; index++) {
+          const colorIndex = Number.parseInt(packed.charAt(index), 16);
+          if (!Number.isFinite(colorIndex) || colorIndex === 0) continue;
+          const rgb = palette[colorIndex - 1];
+          if (!rgb) continue;
+
+          const x = index % grid;
+          const y = (index - x) / grid;
+          const dx = x + 0.5 - half;
+          const dy = y + 0.5 - half;
+          const radius = Math.min(1, Math.hypot(dx, dy) / half);
+
+          cells.push({
+            x,
+            y,
+            rgb,
+            // 径向波次：中心先落位，边缘随后追上，形成一次收拢。
+            delay: radius * STAGGER_MS + Math.random() * JITTER_MS,
+            // 每个像素从 mark 上方不同高度、带水平漂移落下。
+            fromX: (Math.random() - 0.5) * 22,
+            fromY: -(14 + Math.random() * 20),
+            // 过冲挤压的相位偏移，避免所有像素同时鼓起来。
+            squeeze: 0.6 + Math.random() * 0.8,
+          });
+        }
+        return { grid, palette, cells };
+      }
+
+      /* ---------- 绘制 ---------- */
+
+      let mark = null;
+      let dissolveMark = () => undefined;
+
+      function markScale() {
+        // 后备缓冲必须是格子数的整数倍，格子边长才是整数像素。
+        return markCanvas.width / mark.grid;
+      }
+
+      function drawStatic() {
+        const ctx = markCanvas.getContext("2d");
+        const scale = markScale();
+        ctx.clearRect(0, 0, markCanvas.width, markCanvas.height);
+        for (const cell of mark.cells) {
+          const [r, g, b] = cell.rgb;
+          ctx.fillStyle = `rgb(${r},${g},${b})`;
+          ctx.fillRect(cell.x * scale, cell.y * scale, scale, scale);
+        }
+      }
+
+      function drawFrame(elapsed, sweepProgress, sweeping) {
+        const ctx = markCanvas.getContext("2d");
+        const scale = markScale();
+        const grid = mark.grid;
+        const span = grid * 2 - 2;
+        ctx.clearRect(0, 0, markCanvas.width, markCanvas.height);
+
+        for (const cell of mark.cells) {
+          const t = (elapsed - cell.delay) / FALL_MS;
+          if (t <= 0) continue;
+          const settled = t >= 1;
+
+          // 落下轨迹：三次缓出，落位前速度收住。
+          const eased = settled ? 1 : 1 - (1 - t) ** 3;
+          // 未落位的部分按 1-eased 距离插值回位。
+          const remaining = 1 - eased;
+          const px = cell.x + cell.fromX * remaining;
+          const py = cell.y + cell.fromY * remaining;
+
+          // 落点挤压：t 接近 1 时轻微横向拉伸、纵向压缩，落地后复原。
+          const impact = settled ? 0 : Math.sin(t * Math.PI) * cell.squeeze;
+          const w = scale * (1 + impact * 0.16);
+          const h = scale * (1 - impact * 0.12);
+
+          let [r, g, b] = cell.rgb;
+          if (sweeping) {
+            // 暖光沿对角线扫过：命中窗口内的像素向米白提亮。
+            const band = (grid - 1 - cell.x + cell.y) / span;
+            const distance = Math.abs(band - sweepProgress);
+            if (distance < 0.11) {
+              const glow = (1 - Math.sqrt(distance / 0.11)) * 0.9;
+              r += (255 - r) * glow;
+              g += (250 - g) * glow;
+              b += (228 - b) * glow;
+            }
+          }
+
+          ctx.fillStyle = `rgb(${r | 0},${g | 0},${b | 0})`;
+          // 未落位的像素半透明，落位后完全不透明，像是在「显影」。
+          ctx.globalAlpha = settled ? 1 : 0.3 + eased * 0.7;
+          ctx.fillRect(px * scale, py * scale, w, h);
+        }
+        ctx.globalAlpha = 1;
+      }
+
+      function drawDissolve(t) {
+        const ctx = markCanvas.getContext("2d");
+        const scale = markScale();
+        const grid = mark.grid;
+        const half = grid / 2;
+        ctx.clearRect(0, 0, markCanvas.width, markCanvas.height);
+
+        const eased = t * t;
+        for (const cell of mark.cells) {
+          const dx = cell.x + 0.5 - half;
+          const dy = cell.y + 0.5 - half;
+          const length = Math.hypot(dx, dy) || 1;
+          // 消散：像素沿各自径向向外飞散并缩小，像被灶火吹开。
+          const push = (10 + length * 2.2) * eased;
+          const px = cell.x + (dx / length) * push;
+          const py = cell.y + (dy / length) * push - eased * 6;
+          const size = scale * (1 - t);
+          if (size <= 0) continue;
+          const [r, g, b] = cell.rgb;
+          ctx.globalAlpha = 1 - t;
+          ctx.fillStyle = `rgb(${r},${g},${b})`;
+          ctx.fillRect(px * scale, py * scale, size, size);
+        }
+        ctx.globalAlpha = 1;
+      }
+
+      function startMarkAnimation() {
+        const started = performance.now();
+        let burstAt = 0;
+        let raf = 0;
+        let stopped = false;
+
+        const frame = (now) => {
+          if (stopped) return;
+
+          if (burstAt > 0) {
+            const t = (now - burstAt) / DISSOLVE_MS;
+            if (t >= 1) {
+              markCanvas.getContext("2d").clearRect(0, 0, markCanvas.width, markCanvas.height);
+              return;
+            }
+            drawDissolve(t);
+            raf = requestAnimationFrame(frame);
+            return;
+          }
+
+          const elapsed = now - started;
+          const sweeping = elapsed > SWEEP_START_MS;
+          const sweepProgress = sweeping
+            ? Math.min(1, (elapsed - SWEEP_START_MS) / SWEEP_MS)
+            : 0;
+          drawFrame(elapsed, sweepProgress, sweeping);
+
+          if (elapsed >= HOLD_MS) {
+            // 停帧保持组装终态，等 React 就绪后再由 dissolveMark 接管。
+            drawStatic();
+            markAnimationDone();
+            return;
+          }
+          raf = requestAnimationFrame(frame);
+        };
+
+        raf = requestAnimationFrame(frame);
+
+        // 窗口被遮挡时 rAF 可能长时间不调度，用一次定时器兜底，
+        // 保证启动壳不会因为动画没跑完而一直盖住界面。
+        window.setTimeout(markAnimationDone, HOLD_MS + 400);
+
+        dissolveMark = () => {
+          burstAt = performance.now();
+          cancelAnimationFrame(raf);
+          raf = requestAnimationFrame(frame);
+        };
+
+        return () => {
+          stopped = true;
+          cancelAnimationFrame(raf);
+        };
+      }
+
+      /* ---------- 启动编排 ---------- */
+
       if (isUpdateStatusWindow) {
         // 更新状态窗口本身就是一个轻量弹窗，复用主入口 HTML 时不应再显示启动壳。
-        // 否则透明独立窗口里的启动 logo 会短暂或持续盖在更新按钮上，看起来像弹窗 UI 异常。
+        // 否则透明独立窗口里的启动 mark 会短暂或持续盖在更新按钮上，看起来像弹窗 UI 异常。
         finished = true;
         document.body.classList.add("shucode-startup-ready");
         startupLoading?.remove();
       } else {
+        markStage(1);
         window.addEventListener("shucode-react-startup-ready", markReactReady, { once: true });
       }
 
-      if (isUpdateStatusWindow || reduceMotion || !startupLogoShell) {
+      const rawMark = parseMarkData();
+      mark = rawMark ? createMark(rawMark) : null;
+      if (mark) {
+        markCanvas.getContext("2d").imageSmoothingEnabled = false;
+      }
+
+      if (isUpdateStatusWindow) {
+        // 该窗口已直接退场，无需再跑动画。
+      } else if (!mark || reduceMotion) {
+        // 数据缺失或偏好减少动态效果：直接呈现组装完成的终态，不延迟任何内容。
+        if (mark) drawStatic();
         markAnimationDone();
       } else {
-        startupLogoShell.addEventListener("animationend", markAnimationDone, { once: true });
-        window.setTimeout(markAnimationDone, 1000);
+        startMarkAnimation();
       }
 
       if (!isUpdateStatusWindow) {
         window.setTimeout(markReactReady, 3000);
       }
     </script>
+    <!-- splash-mark-data:start（由 packages/desktop/scripts/build-splash-mark.mjs 生成，勿手改） -->
+    <script type="application/json" id="splash-mark-data">{"grid":64,"cell":8,"palette":"c91d1f,080808,7888a8,f8f8e8,f89898,f89888,585898,180808,485888","packed":"0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001111111111111111111111000000000000000000000000000000000111111111111111111111111111111111111111100000000000000000000011111111111111111111111111111111111111111111100000000000000000011111111111111111111111111111111111111111111111100000000000000011111111111111111111111111122222111111111111111111000000000000011111111111111111111111111122444422211111111111111110000000000011111111111111111111111122222444444222211111111111111000000000001111111111111111111112224444444444444422111111111111110000000000111111111111111111122244444444444444444221111111111111000000000111111111111111111112244444444444444444422211111111111110000000011111111111111111112244444444444444444444221111111111111000000001111111111122211111244444444444444444444422111111111111100000000111111112222222221124444444444444444444442111111111111110000000011111112223333322212244444444444444224442111111111111111000000001111112233333333322122442244444444422222111111111111111100000000111112233333333333222222224444444444221111111111111111110000000011111235555553333332111224444444444422111111111111111111000000001111235555555553333221122444444444442211111111111111111100000001111226555555555533332212244444444444211111111111111111110000000111122655555555553333322224444444444221111222211111111111000000011222665555555555533332222444444444421112222222221111111100000001111266555555555553333322244444444442112233333332211111110000000111126655555565555533332222224444444222233333333322111111000000011112666555666555553333233222222222442233333355533211111100000001111256655656666555533332333322222222222233555555322111110000000112225555556666555553333233224444233222422555555553211111000000011222565555666555555333333244444422322444225555555321111100000001111225555666665555533333324444444222444442255555552111110000000111122555556666655553333324444444442444444425555555211111000000011111225555555555552333332444444444244444422555555211111100000001111112255555555552233332444444444224444422255555521111110000000111111122255555552233333244444444222444442225555551111111000000011111111222222222223333324444444422244444222555552111111100000001111111111222222233333332444444442224444422255552111111110000000111111111111111223333333244444444222444442225552111111111000000011111111111111223333333322444444442444444222522111111111100000001111111111111122333333333244444444244444422221111112211110000000111111111111122233332333332444444832444423322211112222111000000011111111111222122333223333324444223322223333221112222221100000001111111111221112223332222333222223333333333332222222222110000000011111111121111222233333233333233333333333333322222222211000000001111111112112222223333323333333333333333333223322222211100000000111111112111211112233333333333333333333333333239222211110000000011111111111121111122222333333333333333333333332222211111000000001111111111112111111122233322333333333333333322222111111100000000111111111111111111122233332222233333333333222212111111110000000011111111111111111112233333372222222222222222111221111111000000001111111111111111112233333333772222222222222111112111111100000000111111111111111112233333333377222111111221111111111111100000000001111111111111122233333333333772211111112221111111111110000000000111111111111112233333333333377722111111111111111111111000000000001111111111111233333333333337777221111111111111111111000000000000111111111111223333333333333377722111111111111111111100000000000001111111111223333333333333333777221111111111111111100000000000000011111111111111111111111111111111111111111111111100000000000000000011111111111111111111111111111111111111111111000000000000000000000011111111111111111111111111111111111111100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"}</script>
+    <!-- splash-mark-data:end -->
     <script type="module" src="./src/main.tsx"></script>
   </body>
 </html>
