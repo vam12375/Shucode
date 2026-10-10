@@ -24,6 +24,7 @@ const LEGACY_REMOTE_WORKSPACE_RPC_CHANNELS = [
   "hooksService",
   "modelSelectionService",
   "providerSettingsService",
+  "usageStatsService",
 ] as const satisfies readonly (keyof IServiceAccessor)[];
 
 type LegacyRemoteWorkspaceRpcContract = Pick<

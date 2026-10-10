@@ -51,7 +51,6 @@ import {
   createAccountProviderCredentialStore,
   createSettingsSyncService,
   createBotsService,
-  createUsageStatsService,
   createMediaPreviewService,
   createCodingPlanSubscriptionService,
   createClientScenesService,
@@ -282,12 +281,7 @@ export function createRemoteWorkspaceServiceCollection(params: {
     // 必须直接读取远端 Registry，不能继续显示 Desktop 本地 Provider。
     .register(IModelSelectionService, params.connectionServices.modelSelectionService)
     .register(IProviderSettingsService, params.connectionServices.providerSettingsService)
-    .register(
-      IUsageStatsService,
-      createUsageStatsService({
-        shucodeAgentService: params.connectionServices.shucodeAgentService,
-      }),
-    )
+    .register(IUsageStatsService, params.connectionServices.usageStatsService)
     .register(ICodingPlanSubscriptionService, localCodingPlanSubscriptionService)
     .register(IClientConfigService, params.clientConfigService)
     .register(IClientScenesService, createClientScenesService({ apiClient: localApiClient }))
