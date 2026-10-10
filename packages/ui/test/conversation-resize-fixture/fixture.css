@@ -1,0 +1,42 @@
+@import "../../src/styles.css";
+@source "./main.tsx";
+
+/* 仅提供隔离夹具的外壳，收缩档位仍由生产 hook 和生产类名决定。 */
+.resize-fixture {
+  width: min(1140px, 100%);
+  max-width: 100%;
+  height: 100%;
+  margin: auto;
+  display: flex;
+}
+.resize-fixture-conversation {
+  flex: 1;
+  min-width: 0;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.resize-fixture-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-wrap: anywhere;
+}
+.resize-fixture-panel {
+  flex: 0 0 auto;
+  width: 0;
+  overflow: hidden;
+  transition: width 200ms ease;
+}
+.resize-fixture-panel[data-open="true"] {
+  width: 380px;
+}
+.resize-fixture .pk-composer-shell {
+  flex-shrink: 0;
+}
+@media (max-width: 600px) {
+  .resize-fixture-panel[data-open="true"] {
+    width: 120px;
+  }
+}

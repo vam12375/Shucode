@@ -68,6 +68,13 @@ interface ResolveConversationTurnNavigatorVisualFocusItemIndexOptions {
 
 const CONVERSATION_TURN_NAVIGATOR_MIN_WIDTH_PX = 864;
 
+/** 目录补页只需要断点资格，动画内逐像素宽度不应成为 React 状态。 */
+export function resolveConversationTurnNavigatorWidthBucket(widthPx: number): number {
+  return Math.max(0, Math.round(widthPx)) >= CONVERSATION_TURN_NAVIGATOR_MIN_WIDTH_PX
+    ? CONVERSATION_TURN_NAVIGATOR_MIN_WIDTH_PX
+    : 0;
+}
+
 export type ConversationTurnNavigatorHydrationResult =
   | { status: "hydrated"; logEpoch: string }
   | { status: "not-enough-queries"; logEpoch: string }

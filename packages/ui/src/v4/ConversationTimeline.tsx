@@ -49,6 +49,7 @@ import {
 import {
   resolveConversationTurnNavigatorActiveQueryRowId,
   resolveConversationTurnNavigatorHydrationRetryDelayMs,
+  resolveConversationTurnNavigatorWidthBucket,
   shouldHydrateConversationTurnNavigatorDirectory,
   type ConversationTurnNavigatorHydrationResult,
   type ConversationTurnNavigatorQueryPosition,
@@ -58,6 +59,7 @@ import {
   DEFAULT_ROW_HEIGHT_ESTIMATE_PX,
   TimelineRowHeightCache,
 } from "@/v4/timelineRowHeightCache.js";
+import { TimelineContentWidthTracker } from "@/v4/conversationTimelineResize.js";
 import {
   readChatSessionScrollMemoryState,
   resolveChatSessionScrollRestoreTop,
@@ -234,12 +236,20 @@ class ConversationScrollMemoryScopeCapture extends Component<
 }
 
 /** tanstack 默认测量的竖向复刻：优先 ResizeObserver entry（不触发同步布局）。 */
-function measureRowHeight(element: Element, entry: ResizeObserverEntry | undefined): number {
+function measureRowHeight(
+  element: Element,
+  entry: ResizeObserverEntry | undefined,
+  widthTracker: TimelineContentWidthTracker,
+): number {
   const boxSize = entry?.borderBoxSize?.[0];
   if (boxSize) {
+    widthTracker.observe(boxSize.inlineSize);
     return Math.round(boxSize.blockSize);
   }
-  return Math.round(element.getBoundingClientRect().height);
+  // 首次挂载仍需测高；复用同一次 border rect 的宽度，不能额外读取 clientWidth。
+  const rect = element.getBoundingClientRect();
+  widthTracker.observe(rect.width);
+  return Math.round(rect.height);
 }
 
 function getUnitHeightCacheKey(unit: ConversationTurnRenderUnit | undefined): string | undefined {
@@ -450,19 +460,21 @@ function ConversationTimelineImpl({
   const liveTailRef = useRef<HTMLDivElement>(null);
   const messageLayerRef = useRef<HTMLDivElement>(null);
   const virtualHistoryRef = useRef<HTMLDivElement>(null);
-  const stableContentWidthRef = useRef<number | null>(null);
+  const contentWidthTrackerRef = useRef<TimelineContentWidthTracker | null>(null);
+  if (contentWidthTrackerRef.current === null) {
+    contentWidthTrackerRef.current = new TimelineContentWidthTracker();
+  }
+  const contentWidthTracker = contentWidthTrackerRef.current;
   const contentWidthResizeActiveRef = useRef(false);
   const contentWidthResizeSettleTimerRef = useRef<number | null>(null);
   const isContentWidthChanging = useCallback(() => {
-    const currentContentWidth = virtualHistoryRef.current?.clientWidth ?? null;
-    const stableContentWidth = stableContentWidthRef.current;
+    // 面板动画每条测高都同步读 clientWidth 会反复强制整篇长正文排版。
+    // 行 observer 可能先于内容列 observer；使用测高 entry 已记录的宽度，首批也不漏判。
     return (
       contentWidthResizeActiveRef.current ||
-      (currentContentWidth !== null &&
-        stableContentWidth !== null &&
-        currentContentWidth !== stableContentWidth)
+      (typeof ResizeObserver !== "undefined" && contentWidthTracker.isChanging())
     );
-  }, []);
+  }, [contentWidthTracker]);
   // loadOlder 相关值经 ref 读取，保持 handleScroll 稳定引用。
   const loadOlderRef = useRef({ canLoadOlder, loadingOlder, onLoadOlder });
   loadOlderRef.current = { canLoadOlder, loadingOlder, onLoadOlder };
@@ -502,7 +514,7 @@ function ConversationTimelineImpl({
     viewportHeightPx: 0,
     activeQueryRowId: undefined as number | undefined,
   });
-  const [turnNavigatorContainerWidthPx, setTurnNavigatorContainerWidthPx] = useState(0);
+  const [turnNavigatorWidthBucket, setTurnNavigatorWidthBucket] = useState(0);
   const turnNavigatorJumpFrameRef = useRef<number | null>(null);
   const turnNavigatorHydrationAttemptRef = useRef<{
     attemptCount: number;
@@ -590,10 +602,8 @@ function ConversationTimelineImpl({
     // 资格边界，手机远控与窄分屏也会请求全部 rows。这里仅同步只读分页资格；
     // rail 的显隐、占位与过渡仍完全由 CSS 裁决，不恢复 composer 几何测量。
     const commitWidth = (width: number) => {
-      const normalizedWidth = Math.max(0, Math.round(width));
-      setTurnNavigatorContainerWidthPx((current) =>
-        current === normalizedWidth ? current : normalizedWidth,
-      );
+      const widthBucket = resolveConversationTurnNavigatorWidthBucket(width);
+      setTurnNavigatorWidthBucket((current) => (current === widthBucket ? current : widthBucket));
     };
     const readWidth = () => commitWidth(element.clientWidth);
     readWidth();
@@ -616,7 +626,7 @@ function ConversationTimelineImpl({
     if (
       !shouldHydrateConversationTurnNavigatorDirectory({
         canLoadOlder,
-        containerWidthPx: turnNavigatorContainerWidthPx,
+        containerWidthPx: turnNavigatorWidthBucket,
         hasLoadHandler: Boolean(onLoadAllOlder),
         loadingOlder,
       })
@@ -679,7 +689,7 @@ function ConversationTimelineImpl({
     rows,
     sessionKey,
     totalCount,
-    turnNavigatorContainerWidthPx,
+    turnNavigatorWidthBucket,
     turnNavigatorDirectoryRevision,
     turnNavigatorHydrationRetryRevision,
   ]);
@@ -708,16 +718,19 @@ function ConversationTimelineImpl({
   );
   // 动态测高：virtualizer 对窗口内元素挂 ResizeObserver，流式行长高即回调此处；
   // 同时把真实高度写入稳定的 turnId 缓存。
-  const measureElement = useCallback((element: Element, entry: ResizeObserverEntry | undefined) => {
-    const height = measureRowHeight(element, entry);
-    const indexAttr = element.getAttribute("data-index");
-    const unit = indexAttr === null ? undefined : virtualizedUnitsRef.current[Number(indexAttr)];
-    const cacheKey = getUnitHeightCacheKey(unit);
-    if (cacheKey !== undefined) {
-      heightCacheRef.current?.set(cacheKey, height);
-    }
-    return height;
-  }, []);
+  const measureElement = useCallback(
+    (element: Element, entry: ResizeObserverEntry | undefined) => {
+      const height = measureRowHeight(element, entry, contentWidthTracker);
+      const indexAttr = element.getAttribute("data-index");
+      const unit = indexAttr === null ? undefined : virtualizedUnitsRef.current[Number(indexAttr)];
+      const cacheKey = getUnitHeightCacheKey(unit);
+      if (cacheKey !== undefined) {
+        heightCacheRef.current?.set(cacheKey, height);
+      }
+      return height;
+    },
+    [contentWidthTracker],
+  );
 
   const virtualizer = useVirtualizer({
     count: virtualizedUnits.length,
@@ -1059,10 +1072,13 @@ function ConversationTimelineImpl({
     const contentColumn = virtualHistoryRef.current;
     if (!contentColumn || typeof ResizeObserver === "undefined") return;
 
-    stableContentWidthRef.current = contentColumn.clientWidth;
-    const observer = new ResizeObserver(() => {
-      const nextWidth = contentColumn.clientWidth;
-      if (nextWidth === stableContentWidthRef.current) return;
+    contentWidthTracker.reset(contentColumn.clientWidth);
+    const observer = new ResizeObserver((entries) => {
+      const entry = entries[0];
+      const nextWidth = entry?.borderBoxSize?.[0]?.inlineSize ?? entry?.contentRect.width;
+      if (nextWidth === undefined) return;
+      contentWidthTracker.observe(nextWidth);
+      if (!contentWidthTracker.isChanging()) return;
 
       // 宽度变化会让虚拟行分批重新测高；逐行补偿或逐批追底都会
       // 连续改写 scrollTop。resize 期间暂停两者，稳定后只执行一次最终贴底。
@@ -1071,7 +1087,7 @@ function ConversationTimelineImpl({
         window.clearTimeout(contentWidthResizeSettleTimerRef.current);
       }
       contentWidthResizeSettleTimerRef.current = window.setTimeout(() => {
-        stableContentWidthRef.current = contentColumn.clientWidth;
+        contentWidthTracker.settle();
         contentWidthResizeActiveRef.current = false;
         contentWidthResizeSettleTimerRef.current = null;
         if (followingRef.current) {
@@ -1089,7 +1105,7 @@ function ConversationTimelineImpl({
       }
       contentWidthResizeActiveRef.current = false;
     };
-  }, [renderUnits.length === 0, scrollToBottom]);
+  }, [contentWidthTracker, renderUnits.length === 0, scrollToBottom]);
 
   useLayoutEffect(() => {
     const element = liveTailRef.current;
@@ -1097,7 +1113,7 @@ function ConversationTimelineImpl({
     if (!element || cacheKey === undefined) return;
 
     const cacheHeight = (entry?: ResizeObserverEntry) => {
-      const height = measureRowHeight(element, entry);
+      const height = measureRowHeight(element, entry, contentWidthTracker);
       heightCacheRef.current?.set(cacheKey, height);
       return height;
     };
@@ -1135,6 +1151,7 @@ function ConversationTimelineImpl({
     return () => observer.disconnect();
   }, [
     commitFollowing,
+    contentWidthTracker,
     getActiveUserScrollIntent,
     isContentWidthChanging,
     liveUnit?.key,
