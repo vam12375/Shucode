@@ -271,6 +271,37 @@ try {
     assert.equal(animations, 0, "reduced motion retained transitions or blinking");
   });
 
+  await scenario(
+    "startup-animation-disabled-skips-animation",
+    { query: "startupAnimation=false" },
+    async (page) => {
+      // 设置里关闭开场动画后，main 注入 startupAnimation=false：跳过逐帧动画但仍等 React 就绪再交接。
+      await page.clock.runFor(100);
+      await entered(page);
+      assert.equal(
+        await page.evaluate(() => window.__splashTest.count()),
+        0,
+        "disabled startup animation scheduled RAF",
+      );
+    },
+  );
+
+  await scenario(
+    "startup-animation-enabled-plays",
+    { query: "startupAnimation=true" },
+    async (page) => {
+      // 显式 startupAnimation=true 与缺省一致：仍需走满 7 秒动画门，不被开关短路。
+      await page.clock.runFor(6800);
+      await masked(page);
+      await page.clock.runFor(1200);
+      await entered(page);
+      assert.ok(
+        (await page.evaluate(() => window.__splashTest.count())) > 0,
+        "enabled startup animation never scheduled RAF",
+      );
+    },
+  );
+
   for (const broken of ["json", "palette", "index", "missing"]) {
     await scenario(`invalid-data-${broken}`, { query: `data=${broken}` }, async (page) => {
       await page.clock.runFor(600);

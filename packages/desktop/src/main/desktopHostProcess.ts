@@ -63,6 +63,8 @@ export interface WindowBootstrapOptions {
   unavailableWorkspacePath?: string;
   windowKind?: "main" | "update-status";
   locale?: string;
+  /** 开场动画开关；启动壳在 React 之前读取该 query 决定是否播放逐帧动画。 */
+  startupAnimationEnabled?: boolean;
 }
 
 export interface HostInitMessage {
@@ -122,6 +124,10 @@ export function loadWindow(
       unavailableWorkspacePath: bootstrap?.unavailableWorkspacePath,
       windowKind: bootstrap?.windowKind,
       locale: bootstrap?.locale,
+      startupAnimation:
+        bootstrap?.startupAnimationEnabled == null
+          ? undefined
+          : String(bootstrap.startupAnimationEnabled),
     }).filter((entry): entry is [string, string] => entry[1] != null),
   );
 
@@ -565,7 +571,6 @@ export function spawnHostProcess(
       });
       return;
     }
-
 
     if (result.data.type === HostResponseTypes.BotRemoteWorkspaceReconnectRequest) {
       const request = result.data;

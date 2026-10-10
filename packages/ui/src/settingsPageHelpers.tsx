@@ -57,6 +57,7 @@ export function GeneralSectionContent({
   closeToTrayOnWindows,
   keepAwakeWhileRunning = false,
   desktopChromiumHardwareAccelerationEnabled = true,
+  startupAnimationEnabled = true,
   receivePreviewUpdates,
   autoDownloadAndInstallUpdates,
   dataBaseDir,
@@ -99,6 +100,7 @@ export function GeneralSectionContent({
   onCloseToTrayOnWindowsChange,
   onKeepAwakeWhileRunningChange = async () => {},
   onDesktopChromiumHardwareAccelerationChange = async () => {},
+  onStartupAnimationEnabledChange = async () => {},
   onReceivePreviewUpdatesChange,
   onAutoDownloadAndInstallUpdatesChange,
   onMessageStreamShowReasoningChange,
@@ -119,6 +121,7 @@ export function GeneralSectionContent({
   closeToTrayOnWindows: boolean;
   keepAwakeWhileRunning?: boolean;
   desktopChromiumHardwareAccelerationEnabled?: boolean;
+  startupAnimationEnabled?: boolean;
   receivePreviewUpdates: boolean;
   autoDownloadAndInstallUpdates: boolean;
   dataBaseDir: string;
@@ -162,6 +165,7 @@ export function GeneralSectionContent({
   onCloseToTrayOnWindowsChange: (enabled: boolean) => Promise<void>;
   onKeepAwakeWhileRunningChange?: (enabled: boolean) => Promise<void>;
   onDesktopChromiumHardwareAccelerationChange?: (enabled: boolean) => Promise<void>;
+  onStartupAnimationEnabledChange?: (enabled: boolean) => Promise<void>;
   onReceivePreviewUpdatesChange: (enabled: boolean) => Promise<void>;
   onAutoDownloadAndInstallUpdatesChange: (enabled: boolean) => Promise<void>;
   onMessageStreamShowReasoningChange: (enabled: boolean) => Promise<void>;
@@ -558,6 +562,25 @@ export function GeneralSectionContent({
       <SettingsGroupCard>
         {isDesktop ? (
           <>
+            <SettingsRow
+              label={intl.formatMessage({
+                id: "settings.startupAnimation",
+              })}
+              description={intl.formatMessage({
+                id: "settings.startupAnimationDescription",
+              })}
+              control={
+                <Switch
+                  aria-label={intl.formatMessage({
+                    id: "settings.startupAnimation",
+                  })}
+                  checked={startupAnimationEnabled}
+                  onCheckedChange={(checked) => {
+                    void onStartupAnimationEnabledChange(checked);
+                  }}
+                />
+              }
+            />
             <SettingsRow
               label={intl.formatMessage({
                 id: "settings.desktopChromiumHardwareAcceleration",

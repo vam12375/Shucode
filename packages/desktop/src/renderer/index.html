@@ -128,7 +128,8 @@
     <script type="module">
       (() => {
         const loading = document.getElementById("loading");
-        if (new URLSearchParams(location.search).get("windowKind") === "update-status") {
+        const params = new URLSearchParams(location.search);
+        if (params.get("windowKind") === "update-status") {
           document.body.classList.add("shucode-startup-ready");
           loading?.remove();
           return;
@@ -137,12 +138,16 @@
         const fallback = loading.querySelector(".splash-fallback");
         const dataNode = document.getElementById("splash-mark-data");
         const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+        // 用户在设置里关闭开场动画时，main 注入 startupAnimation=false。
+        // 跳过逐帧动画，但按与"减弱动态"一致的方式保留纯色品牌底覆盖到 React 就绪，避免首帧空白闪烁。
+        const animationDisabled = params.get("startupAnimation") === "false";
+        const skipAnimation = reduced || animationDisabled;
         const colors = getComputedStyle(loading);
         const paper = colors.getPropertyValue("--splash-paper").trim();
         const ink = colors.getPropertyValue("--splash-ink").trim();
         const red = colors.getPropertyValue("--splash-red").trim();
         const duration = 7000;
-        const exitDuration = reduced ? 0 : 340;
+        const exitDuration = skipAnimation ? 0 : 340;
         let animationDone = false;
         let reactReady = Boolean(window.__SHUCODE_REACT_COMMIT_AT__);
         let finished = false;
@@ -559,7 +564,7 @@
           fallback.hidden = false;
           if (canvas) canvas.style.visibility = "hidden";
           completeAnimation();
-        } else if (reduced) {
+        } else if (skipAnimation) {
           completeAnimation();
         } else {
           addEventListener("resize", onResize, { passive: true });

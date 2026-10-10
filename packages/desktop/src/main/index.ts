@@ -293,6 +293,9 @@ const linuxDesktopIntegrationIconPath =
     : iconPath;
 let currentApplicationLocale: Locale = DEFAULT_LOCALE;
 let closeToTrayOnWindows = true;
+// 开场动画开关：启动期从 setting.json 读入，创建窗口时作为 query 注入启动壳。
+// 缺省按启用兼容旧配置；设置变更经 syncImmediateAppSettings 更新，供同一会话内新窗口使用。
+let startupAnimationEnabled = true;
 // keep-awake：全局开关 keepAwakeWhileRunning。打开后主进程持有
 // powerSaveBlocker("prevent-app-suspension")，阻止系统闲置休眠（防不了合盖/手动睡眠）。
 // 不再绑定闲时任务活跃计数——设置页「常规」与 Automations 入口镜像同一配置。
@@ -946,6 +949,12 @@ function syncCloseToTrayOnWindows(value: unknown) {
 
 function syncImmediateAppSettings(patch: Partial<AppSettings>) {
   syncCloseToTrayOnWindows(patch.closeToTrayOnWindows);
+
+  if (typeof patch.startupAnimationEnabled === "boolean") {
+    // 只影响后续创建的窗口；不打断正在播放的动画，也不重建已存在窗口。
+    startupAnimationEnabled = patch.startupAnimationEnabled;
+    logger.info(`[settings] startupAnimationEnabled=${patch.startupAnimationEnabled}`);
+  }
 
   if (typeof patch.keepAwakeWhileRunning === "boolean") {
     keepAwakeWhileRunning = patch.keepAwakeWhileRunning;
@@ -1838,6 +1847,7 @@ function createWindowInstance(startupBootstrap: StartupWindowBootstrap = {}) {
       initialWorkspacePath: startupBootstrap.initialWorkspacePath,
       initialWorkspacePurpose: startupBootstrap.initialWorkspacePurpose,
       unavailableWorkspacePath: startupBootstrap.unavailableWorkspacePath,
+      startupAnimationEnabled,
     },
     agentWarmupTargets: startupBootstrap.agentWarmupTargets,
     // startupBootstrap 只标记 active workspace 是否不可用，但 local Host 会为所有
@@ -1947,6 +1957,7 @@ app.whenReady().then(async () => {
     }
     closeToTrayOnWindows = bootstrapSettings.closeToTrayOnWindows ?? true;
     keepAwakeWhileRunning = bootstrapSettings.keepAwakeWhileRunning ?? false;
+    startupAnimationEnabled = bootstrapSettings.startupAnimationEnabled ?? true;
     currentDesktopZoomLevel = clampDesktopZoomLevel(bootstrapSettings.desktopZoomLevel ?? 0);
     currentDesktopWindowSize = bootstrapSettings.desktopWindowSize;
     // 全局 keep-awake：启动时若设置已开，立刻持有 powerSaveBlocker，不必等设置变更事件。

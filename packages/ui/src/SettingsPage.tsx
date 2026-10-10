@@ -317,6 +317,8 @@ export function SettingsPage({
   }, [sharedSettings?.recentProjects, workspaceTabs]);
   const memoryEnabled = sharedSettings?.memoryEnabled === true;
   const nativeSearchEnhancementsEnabled = sharedSettings?.nativeSearchEnhancementsEnabled !== false;
+  // 开场动画缺省按启用，仅显式 false 才关闭；读写都走 useSettings 以同步 main 模块变量。
+  const startupAnimationEnabled = sharedSettings?.startupAnimationEnabled !== false;
   const askUserQuestionAutoResolutionEnabled =
     sharedSettings?.askUserQuestionAutoResolutionEnabled !== false;
   const modelIoFullRetentionEnabled = sharedSettings?.modelIoFullRetentionEnabled === true;
@@ -725,6 +727,23 @@ export function SettingsPage({
       );
     },
     [services.settingService, intl],
+  );
+  const handleStartupAnimationEnabledChange = useCallback(
+    async (enabled: boolean) => {
+      // 走 useSettings 统一写盘 + syncAppSettings，让 main 的 startupAnimationEnabled 模块变量
+      // 对同一会话内后续新开窗口生效；只影响下次创建的窗口，不打断已在播放的动画。
+      await runSettingsActionAsync({
+        featureId: "settings.desktop",
+        action: "toggle_startup_animation",
+        trigger: "switch",
+        operation: () => updateSharedSettings({ startupAnimationEnabled: enabled }),
+        completed: {
+          resultSource: "shared_settings",
+          stateAfter: enabled ? "enabled" : "disabled",
+        },
+      });
+    },
+    [updateSharedSettings],
   );
   const handleEmbeddedBrowserAllowInsecureCertificatesChange = useCallback(
     async (enabled: boolean) => {
@@ -1271,6 +1290,7 @@ export function SettingsPage({
                             desktopChromiumHardwareAccelerationEnabled={
                               desktopChromiumHardwareAccelerationEnabled
                             }
+                            startupAnimationEnabled={startupAnimationEnabled}
                             receivePreviewUpdates={receivePreviewUpdates}
                             autoDownloadAndInstallUpdates={autoDownloadAndInstallUpdates}
                             dataBaseDir={dataBaseDir}
@@ -1352,6 +1372,7 @@ export function SettingsPage({
                             onDesktopChromiumHardwareAccelerationChange={
                               handleDesktopChromiumHardwareAccelerationChange
                             }
+                            onStartupAnimationEnabledChange={handleStartupAnimationEnabledChange}
                             onReceivePreviewUpdatesChange={handleReceivePreviewUpdatesChange}
                             onAutoDownloadAndInstallUpdatesChange={
                               handleAutoDownloadAndInstallUpdatesChange
