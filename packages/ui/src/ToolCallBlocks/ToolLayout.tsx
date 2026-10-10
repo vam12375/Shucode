@@ -48,6 +48,8 @@ interface ToolLayoutProps {
   diffCount?: ReactNode;
   hideDiffCountWhenOpen?: boolean;
   statusLabel?: ReactNode;
+  /** 可选：状态词着色类（如子智能体按运行/完成/失败着语义色）。缺省时沿用默认文本色，不影响其它工具卡。 */
+  statusLabelClassName?: string;
   statusTooltip?: ReactNode;
   /**
    * 状态词之前的指示物（如编译反馈行的空环灯），与状态词同显同隐。放在提示触发区之外：
@@ -92,6 +94,7 @@ function ToolLayoutComponent({
   diffCount,
   hideDiffCountWhenOpen = false,
   statusLabel,
+  statusLabelClassName,
   statusTooltip,
   statusIndicator,
   showStatusLabel = false,
@@ -245,7 +248,12 @@ function ToolLayoutComponent({
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
-              <span className="whitespace-nowrap underline decoration-dotted underline-offset-2 cursor-help">
+              <span
+                className={cn(
+                  "whitespace-nowrap underline decoration-dotted underline-offset-2 cursor-help",
+                  statusLabelClassName,
+                )}
+              >
                 {statusLabel}
               </span>
             </TooltipTrigger>
@@ -288,7 +296,7 @@ function ToolLayoutComponent({
           </Tooltip>
         </TooltipProvider>
       ) : (
-        <span className="whitespace-nowrap">{statusLabel}</span>
+        <span className={cn("whitespace-nowrap", statusLabelClassName)}>{statusLabel}</span>
       )
     ) : null;
   const statusNode =

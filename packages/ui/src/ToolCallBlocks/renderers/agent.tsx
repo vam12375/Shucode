@@ -14,6 +14,11 @@ import type { ToolCallBlockRenderContext } from "../shared.js";
 import { getLatestExploreChildSummaryFromChildren } from "./explore.js";
 import { AgentPromptSection } from "./agentPromptSection.js";
 import {
+  AGENT_STATUS_WORD_CLASS,
+  AgentStatusIndicator,
+  resolveAgentStatusTone,
+} from "./agentStatus.js";
+import {
   formatAgentMessage,
   getAgentColor,
   getAgentKindLabel,
@@ -252,6 +257,7 @@ export function AgentToolCallBlock(context: ToolCallBlockRenderContext) {
   // 子 tool 是展开区明细，不能反向续住父块运行态，否则父 Agent completed 后
   // 仍会显示渐变和子工具摘要，和协议里的父工具生命周期不一致。
   const isAgentVisuallyRunning = context.isRunning;
+  const agentStatusTone = resolveAgentStatusTone(isAgentVisuallyRunning, toolCall.status);
   const collapsedChildSummary = isAgentVisuallyRunning
     ? getLatestExploreChildSummaryFromChildren(intl, childToolCalls, context, {
         includeChildActionKindLabel: true,
@@ -393,7 +399,10 @@ export function AgentToolCallBlock(context: ToolCallBlockRenderContext) {
           collapsedChildSummary?.animationKey ?? `agent:${toolCall.toolId}:${primaryText}`
         }
         statusLabel={context.statusLabel}
+        statusLabelClassName={cn("font-medium", AGENT_STATUS_WORD_CLASS[agentStatusTone])}
+        statusIndicator={<AgentStatusIndicator tone={agentStatusTone} />}
         statusTooltip={toolCall.status === "failed" ? context.errorText : undefined}
+        showStatusLabel
         showFailureStatus={toolCall.status === "failed"}
         isRunning={isAgentVisuallyRunning}
         title={collapsedChildSummary?.title ?? primaryText}
