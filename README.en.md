@@ -15,7 +15,8 @@ Shucode is an AI coding workspace with desktop, browser, and terminal interfaces
 
 ## Updates
 
-- 2026-9-23: Updated to Shucode v3.14.3.
+- 2026-10-10: This customized build is at Shucode v0.17.5. It continues from the upstream v3.14.3 source with an independent version line starting at `v0.1.0`; see [CHANGELOG.md](CHANGELOG.md) for per-version changes.
+- 2026-9-23: Updated to Shucode v3.14.3 upstream.
 
 ## Setup
 
