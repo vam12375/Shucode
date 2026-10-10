@@ -2,6 +2,10 @@
  * 的详情、状态卡与购买入口已下线，详情区只渲染自定义供应商（名称 / Base URL /
  * API Key / 模型列表 / 高级设置）。 */
 import type { ModelConnectivityResult } from "@shucode/shared";
+import type {
+  ProviderModelListingResult,
+  ShucodeProviderListModelsConnection,
+} from "@shucode/shared";
 import {
   getProviderFormApiKeyManagementUrl,
   type ProviderSettingsFormProvider,
@@ -24,6 +28,7 @@ export function ModelProviderSectionDetail({
   onDelete,
   onReorderProviderModels,
   onTestModel,
+  onListModels,
   onOpenApiKeyUrl,
   providerSettingsView: providerSettingsViewOverride,
 }: {
@@ -45,6 +50,10 @@ export function ModelProviderSectionDetail({
   onDelete: (provider: ProviderSettingsFormProvider) => Promise<void>;
   onReorderProviderModels?: (providerId: string, modelIds: string[]) => Promise<void>;
   onTestModel: (providerId: string, modelId: string) => Promise<ModelConnectivityResult>;
+  onListModels?: (
+    providerId: string,
+    connection: ShucodeProviderListModelsConnection,
+  ) => Promise<ProviderModelListingResult>;
   onOpenApiKeyUrl: (url: string) => void;
   providerSettingsView?: ProviderSettingsView | null;
 }) {
@@ -85,6 +94,7 @@ export function ModelProviderSectionDetail({
           : undefined
       }
       onTestModel={onTestModel}
+      onListModels={onListModels}
       presetApiKeyUrl={customApiKeyUrl}
       readOnlyEndpoints={false}
       nameEditable

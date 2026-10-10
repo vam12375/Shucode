@@ -7,6 +7,10 @@ import {
   type ProviderSettingsFormModel,
 } from "@/lib/providerSettingsFormTypes.js";
 import type { ModelConnectivityResult } from "@shucode/shared";
+import type {
+  ProviderModelListingResult,
+  ShucodeProviderListModelsConnection,
+} from "@shucode/shared";
 import {
   isApiKeyAccess,
   type ProviderApiType,
@@ -23,6 +27,7 @@ import {
   ProviderCardHeader,
   ProviderConnectionSection,
   ProviderModelsSection,
+  createEmptyModel,
 } from "./ProviderCardSections.js";
 import { resolveModelProviderDisplayName } from "./constants.js";
 import { useProviderDetailFeedback } from "./ProviderDetailFeedback.js";
@@ -144,6 +149,7 @@ export function InlineEditableProviderCard({
   onDeletePersonalModel,
   onDelete,
   onTestModel,
+  onListModels,
   onReorderModelIds,
   readOnlyEndpoints,
   presetApiKeyUrl,
@@ -171,6 +177,10 @@ export function InlineEditableProviderCard({
   onDeletePersonalModel?: (providerId: string, modelId: string) => Promise<unknown>;
   onDelete?: () => void | Promise<void>;
   onTestModel?: (providerId: string, modelId: string) => Promise<ModelConnectivityResult>;
+  onListModels?: (
+    providerId: string,
+    connection: ShucodeProviderListModelsConnection,
+  ) => Promise<ProviderModelListingResult>;
   onReorderModelIds?: (modelIds: string[]) => Promise<void>;
   readOnlyEndpoints?: boolean;
   presetApiKeyUrl?: string;
@@ -192,6 +202,12 @@ export function InlineEditableProviderCard({
   const [apiKeyValue, setApiKeyValue] = useState(getProviderFormApiKey(provider));
   const [apiKeyVisible, setApiKeyVisible] = useState(false);
   const [savingEnabled, setSavingEnabled] = useState(false);
+  // 模型发现结果只服务于导入弹窗，不是配置事实；关掉弹窗即丢弃，不写 store。
+  const [fetchedModels, setFetchedModels] = useState<readonly string[] | undefined>(undefined);
+  const [fetchedEndpoint, setFetchedEndpoint] = useState<string | undefined>(undefined);
+  const [fetchingModels, setFetchingModels] = useState(false);
+  const [importOpen, setImportOpen] = useState(false);
+  const [importingModels, setImportingModels] = useState(false);
   const authoritativeModels = useMemo(
     () => resolveVisibleProviderModelsForEdit(provider),
     [provider],
@@ -706,23 +722,171 @@ export function InlineEditableProviderCard({
   );
 
   const handleAddModel = useCallback(
-    async (model: ProviderSettingsFormModel) => {
+    async (model: ProviderSettingsFormModel, options: { quiet?: boolean } = {}) => {
       if (!onAddPersonalModel) throw new Error("当前设置入口未装配 Personal Model 添加能力");
       const added = { ...model, modelId: model.modelId.trim(), hasPersonalConfig: true };
       if (!added.modelId) return;
-      await runSaveOperation(
-        async () => {
-          await onAddPersonalModel(
-            provider.providerId,
-            added.modelId,
-            structuredClone(added.personalConfig),
-            added.useRecommendedConfig,
-          );
-        },
-        { modelId: added.modelId, draftOwnsRetry: true },
-      );
+      const operation = async () => {
+        await onAddPersonalModel(
+          provider.providerId,
+          added.modelId,
+          structuredClone(added.personalConfig),
+          added.useRecommendedConfig,
+        );
+      };
+      // 批量导入时反馈由批次自己拥有（一条进行中 + 一条结果）。若逐个走 runSaveOperation，
+      // 每个模型都会 push 一条 pending 反馈，而 pending 不自动消失，会留下永不关闭的提示。
+      if (options.quiet) {
+        await operation();
+        return;
+      }
+      await runSaveOperation(operation, { modelId: added.modelId, draftOwnsRetry: true });
     },
     [onAddPersonalModel, provider.providerId, runSaveOperation],
+  );
+
+  /**
+   * 拉取供应商模型列表。先把本卡片的 Provider 草稿 flush 下去，保证「屏幕上的
+   * Base URL / Key」就是这次请求用的连接；结果只回给外层弹窗，不写配置事实。
+   */
+  const handleFetchModels = useCallback(async () => {
+    if (!onListModels) return;
+    const feedbackKey = `model-list:${provider.providerId}`;
+    const reportFailure = (message: string) => {
+      showFeedback({
+        key: feedbackKey,
+        message,
+        state: "failure",
+        durationMs: 8_000,
+        dismissible: true,
+        dismissLabel: intl.formatMessage({ id: "common.close" }),
+      });
+    };
+    const baseUrl = draftRef.current.baseUrlValue.trim();
+    if (!baseUrl) {
+      reportFailure(
+        intl.formatMessage({ id: "settings.modelProvider.fetchModels.missingBaseUrl" }),
+      );
+      return;
+    }
+
+    // 草稿 flush 失败（例如 Base URL 非法）也要给出反馈：否则按钮转一圈就恢复，
+    // 用户看不到任何原因。
+    try {
+      await commitPendingDraft("model-list-fetch");
+    } catch (error) {
+      reportFailure(
+        intl.formatMessage(
+          { id: "settings.modelProvider.fetchModels.failed" },
+          { error: error instanceof Error ? error.message : String(error) },
+        ),
+      );
+      return;
+    }
+
+    const connection: ShucodeProviderListModelsConnection = {
+      apiFormat: draftRef.current.apiFormat,
+      baseUrl,
+      ...(draftRef.current.apiKeyValue.trim()
+        ? { apiKey: draftRef.current.apiKeyValue.trim() }
+        : {}),
+      ...(provider.config.api?.headers ? { headers: { ...provider.config.api.headers } } : {}),
+    };
+    setFetchedModels(undefined);
+    setFetchedEndpoint(undefined);
+    setFetchingModels(true);
+    try {
+      const result = await onListModels(provider.providerId, connection);
+      if (!result.success) {
+        reportFailure(
+          intl.formatMessage(
+            { id: "settings.modelProvider.fetchModels.failed" },
+            { error: result.error.message },
+          ),
+        );
+        return;
+      }
+      setFetchedModels(result.models);
+      setFetchedEndpoint(result.endpoint);
+      setImportOpen(true);
+    } catch (error) {
+      // 服务层契约上不会抛异常；真抛了也不能静默，否则表现为「点了没反应」。
+      logger.warn("[ModelProviderSection] 获取模型列表异常", {
+        providerId: provider.providerId,
+        error,
+      });
+      reportFailure(
+        intl.formatMessage(
+          { id: "settings.modelProvider.fetchModels.failed" },
+          { error: error instanceof Error ? error.message : String(error) },
+        ),
+      );
+    } finally {
+      setFetchingModels(false);
+    }
+  }, [commitPendingDraft, intl, onListModels, provider, showFeedback]);
+
+  /**
+   * 批量导入勾选的模型。串行写入：模型列表是单一 Registry 事实，并发 add 会让
+   * 「已保存几个」无法回给用户；失败时停止并报出卡在哪一个。
+   */
+  const handleImportModels = useCallback(
+    async (modelIds: readonly string[]) => {
+      if (modelIds.length === 0) return;
+      const feedbackKey = `model-import:${provider.providerId}`;
+      setImportingModels(true);
+      const template = createEmptyModel();
+      let imported = 0;
+      try {
+        for (const modelId of modelIds) {
+          try {
+            await handleAddModel(
+              { ...template, modelId, hasPersonalConfig: true },
+              { quiet: true },
+            );
+          } catch (error) {
+            showFeedback({
+              key: feedbackKey,
+              message: intl.formatMessage(
+                { id: "settings.modelProvider.fetchModels.importFailed" },
+                {
+                  model: modelId,
+                  error: error instanceof Error ? error.message : String(error),
+                },
+              ),
+              state: "failure",
+              durationMs: 8_000,
+              dismissible: true,
+              dismissLabel: intl.formatMessage({ id: "common.close" }),
+            });
+            return;
+          }
+          imported += 1;
+          showFeedback({
+            key: feedbackKey,
+            message: intl.formatMessage(
+              { id: "settings.modelProvider.fetchModels.importing" },
+              { done: imported, total: modelIds.length },
+            ),
+            state: "pending",
+            durationMs: 0,
+          });
+        }
+        setImportOpen(false);
+        dismissFeedback(feedbackKey);
+        showFeedback({
+          key: feedbackKey,
+          message: intl.formatMessage(
+            { id: "settings.modelProvider.fetchModels.importSuccess" },
+            { count: imported },
+          ),
+          state: "success",
+        });
+      } finally {
+        setImportingModels(false);
+      }
+    },
+    [dismissFeedback, handleAddModel, intl, provider.providerId, showFeedback],
   );
 
   const handleReorderModelIds = useCallback(
@@ -853,6 +1017,21 @@ export function InlineEditableProviderCard({
           onDeleteModel={handleDeleteModel}
           onAddModel={handleAddModel}
           onReorderModelIds={onReorderModelIds ? handleReorderModelIds : undefined}
+          {...(onListModels ? { onFetchModels: () => void handleFetchModels() } : {})}
+          onImportModels={handleImportModels}
+          fetchingModels={fetchingModels}
+          fetchedModels={fetchedModels ?? []}
+          {...(fetchedEndpoint ? { fetchedEndpoint } : {})}
+          importOpen={importOpen}
+          importingModels={importingModels}
+          onImportOpenChange={(open) => {
+            setImportOpen(open);
+            if (!open) {
+              // 关掉弹窗即丢弃本次拉取结果，避免留下「上次拉到的列表」这种隐性状态。
+              setFetchedModels(undefined);
+              setFetchedEndpoint(undefined);
+            }
+          }}
           settingsRevision={settingsRevision ?? 0}
         />
       </div>

@@ -16,26 +16,30 @@ import type { ProviderApiType } from "@shucode/provider";
 import {
   TID_MODEL_PROVIDER_ADD_MODEL_BUTTON,
   TID_MODEL_PROVIDER_BASE_URL_INPUT,
+  TID_MODEL_PROVIDER_FETCH_MODELS_BUTTON,
   TID_MODEL_PROVIDER_MODEL_DELETE_BUTTON,
   TID_MODEL_PROVIDER_MODEL_INPUT,
   TID_MODEL_PROVIDER_NAME_EDIT_BUTTON,
   TID_MODEL_PROVIDER_NAME_INPUT,
   testId,
 } from "@shucode/shared";
-import { InfoIcon, LockKeyholeIcon, Plus, Pencil, Trash2, MoreHorizontal } from "lucide-react";
+import {
+  InfoIcon,
+  LockKeyholeIcon,
+  Plus,
+  Pencil,
+  Trash2,
+  DownloadIcon,
+  Loader2Icon,
+} from "lucide-react";
 import { Button } from "@/components/ui/button.js";
 import { Input } from "@/components/ui/input.js";
-import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-} from "@/components/ui/dropdown-menu.js";
 import { useShucodeIntl } from "@/i18n/IntlProvider.js";
 import { useServices } from "@/hooks/useServices.js";
+import { ControlHintTooltip } from "@/ControlHintTooltip.js";
 import { TECHNICAL_INPUT_ATTRIBUTES } from "@/lib/technicalInputAttributes.js";
 import { ApiKeyInput } from "./ApiKeyInput.js";
+import { ProviderModelImportDialog } from "./ProviderModelImportDialog.js";
 import { ModelRowInput } from "./ProviderFormControls.js";
 import { PresetProviderApiKeyBanner } from "./PresetProviderApiKeyBanner.js";
 import { type ProviderModelDraftValues } from "@/settings/model-provider-section/ProviderModelMetadata.js";
@@ -95,8 +99,6 @@ export function ProviderCardHeader({
   providerToggle?: ReactNode;
 }) {
   const { intl } = useShucodeIntl();
-  const renameRequestedRef = useRef(false);
-  const secondaryActionsVisible = actionsVisible && (nameEditable || Boolean(onDelete));
 
   return (
     <div
@@ -125,55 +127,48 @@ export function ProviderCardHeader({
             <div className="min-w-0 truncate text-ui-lg font-semibold text-foreground">
               {providerName}
             </div>
+            {/* 重命名从「...」菜单提到名称旁的铅笔按钮：一次点击即可进入就地编辑。 */}
+            {nameEditable ? (
+              <ControlHintTooltip
+                standalone
+                title={intl.formatMessage({ id: "settings.modelProvider.renameProvider" })}
+              >
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon-sm"
+                  data-testid={TID_MODEL_PROVIDER_NAME_EDIT_BUTTON}
+                  aria-label={intl.formatMessage({
+                    id: "settings.modelProvider.renameProvider",
+                  })}
+                  onClick={onStartEditName}
+                >
+                  <Pencil className="size-3.5" />
+                </Button>
+              </ControlHintTooltip>
+            ) : null}
           </>
         )}
       </div>
       <div className="flex shrink-0 items-center gap-2">
         {providerToggle}
-        {secondaryActionsVisible ? (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon-sm"
-                data-testid="model-provider-actions-button"
-                aria-label={intl.formatMessage({ id: "common.more" })}
-              >
-                <MoreHorizontal className="size-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent
-              align="end"
-              onCloseAutoFocus={(event) => {
-                // 重命名后的焦点交给输入框，不能被菜单关闭时重新抢回触发按钮。
-                if (renameRequestedRef.current) {
-                  event.preventDefault();
-                  renameRequestedRef.current = false;
-                }
-              }}
+        {/* 删除从「...」菜单提为独立按钮：入口一次可达，确认仍由外层二次弹窗负责。 */}
+        {actionsVisible && onDelete ? (
+          <ControlHintTooltip standalone title={intl.formatMessage({ id: "common.delete" })}>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-sm"
+              data-testid="model-provider-delete-button"
+              aria-label={intl.formatMessage(
+                { id: "settings.modelProvider.deleteProvider" },
+                { name: providerName },
+              )}
+              onClick={onDelete}
             >
-              {nameEditable ? (
-                <DropdownMenuItem
-                  data-testid={TID_MODEL_PROVIDER_NAME_EDIT_BUTTON}
-                  onSelect={() => {
-                    renameRequestedRef.current = true;
-                    onStartEditName();
-                  }}
-                >
-                  <Pencil className="size-3.5" />
-                  {intl.formatMessage({ id: "settings.modelProvider.renameProvider" })}
-                </DropdownMenuItem>
-              ) : null}
-              {nameEditable && onDelete ? <DropdownMenuSeparator /> : null}
-              {onDelete ? (
-                <DropdownMenuItem variant="destructive" onSelect={onDelete}>
-                  <Trash2 className="size-3.5" />
-                  {intl.formatMessage({ id: "common.delete" })}
-                </DropdownMenuItem>
-              ) : null}
-            </DropdownMenuContent>
-          </DropdownMenu>
+              <Trash2 className="size-3.5" />
+            </Button>
+          </ControlHintTooltip>
         ) : null}
       </div>
     </div>
@@ -330,7 +325,11 @@ export function ProviderApiKeySection({
   );
 }
 
-function createEmptyModel(): ProviderSettingsFormModel {
+/**
+ * 一条「只有 ID」的候选模型：配置由 Registry 按 Provider 规则解析。
+ * 批量导入复用同一形状，避免在调用点复制一份空模型字面量。
+ */
+export function createEmptyModel(): ProviderSettingsFormModel {
   return {
     kind: "candidate",
     modelId: "",
@@ -358,6 +357,14 @@ export function ProviderModelsSection({
   onDeleteModel,
   onAddModel,
   onReorderModelIds,
+  onFetchModels,
+  onImportModels,
+  fetchingModels = false,
+  fetchedModels,
+  fetchedEndpoint,
+  importOpen = false,
+  importingModels = false,
+  onImportOpenChange,
   settingsRevision = 0,
 }: {
   providerId: string;
@@ -375,6 +382,16 @@ export function ProviderModelsSection({
   onModelEnabledChange?: (modelId: string, enabled: boolean) => void | Promise<void>;
   onAddModel: (model: ProviderSettingsFormModel) => void | Promise<void>;
   onReorderModelIds?: (modelIds: string[]) => void;
+  /** 「获取模型列表」：拉取供应商模型，结果由外层持有并交给导入弹窗。 */
+  onFetchModels?: () => void;
+  /** 批量导入勾选的模型；串行写入并以实际保存结果作为结束边界。 */
+  onImportModels?: (modelIds: readonly string[]) => void | Promise<void>;
+  fetchingModels?: boolean;
+  fetchedModels?: readonly string[];
+  fetchedEndpoint?: string;
+  importOpen?: boolean;
+  importingModels?: boolean;
+  onImportOpenChange?: (open: boolean) => void;
   settingsRevision?: number;
 }) {
   const { intl } = useShucodeIntl();
@@ -473,17 +490,51 @@ export function ProviderModelsSection({
         <span className="text-ui-base text-foreground-subtle">
           {intl.formatMessage({ id: "settings.modelProvider.models" })}
         </span>
-        <Button
-          type="button"
-          variant="secondary"
-          size="default"
-          className="rounded-lg"
-          data-testid={TID_MODEL_PROVIDER_ADD_MODEL_BUTTON}
-          onClick={openAddDialog}
-        >
-          <Plus data-icon="inline-start" aria-hidden="true" />
-          {intl.formatMessage({ id: "settings.modelProvider.addModel" })}
-        </Button>
+        <div className="flex flex-wrap items-center gap-2">
+          {onFetchModels ? (
+            <ControlHintTooltip
+              standalone
+              title={intl.formatMessage({
+                id: "settings.modelProvider.fetchModels.action",
+              })}
+            >
+              <Button
+                type="button"
+                variant="outline"
+                size="default"
+                className="rounded-lg"
+                data-testid={TID_MODEL_PROVIDER_FETCH_MODELS_BUTTON}
+                aria-label={intl.formatMessage({
+                  id: "settings.modelProvider.fetchModels.action",
+                })}
+                disabled={fetchingModels}
+                onClick={onFetchModels}
+              >
+                {fetchingModels ? (
+                  <Loader2Icon
+                    data-icon="inline-start"
+                    className="animate-spin"
+                    aria-hidden="true"
+                  />
+                ) : (
+                  <DownloadIcon data-icon="inline-start" aria-hidden="true" />
+                )}
+                {intl.formatMessage({ id: "settings.modelProvider.fetchModels.action" })}
+              </Button>
+            </ControlHintTooltip>
+          ) : null}
+          <Button
+            type="button"
+            variant="secondary"
+            size="default"
+            className="rounded-lg"
+            data-testid={TID_MODEL_PROVIDER_ADD_MODEL_BUTTON}
+            onClick={openAddDialog}
+          >
+            <Plus data-icon="inline-start" aria-hidden="true" />
+            {intl.formatMessage({ id: "settings.modelProvider.addModel" })}
+          </Button>
+        </div>
       </div>
       {models.length > 0 ? (
         <div className="pk-provider-model-list overflow-hidden rounded-lg border border-input-border bg-input">
@@ -580,6 +631,18 @@ export function ProviderModelsSection({
           }}
         />
       </>
+      {/* 拉取结果只归本区块所有：关掉弹窗即丢弃，不写 store、不落盘。 */}
+      {onImportModels && onImportOpenChange ? (
+        <ProviderModelImportDialog
+          open={importOpen}
+          fetchedModels={fetchedModels ?? []}
+          {...(fetchedEndpoint ? { endpoint: fetchedEndpoint } : {})}
+          existingModelIds={models.map((model) => model.modelId)}
+          importing={importingModels}
+          onOpenChange={onImportOpenChange}
+          onImport={onImportModels}
+        />
+      ) : null}
     </div>
   );
 }

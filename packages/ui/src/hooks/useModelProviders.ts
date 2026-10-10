@@ -1,6 +1,7 @@
 import { useState, useCallback, useMemo, useRef } from "react";
 import type { ProviderSettingsFormProvider } from "@/lib/providerSettingsFormTypes.js";
-import type { ModelConnectivityResult } from "@shucode/shared";
+import type { ModelConnectivityResult, ProviderModelListingResult } from "@shucode/shared";
+import type { ShucodeProviderListModelsConnection } from "@shucode/shared";
 import type { ProviderSettingsView } from "@shucode/services";
 import { useServices } from "@/hooks/useServices.js";
 import { logger } from "@/logger.js";
@@ -211,6 +212,45 @@ export function useModelProviders(target: {
     ],
   );
 
+  /**
+   * 拉取供应商模型列表。连接信息取自当前设置表单（允许是尚未保存的草稿），
+   * 本方法不写任何配置事实；失败以结果对象返回，由设置页决定提示文案。
+   */
+  const listProviderModels = useCallback(
+    async (
+      providerId: string,
+      connection: ShucodeProviderListModelsConnection,
+    ): Promise<ProviderModelListingResult> => {
+      const listingWorkspacePath = target.connectivityWorkspacePath?.trim();
+      if (
+        !listingWorkspacePath &&
+        (target.connectivityWorkspaceRequired || target.workspaceIdentity?.trim())
+      ) {
+        return {
+          success: false,
+          error: {
+            message:
+              target.connectivityUnavailableMessage ??
+              "A local workspace is unavailable for fetching the model list.",
+          },
+        };
+      }
+      return providerSettingsService.listProviderModels({
+        workspacePath: listingWorkspacePath || target.workspacePath,
+        providerId,
+        connection,
+      });
+    },
+    [
+      providerSettingsService,
+      target.connectivityUnavailableMessage,
+      target.connectivityWorkspacePath,
+      target.connectivityWorkspaceRequired,
+      target.workspacePath,
+      target.workspaceIdentity,
+    ],
+  );
+
   return {
     modelProviders: effectiveModelProviders,
     providerTemplates: providerSettingsView?.providerTemplates ?? [],
@@ -232,6 +272,7 @@ export function useModelProviders(target: {
     reorderProviderModels,
     saveDisplayOrder,
     testModelConnectivity,
+    listProviderModels,
     providerSettingsView,
   };
 }
