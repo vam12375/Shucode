@@ -79,3 +79,21 @@ export type ModelConnectivityResult =
         readonly code?: "provider-unavailable" | "model-unavailable";
       };
     };
+
+/**
+ * 「获取模型列表」的结果。
+ *
+ * 失败是常规结果而不是异常：候选端点逐个尝试后可能都不存在，设置页要据此给
+ * 可操作的提示（检查 Base URL / Key / 供应商是否开放该接口），而不是弹一个原始错误。
+ */
+export type ProviderModelListingResult =
+  | {
+      readonly success: true;
+      /** 实际命中的候选端点，用于反馈「从哪里拉到的」。 */
+      readonly endpoint: string;
+      readonly models: readonly string[];
+    }
+  | {
+      readonly success: false;
+      readonly error: { readonly message: string };
+    };

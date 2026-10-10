@@ -2164,6 +2164,45 @@ export type ShucodeProviderTestModelConnectivityResult = z.infer<
   typeof shucodeProviderTestModelConnectivityResultSchema
 >;
 
+/** 供应商模型列表请求只携带「这一次请求要用的连接信息」，不落盘、不进入 Registry。
+ * 设置页允许在保存前先试拉列表，因此连接值可能还只是表单草稿；API Key 仍由 Host 提供，
+ * Agent 只把它用于本次外发请求的鉴权头。 */
+export const shucodeProviderListModelsConnectionSchema = z
+  .object({
+    /** 鉴权头形态由 API 格式决定：anthropic-messages 用 x-api-key，OpenAI 兼容用 Bearer。 */
+    apiFormat: z.enum(["anthropic-messages", "openai-chat-completions", "openai-responses"]),
+    baseUrl: z.string().trim().url(),
+    apiKey: z.string().optional(),
+    /** Provider 自定义请求头；只做覆盖，不允许替代 API Key 的鉴权头。 */
+    headers: z.record(z.string(), z.string()).optional(),
+  })
+  .strict();
+export const shucodeProviderListModelsParamsSchema = z
+  .object({
+    workspace: shucodeWorkspaceRefSchema,
+    providerId: nonEmptyString,
+    connection: shucodeProviderListModelsConnectionSchema,
+  })
+  .strict();
+export const shucodeProviderListModelsResultSchema = z
+  .object({
+    success: z.literal(true),
+    /** 实际命中的候选端点，供设置页反馈「从哪里拉到的」。 */
+    endpoint: nonEmptyString,
+    models: z.array(nonEmptyString),
+  })
+  .strict();
+export type ShucodeProviderListModelsConnection = z.infer<
+  typeof shucodeProviderListModelsConnectionSchema
+>;
+export type ShucodeProviderListModelsParams = z.infer<typeof shucodeProviderListModelsParamsSchema>;
+export type ShucodeProviderListModelsResult = z.infer<typeof shucodeProviderListModelsResultSchema>;
+
+/** 单个候选端点的请求时限。候选可能逐个尝试，服务端 RPC 时限必须明显大于它。 */
+export const PROVIDER_LIST_MODELS_ENDPOINT_TIMEOUT_MS = 15_000;
+/** provider/listModels 的 RPC 总时限（含排队、建连与多候选回退）。 */
+export const PROVIDER_LIST_MODELS_REQUEST_TIMEOUT_MS = 90_000;
+
 export const shucodeProviderUpdateAccountConfigParamsSchema = z
   .object({
     revision: nonEmptyString,
@@ -3664,6 +3703,9 @@ export const shucodeProtocolMethods = {
   workspaceGenerateText: "workspace/generateText",
   workspaceCancelGenerateText: "workspace/cancelGenerateText",
   providerTestModelConnectivity: "provider/testModelConnectivity",
+  // 模型发现同样必须由 CLI 侧发出：鉴权头与代理/自定义头语义要与正式模型请求一致，
+  // Renderer 不自己访问供应商端点。
+  providerListModels: "provider/listModels",
   mcpList: "mcp/list",
   pluginsList: "plugins/list",
   pluginsReferenceCatalog: "plugins/referenceCatalog",
