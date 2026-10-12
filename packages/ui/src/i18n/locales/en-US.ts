@@ -5706,6 +5706,20 @@ const enUS: Record<string, string> = {
   "mode.description.glm.edit": "Edit files automatically.",
   "mode.description.glm.plan": "Plan before editing.",
   "mode.description.glm.yolo": "Run with fewer confirmations.",
+  "mode.confirm.yolo.title": "Enable full access?",
+  "mode.confirm.yolo.description":
+    "The agent will be able to run commands, use the internet, and create and edit files anywhere on this computer without asking for permission. This includes but is not limited to:",
+  "mode.confirm.yolo.files": "Files and folders",
+  "mode.confirm.yolo.files.description":
+    "Read, create, modify, upload, or delete files anywhere on this computer",
+  "mode.confirm.yolo.commands": "Terminal commands",
+  "mode.confirm.yolo.commands.description":
+    "Run commands, install software, and change system settings",
+  "mode.confirm.yolo.network": "Internet and connected apps",
+  "mode.confirm.yolo.network.description": "Visit websites, send data, and use enabled plugins",
+  "mode.confirm.yolo.warning":
+    "This carries risks such as sensitive data loss or leakage and prompt injection.",
+  "mode.confirm.yolo.confirm": "Confirm",
   "todo.panel.title": "Todo",
   "todo.panel.currentTask": "Current task",
   "todo.panel.completed": "Todo completed",
