@@ -28,7 +28,7 @@ import type {
   ModelToolSideEffectScope,
 } from "../model/index.js";
 import type { TodoItem } from "../tools/todo.js";
-import type { SessionGoal, GoalStatus } from "../tools/target.js";
+import type { SessionTarget, TargetStatus } from "../tools/target.js";
 import type { PermissionRuleset } from "./permission.port.js";
 import type { CollaborationMode } from "./session.port.js";
 import type { EnvInfo } from "./context-source.port.js";
@@ -120,7 +120,7 @@ export type StableForkGoalBoundaryMetadata =
   | { kind: "none" }
   | {
       kind: "snapshot";
-      target: SessionGoal;
+      target: SessionTarget;
       verificationEntryIds: string[];
     };
 
@@ -225,7 +225,7 @@ export interface ForkCommitBundle {
   entries: SessionEntryInfo[];
   /** 存储复制来源（目标 ID -> 父记录 ID）；只保留旧磁盘快照，不参与模型选择。 */
   copySources?: { messages: Record<string, string>; parts: Record<string, string> };
-  goal?: { source: SessionGoal; status: GoalStatus };
+  goal?: { source: SessionTarget; status: TargetStatus };
   initialInput?: {
     id: string;
     sessionID: SessionId;
@@ -1204,59 +1204,59 @@ export interface SessionStorePort {
   getSessionInputById?(id: string): Promise<SessionInputRecord | null>;
   readTodos(input: { sessionID: SessionId }): Promise<TodoItem[]>;
   updateTodos(input: { sessionID: SessionId; todos: TodoItem[] }): Promise<void>;
-  readTarget(input: { sessionID: SessionId }): Promise<SessionGoal | null>;
+  readTarget(input: { sessionID: SessionId }): Promise<SessionTarget | null>;
   setTarget(input: {
     objective: string;
     sessionID: SessionId;
-    status?: GoalStatus;
+    status?: TargetStatus;
     tokenBudget?: number | null;
-  }): Promise<SessionGoal>;
+  }): Promise<SessionTarget>;
   cloneTargetForFork?(input: {
-    source: SessionGoal;
+    source: SessionTarget;
     sessionID: SessionId;
-    status?: GoalStatus;
-  }): Promise<SessionGoal>;
+    status?: TargetStatus;
+  }): Promise<SessionTarget>;
   createTarget(input: {
     objective: string;
     sessionID: SessionId;
     tokenBudget?: number | null;
-  }): Promise<SessionGoal | null>;
+  }): Promise<SessionTarget | null>;
   updateTargetStatus(input: {
     sessionID: SessionId;
-    status: GoalStatus;
-  }): Promise<SessionGoal | null>;
+    status: TargetStatus;
+  }): Promise<SessionTarget | null>;
   startTargetRun?(input: {
     sessionID: SessionId;
     targetID: string;
     inputID: string;
     startedAtMs: number;
-  }): Promise<SessionGoal | null>;
+  }): Promise<SessionTarget | null>;
   heartbeatTargetRun?(input: {
     sessionID: SessionId;
     targetID: string;
     inputID: string;
     seenAtMs: number;
-  }): Promise<SessionGoal | null>;
+  }): Promise<SessionTarget | null>;
   finishTargetRun?(input: {
     sessionID: SessionId;
     targetID: string;
     inputID: string;
     endedAtMs: number;
-    status?: GoalStatus;
+    status?: TargetStatus;
     tokensUsedDelta?: number;
-  }): Promise<SessionGoal | null>;
-  recoverInterruptedTargetRun?(input: { sessionID: SessionId }): Promise<SessionGoal | null>;
+  }): Promise<SessionTarget | null>;
+  recoverInterruptedTargetRun?(input: { sessionID: SessionId }): Promise<SessionTarget | null>;
   accountTargetUsage(input: {
     sessionID: SessionId;
     targetID: string;
     tokensUsedDelta?: number;
     timeUsedSecondsDelta?: number;
-  }): Promise<SessionGoal | null>;
+  }): Promise<SessionTarget | null>;
   updateTargetSummaryTitle(input: {
     sessionID: SessionId;
     targetID: string;
     summaryTitle: string;
-  }): Promise<SessionGoal | null>;
+  }): Promise<SessionTarget | null>;
   clearTarget(input: { sessionID: SessionId }): Promise<boolean>;
   getProjectPermission(projectID: ProjectId): Promise<PermissionRuleset | null>;
   saveProjectPermission(input: {

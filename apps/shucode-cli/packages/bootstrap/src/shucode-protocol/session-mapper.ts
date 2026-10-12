@@ -31,12 +31,12 @@ import {
   getModelUsageContextTokens,
   type ActiveToolCall,
   type BackgroundTaskInfo,
-  type GoalCompletionVerificationOutput,
+  type TargetCompletionVerificationOutput,
   type MessageWithParts,
   type ModelCompletePayload,
   type PendingPermission,
   type SessionEvent,
-  type SessionGoal,
+  type SessionTarget,
   type SessionInfo,
   type SessionProjection,
   type TodoItem,
@@ -70,7 +70,7 @@ export async function buildSessionSnapshot(input: {
   session?: SessionInfo | null;
   stateRevision: number;
   slashCommandOptions?: ListProtocolSlashCommandsOptions;
-  target?: SessionGoal | null;
+  target?: SessionTarget | null;
   todos?: TodoItem[];
   workspace: ShucodeWorkspaceRef;
 }): Promise<ShucodeSessionStateSnapshot> {
@@ -927,7 +927,7 @@ function positiveInteger(value: unknown): number | undefined {
 function mergePersistedGoalVerificationEvents(
   projection: SessionProjection,
   events: readonly SessionEvent[],
-  target?: SessionGoal | null,
+  target?: SessionTarget | null,
 ): SessionProjection {
   if (events.length === 0) {
     return projection;
@@ -969,16 +969,16 @@ function compareEventsByTimelineTime(left: SessionEvent, right: SessionEvent): n
 }
 
 function mergeGoalVerificationSummaries(
-  verifications: readonly GoalCompletionVerificationOutput[],
+  verifications: readonly TargetCompletionVerificationOutput[],
   timeline: readonly SessionProjection["targetCompletionVerificationTimeline"][number][],
-): GoalCompletionVerificationOutput[] {
-  const result: GoalCompletionVerificationOutput[] = [];
+): TargetCompletionVerificationOutput[] {
+  const result: TargetCompletionVerificationOutput[] = [];
   const seen = new Set<string>();
   for (const verification of [
     ...verifications,
     ...timeline
       .map((item) => item.verification)
-      .filter((item): item is GoalCompletionVerificationOutput => item !== undefined),
+      .filter((item): item is TargetCompletionVerificationOutput => item !== undefined),
   ]) {
     const key = goalVerificationSummaryKey(verification);
     if (seen.has(key)) {
@@ -990,7 +990,7 @@ function mergeGoalVerificationSummaries(
   return result;
 }
 
-function goalVerificationSummaryKey(verification: GoalCompletionVerificationOutput): string {
+function goalVerificationSummaryKey(verification: TargetCompletionVerificationOutput): string {
   return [
     verification.passed ? "1" : "0",
     normalizeTodoContent(verification.reason),
@@ -1040,7 +1040,7 @@ function normalizeText(value: string): string {
   return value.trim().replace(/\s+/g, " ").toLowerCase();
 }
 
-function mapSessionGoal(goal: SessionGoal | null | undefined): ShucodeSessionGoal | null | undefined {
+function mapSessionGoal(goal: SessionTarget | null | undefined): ShucodeSessionGoal | null | undefined {
   if (goal === undefined) return undefined;
   if (goal === null) return null;
   return {
@@ -1247,7 +1247,7 @@ function addOrUpdateTodoInGroup(
 
 function getGoalActiveIterationCount(
   projection: SessionProjection,
-  target?: SessionGoal | null,
+  target?: SessionTarget | null,
 ): number {
   const timeline = getTargetGoalVerificationTimeline(projection, target);
   return getShucodeGoalActiveIterationCount({
@@ -1258,7 +1258,7 @@ function getGoalActiveIterationCount(
 
 function collectGoalIterationBuckets(
   messages: readonly MessageWithParts[],
-  options: { projection: SessionProjection; target?: SessionGoal | null },
+  options: { projection: SessionProjection; target?: SessionTarget | null },
 ): GoalIterationBucket[] {
   const target = options.target ?? null;
   const timeline = getTargetGoalVerificationTimeline(options.projection, target);
@@ -1302,7 +1302,7 @@ function collectGoalIterationBuckets(
 
 function createGoalIterationBucket(
   goalIteration: number,
-  target: SessionGoal | null,
+  target: SessionTarget | null,
   timeline: readonly SessionProjection["targetCompletionVerificationTimeline"][number][],
   fallbackStartedAt: number,
 ): GoalIterationBucket {
@@ -1321,7 +1321,7 @@ function createGoalIterationBucket(
 
 function getTargetGoalVerificationTimeline(
   projection: SessionProjection,
-  target?: SessionGoal | null,
+  target?: SessionTarget | null,
 ): SessionProjection["targetCompletionVerificationTimeline"] {
   const targetId = target?.targetID;
   return (projection.targetCompletionVerificationTimeline ?? [])
@@ -1351,7 +1351,7 @@ function goalVerificationTimelineTime(
 
 function getGoalIterationForMessageTime(
   messageCreatedAt: number,
-  target: SessionGoal | null | undefined,
+  target: SessionTarget | null | undefined,
   timeline: readonly SessionProjection["targetCompletionVerificationTimeline"][number][],
 ): number | undefined {
   if (!target || messageCreatedAt < target.time.created) {
@@ -1378,7 +1378,7 @@ function getGoalIterationForMessageTime(
 
 function getGoalIterationStartedAt(
   goalIteration: number,
-  target: SessionGoal | null | undefined,
+  target: SessionTarget | null | undefined,
   timeline: readonly SessionProjection["targetCompletionVerificationTimeline"][number][],
   fallbackStartedAt: number,
 ): number {

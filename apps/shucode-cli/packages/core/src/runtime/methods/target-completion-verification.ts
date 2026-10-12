@@ -1,19 +1,19 @@
 import {
   SessionEventType,
-  GOAL_COMPLETION_VERIFICATION_QUERY_SOURCE,
+  TARGET_COMPLETION_VERIFICATION_QUERY_SOURCE,
   createChildTraceContext,
-  failOpenGoalCompletionVerification,
-  failedGoalCompletionVerification,
-  formatGoalCompletionVerificationPrompt,
-  parseGoalCompletionVerificationText,
+  failOpenTargetCompletionVerification,
+  failedTargetCompletionVerification,
+  formatTargetCompletionVerificationPrompt,
+  parseTargetCompletionVerificationText,
   runWithModelInvocationContext,
   traceContextToLogContext,
 } from "../deps.js";
 import type {
-  GoalCompletionVerificationOutput,
+  TargetCompletionVerificationOutput,
   Model,
   SessionEvent,
-  SessionGoal,
+  SessionTarget,
   TraceContext,
 } from "../deps.js";
 import { buildRuntimeProviderRequestMessages, throwIfTurnAborted } from "../helpers/index.js";
@@ -28,8 +28,8 @@ import { recordModelUsageFact } from "./usage-observability.js";
 import { runTargetCompletionVerificationWithTelemetry } from "./target-completion-verification-telemetry.js";
 
 export interface TargetCompletionVerificationResult {
-  target: SessionGoal;
-  verification: GoalCompletionVerificationOutput;
+  target: SessionTarget;
+  verification: TargetCompletionVerificationOutput;
 }
 
 const TARGET_VERIFIER_START_PLAN_BUSY_RETRY_DELAYS_MS = [1_000, 2_000] as const;
@@ -42,7 +42,7 @@ export async function verifyActiveTargetCompletionForContinuation(
   this: AgentRuntimeInternal,
   input: {
     abortSignal?: AbortSignal;
-    target: SessionGoal;
+    target: SessionTarget;
     traceContext: TraceContext;
   },
 ): Promise<TargetCompletionVerificationResult | null> {
@@ -93,10 +93,10 @@ async function verifyTargetCompletion(
   input: {
     abortSignal?: AbortSignal;
     events: SessionEvent[];
-    target: SessionGoal;
+    target: SessionTarget;
     traceContext: TraceContext;
   },
-): Promise<GoalCompletionVerificationOutput> {
+): Promise<TargetCompletionVerificationOutput> {
   // 目标验证期间也允许切换 session 默认模型；请求、重试和 usage 必须共用
   // 验证开始时的模型快照，不能在 provider 返回后重新读取 Session Selection。
   const requestedModelSelection = this.getSessionModelSelection();
@@ -104,7 +104,7 @@ async function verifyTargetCompletion(
   const modelTraceContext = createChildTraceContext(input.traceContext, {
     attributes: {
       model: `${model.providerId}/${model.modelId}`,
-      querySource: GOAL_COMPLETION_VERIFICATION_QUERY_SOURCE,
+      querySource: TARGET_COMPLETION_VERIFICATION_QUERY_SOURCE,
       targetId: input.target.targetID,
     },
   });
@@ -138,7 +138,7 @@ async function verifyTargetCompletion(
       {
         message: {
           role: "user" as const,
-          content: formatGoalCompletionVerificationPrompt(input.target),
+          content: formatTargetCompletionVerificationPrompt(input.target),
         },
       },
     ],
@@ -157,7 +157,7 @@ async function verifyTargetCompletion(
       messages,
       providerId: String(model.providerId),
       modelId: String(model.modelId),
-      querySource: GOAL_COMPLETION_VERIFICATION_QUERY_SOURCE,
+      querySource: TARGET_COMPLETION_VERIFICATION_QUERY_SOURCE,
       toolCount: 0,
     },
     modelTraceContext,
@@ -181,7 +181,7 @@ async function verifyTargetCompletion(
       SessionEventType.ModelComplete,
       {
         content: result.text,
-        querySource: GOAL_COMPLETION_VERIFICATION_QUERY_SOURCE,
+        querySource: TARGET_COMPLETION_VERIFICATION_QUERY_SOURCE,
         stopReason: result.finishReason,
         toolCallCount: toolCalls.length,
         usage: result.usage,
@@ -194,7 +194,7 @@ async function verifyTargetCompletion(
       events: input.events,
       model,
       networkEventStartIndex,
-      querySource: GOAL_COMPLETION_VERIFICATION_QUERY_SOURCE,
+      querySource: TARGET_COMPLETION_VERIFICATION_QUERY_SOURCE,
       result,
       startedAt: modelStartedAt,
       status: "completed",
@@ -203,10 +203,10 @@ async function verifyTargetCompletion(
     });
     const verification =
       toolCalls.length > 0
-        ? failOpenGoalCompletionVerification(
+        ? failOpenTargetCompletionVerification(
             "The completion verifier attempted to call tools instead of returning a verification result.",
           )
-        : parseGoalCompletionVerificationText(result.text);
+        : parseTargetCompletionVerificationText(result.text);
     await this.appendEvent(
       this.createEvent(
         SessionEventType.TargetCompletionVerification,
@@ -230,7 +230,7 @@ async function verifyTargetCompletion(
       events: input.events,
       model,
       networkEventStartIndex,
-      querySource: GOAL_COMPLETION_VERIFICATION_QUERY_SOURCE,
+      querySource: TARGET_COMPLETION_VERIFICATION_QUERY_SOURCE,
       startedAt: modelStartedAt,
       status: input.abortSignal?.aborted ? "cancelled" : "error",
       traceContext: modelTraceContext,
@@ -248,7 +248,7 @@ async function verifyTargetCompletion(
             status: "cancelled",
             targetId: input.target.targetID,
             ...(preserveQueueAutoDrainOnCancel ? { preserveQueueAutoDrainOnCancel: true } : {}),
-            verification: failedGoalCompletionVerification(
+            verification: failedTargetCompletionVerification(
               "Completion verifier request was cancelled.",
             ),
             verificationId,
@@ -271,7 +271,7 @@ async function verifyTargetCompletion(
       status: "failed",
       targetId: input.target.targetID,
     });
-    const verification = failOpenGoalCompletionVerification(
+    const verification = failOpenTargetCompletionVerification(
       error instanceof Error
         ? `Completion verifier request failed: ${error.message}`
         : "The completion verifier could not confirm that every goal requirement is complete.",

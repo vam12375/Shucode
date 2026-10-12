@@ -4,7 +4,7 @@
 
 import { randomUUID } from "node:crypto";
 import type { DatabaseSync } from "node:sqlite";
-import type { SessionId, SessionGoal, GoalStatus } from "@shucode/contracts";
+import type { SessionId, SessionTarget, TargetStatus } from "@shucode/contracts";
 
 interface TargetRow {
   session_id: string;
@@ -25,7 +25,7 @@ interface TargetRow {
 export function readSessionTarget(
   db: DatabaseSync,
   input: { sessionID: SessionId },
-): SessionGoal | null {
+): SessionTarget | null {
   const row = db
     .prepare("select * from session_target where session_id = ?")
     .get(input.sessionID) as TargetRow | undefined;
@@ -37,10 +37,10 @@ export function setSessionTarget(
   input: {
     objective: string;
     sessionID: SessionId;
-    status: GoalStatus;
+    status: TargetStatus;
     tokenBudget?: number | null;
   },
-): SessionGoal {
+): SessionTarget {
   const now = Date.now();
   const targetID = createStorageTargetId();
   db.prepare(
@@ -78,11 +78,11 @@ export function setSessionTarget(
 export function cloneSessionTargetForFork(
   db: DatabaseSync,
   input: {
-    source: SessionGoal;
+    source: SessionTarget;
     sessionID: SessionId;
-    status: GoalStatus;
+    status: TargetStatus;
   },
-): SessionGoal {
+): SessionTarget {
   const now = Date.now();
   const source = input.source;
   // fork 是 session state branch，不是新建 goal。必须保留 target_id 和
@@ -138,7 +138,7 @@ export function cloneSessionTargetForFork(
 export function createSessionTarget(
   db: DatabaseSync,
   input: { objective: string; sessionID: SessionId; tokenBudget?: number | null },
-): SessionGoal | null {
+): SessionTarget | null {
   const now = Date.now();
   const targetID = createStorageTargetId();
   db.prepare(
@@ -157,8 +157,8 @@ export function createSessionTarget(
 
 export function updateSessionTargetStatus(
   db: DatabaseSync,
-  input: { sessionID: SessionId; status: GoalStatus },
-): SessionGoal | null {
+  input: { sessionID: SessionId; status: TargetStatus },
+): SessionTarget | null {
   const now = Date.now();
   const result = db
     .prepare(
@@ -182,7 +182,7 @@ export function startSessionTargetRun(
     inputID: string;
     startedAtMs: number;
   },
-): SessionGoal | null {
+): SessionTarget | null {
   const startedAt = Math.max(0, input.startedAtMs);
   // goal live 计时必须跟随 agent 运行边界落库，不能再由 UI 从 assistant
   // message timestamp 反推；恢复 snapshot 时该 timestamp 可能是旧轮次，导致切回后异常增长。
@@ -214,7 +214,7 @@ export function heartbeatSessionTargetRun(
     inputID: string;
     seenAtMs: number;
   },
-): SessionGoal | null {
+): SessionTarget | null {
   const seenAt = Math.max(0, input.seenAtMs);
   const result = db
     .prepare(
@@ -242,10 +242,10 @@ export function finishSessionTargetRun(
     targetID: string;
     inputID: string;
     endedAtMs: number;
-    status?: GoalStatus;
+    status?: TargetStatus;
     tokensUsedDelta?: number;
   },
-): SessionGoal | null {
+): SessionTarget | null {
   const current = readSessionTarget(db, { sessionID: input.sessionID });
   if (
     !current ||
@@ -301,7 +301,7 @@ export function finishSessionTargetRun(
 export function recoverInterruptedSessionTargetRun(
   db: DatabaseSync,
   input: { sessionID: SessionId },
-): SessionGoal | null {
+): SessionTarget | null {
   const current = readSessionTarget(db, { sessionID: input.sessionID });
   if (!current || !current.activeInputId || current.activeRunStartedAtMs == null) {
     return current;
@@ -311,7 +311,7 @@ export function recoverInterruptedSessionTargetRun(
   // 恢复时不能用 Date.now() 结算，否则 app 离线时间会被计入 goal 运行时长。
   const endedAt = current.activeRunLastSeenAtMs ?? current.activeRunStartedAtMs;
   const timeDelta = elapsedSecondsBetween(current.activeRunStartedAtMs, endedAt);
-  const nextStatus: GoalStatus = current.status === "active" ? "paused" : current.status;
+  const nextStatus: TargetStatus = current.status === "active" ? "paused" : current.status;
   const result = db
     .prepare(
       `
@@ -351,7 +351,7 @@ export function accountSessionTargetUsage(
     tokensUsedDelta?: number;
     timeUsedSecondsDelta?: number;
   },
-): SessionGoal | null {
+): SessionTarget | null {
   const now = Date.now();
   const tokenDelta = Math.max(0, input.tokensUsedDelta ?? 0);
   const timeDelta = Math.max(0, input.timeUsedSecondsDelta ?? 0);
@@ -387,7 +387,7 @@ export function updateSessionTargetSummaryTitle(
     targetID: string;
     summaryTitle: string;
   },
-): SessionGoal | null {
+): SessionTarget | null {
   const now = Date.now();
   // goal 概要由异步 title sidecar 生成；用户可能在模型返回前 replace/clear goal。
   // 必须带 target_id 条件写回，避免旧 objective 的概要覆盖新目标。
@@ -413,7 +413,7 @@ export function clearSessionTarget(db: DatabaseSync, input: { sessionID: Session
   return true;
 }
 
-function mustReadTarget(db: DatabaseSync, sessionID: SessionId): SessionGoal {
+function mustReadTarget(db: DatabaseSync, sessionID: SessionId): SessionTarget {
   const target = readSessionTarget(db, { sessionID });
   if (!target) {
     throw new Error(`Session target not found after write: ${sessionID}`);
@@ -428,13 +428,13 @@ function touchSessionForTarget(db: DatabaseSync, sessionID: SessionId, timeUpdat
   );
 }
 
-function decodeTargetRow(row: TargetRow): SessionGoal {
+function decodeTargetRow(row: TargetRow): SessionTarget {
   return {
     sessionID: row.session_id as SessionId,
     targetID: row.target_id,
     objective: row.objective,
     summaryTitle: row.summary_title,
-    status: row.status as GoalStatus,
+    status: row.status as TargetStatus,
     tokenBudget: row.token_budget,
     tokensUsed: row.tokens_used,
     timeUsedSeconds: row.time_used_seconds,

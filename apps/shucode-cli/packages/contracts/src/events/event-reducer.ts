@@ -37,9 +37,9 @@ import { SessionEventType as EventTypes } from "./session.events.js";
 import { getModelUsageContextTokens } from "../model/index.js";
 import { parseCheckpointCreatedPayload, parseRewindTriggeredPayload } from "../rewind/index.js";
 import {
-  GOAL_COMPLETION_VERIFICATION_QUERY_SOURCE,
-  failedGoalCompletionVerification,
-  parseGoalCompletionVerificationText,
+  TARGET_COMPLETION_VERIFICATION_QUERY_SOURCE,
+  failedTargetCompletionVerification,
+  parseTargetCompletionVerificationText,
 } from "../tools/target.js";
 import type {
   ActiveToolCall,
@@ -199,12 +199,12 @@ export class EventReducer {
 
     [EventTypes.ModelComplete]: (p, e) => {
       const payload = e.payload as ModelCompletePayload;
-      if (payload.querySource === GOAL_COMPLETION_VERIFICATION_QUERY_SOURCE) {
+      if (payload.querySource === TARGET_COMPLETION_VERIFICATION_QUERY_SOURCE) {
         return {
           ...p,
           targetCompletionVerifications: [
             ...p.targetCompletionVerifications,
-            parseGoalCompletionVerificationText(payload.content),
+            parseTargetCompletionVerificationText(payload.content),
           ],
           updatedAt: e.timestamp,
         };
@@ -308,7 +308,7 @@ export class EventReducer {
             ? [
                 ...p.targetCompletionVerifications,
                 payload.verification ??
-                  failedGoalCompletionVerification(
+                  failedTargetCompletionVerification(
                     "The completion verifier did not return a persisted result.",
                   ),
               ]

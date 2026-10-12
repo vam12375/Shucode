@@ -20,7 +20,7 @@ import type {
   MessagePart,
   QueryId,
   SessionEvent,
-  SessionGoal,
+  SessionTarget,
   TurnState,
 } from "../deps.js";
 import {
@@ -128,7 +128,7 @@ export async function executeTurnCommand(
   const turnAbortScope = createTurnAbortScope(options?.abortSignal);
   const turnAbortSignal = turnAbortScope.signal;
   let activeTurn: ActiveTurnSteeringState | undefined;
-  let startedTarget: SessionGoal | null = null;
+  let startedTarget: SessionTarget | null = null;
   let targetRunHeartbeat: ReturnType<typeof setInterval> | undefined;
   let userMessageId: MessageId | undefined;
   let loopState: RegularTurnLoopState | undefined;

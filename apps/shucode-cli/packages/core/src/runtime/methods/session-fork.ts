@@ -24,11 +24,11 @@ import {
   traceContextToLogContext,
 } from "../deps.js";
 import type {
-  GoalStatus,
+  TargetStatus,
   MessageId,
   PartId,
   SessionEntryInfo,
-  SessionGoal,
+  SessionTarget,
   TargetCompletionVerificationPayload,
   MessageWithParts,
   SessionId,
@@ -176,8 +176,8 @@ function buildForkedSessionInput(
 function collectForkGoalSnapshots(
   messages: readonly MessageWithParts[],
   boundary: StableConversationForkGoalBoundary,
-): SessionGoal[] {
-  const byId = new Map<string, SessionGoal>();
+): SessionTarget[] {
+  const byId = new Map<string, SessionTarget>();
   for (const message of messages) {
     const goalBoundary = message.info.anchor?.goalBoundary;
     if (goalBoundary?.kind === "snapshot") {
@@ -208,7 +208,7 @@ function collectVerifierEntryIds(
 function createForkIdentityMap(options: {
   childSessionId: SessionId;
   entries: readonly SessionEntryInfo[];
-  goalSnapshots: readonly SessionGoal[];
+  goalSnapshots: readonly SessionTarget[];
   messages: readonly MessageWithParts[];
   parentSessionId: SessionId;
 }): ForkIdentityMap {
@@ -309,7 +309,7 @@ function mapForkIdentity(map: ReadonlyMap<string, string>, id: string, field: st
   return mapped;
 }
 
-function remapGoalForFork(goal: SessionGoal, identities: ForkIdentityMap): SessionGoal {
+function remapGoalForFork(goal: SessionTarget, identities: ForkIdentityMap): SessionTarget {
   return {
     ...goal,
     sessionID: identities.childSessionId,
@@ -1353,9 +1353,9 @@ function cloneGoalVerificationEntryForFork(
 }
 
 function deriveForkedGoalStatusFromCopiedVerifications(
-  parentStatus: GoalStatus,
+  parentStatus: TargetStatus,
   copiedVerificationPayloads: readonly TargetCompletionVerificationPayload[],
-): GoalStatus {
+): TargetStatus {
   const latestCompleted = [...copiedVerificationPayloads]
     .reverse()
     .find((payload) => payload.status === "completed" && payload.verification);

@@ -29,7 +29,7 @@ import type {
   SessionId,
   SessionProjection,
   SessionStorePort,
-  SessionGoal,
+  SessionTarget,
   SavedWorkflowScope,
   TargetChangedPayload,
   DynamicWorkflowRunProgressPayload,
@@ -568,7 +568,7 @@ export interface AgentRuntime {
   stopActiveForegroundExecution(
     options?: StopActiveForegroundExecutionOptions,
   ): StopActiveForegroundExecutionResult;
-  activatePausedTargetAfterResume(traceContext: TraceContext): Promise<SessionGoal | null>;
+  activatePausedTargetAfterResume(traceContext: TraceContext): Promise<SessionTarget | null>;
   executeTurn(
     input: string,
     attachments?: TurnState["attachments"],

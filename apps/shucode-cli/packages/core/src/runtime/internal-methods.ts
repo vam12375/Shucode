@@ -15,7 +15,7 @@ import type {
   SkillLoadOutcome,
   SubagentPort,
   TodoItem,
-  SessionGoal,
+  SessionTarget,
   McpConnectionSnapshot,
   TargetChangedPayload,
   DynamicWorkflowRunProgressPayload,
@@ -329,8 +329,8 @@ export interface AgentRuntimeCoreMethods {
   toScheduleState(schedule: ToolSchedule): TurnState["scheduledTools"];
   resumeFromStore(options?: ResumeSessionOptions): Promise<ResumeSessionResult>;
   readSessionTodosForContext(traceContext: TraceContext): Promise<TodoItem[]>;
-  readSessionTargetForContext(traceContext: TraceContext): Promise<SessionGoal | null>;
-  injectTargetStateIntoMessageHistory(target: SessionGoal | null): void;
+  readSessionTargetForContext(traceContext: TraceContext): Promise<SessionTarget | null>;
+  injectTargetStateIntoMessageHistory(target: SessionTarget | null): void;
   recordTargetChanged(input: TargetChangedPayload & { traceContext: TraceContext }): Promise<void>;
   recordGoalStateChangeReminder(input: {
     text: string;
@@ -344,33 +344,33 @@ export interface AgentRuntimeCoreMethods {
     verifyBeforeContinue?: boolean;
   }): Promise<TurnResult | null>;
   continueActiveTargetLoop(options: ContinueActiveTargetLoopOptions): Promise<TurnResult | null>;
-  targetContinuationCandidate(traceContext: TraceContext): Promise<SessionGoal | null>;
+  targetContinuationCandidate(traceContext: TraceContext): Promise<SessionTarget | null>;
   accountTargetTurnCompletion(input: {
     inputID: string;
     startedAtMs: number;
-    startedTarget: SessionGoal | null;
+    startedTarget: SessionTarget | null;
     traceContext: TraceContext;
     usage?: ModelUsageSummary;
   }): Promise<void>;
   startTargetTurnAccounting(input: {
     inputID: string;
     startedAtMs: number;
-    startedTarget: SessionGoal | null;
+    startedTarget: SessionTarget | null;
     traceContext: TraceContext;
-  }): Promise<SessionGoal | null>;
+  }): Promise<SessionTarget | null>;
   heartbeatTargetTurnAccounting(input: {
     inputID: string;
     seenAtMs: number;
-    startedTarget: SessionGoal | null;
+    startedTarget: SessionTarget | null;
     traceContext: TraceContext;
   }): Promise<void>;
   finishTargetTurnAccounting(input: {
     inputID: string;
     endedAtMs: number;
-    startedTarget: SessionGoal | null;
+    startedTarget: SessionTarget | null;
     status?: "paused";
     traceContext: TraceContext;
-  }): Promise<SessionGoal | null>;
+  }): Promise<SessionTarget | null>;
   pauseActiveTargetForCancellation(traceContext: TraceContext): Promise<void>;
-  activatePausedTargetAfterResume(traceContext: TraceContext): Promise<SessionGoal | null>;
+  activatePausedTargetAfterResume(traceContext: TraceContext): Promise<SessionTarget | null>;
 }

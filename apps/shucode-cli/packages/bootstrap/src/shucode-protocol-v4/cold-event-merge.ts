@@ -4,7 +4,7 @@ import {
   type MessageWithParts,
   type SessionEntryInfo,
   type SessionEvent,
-  type SessionGoal,
+  type SessionTarget,
   type TurnFileChangeSummary,
   type TurnId,
 } from "@shucode/contracts";
@@ -22,7 +22,7 @@ interface ConversationMaterializationSource {
   /** shared_context 正文仍是 provider-only；这里只下发脱敏的 handover metadata。 */
   sharedContextImport?: ConversationSnapshot["sharedContextImport"];
   /** 只有成功读取 session_target 后才存在；显式 null 也是持久 authority。 */
-  target?: SessionGoal | null;
+  target?: SessionTarget | null;
 }
 
 interface PersistedConversationMaterializationStore {
@@ -39,7 +39,7 @@ interface PersistedConversationMaterializationStore {
   messages(input: { sessionID: import("@shucode/contracts").SessionId }): Promise<MessageWithParts[]>;
   readTarget(input: {
     sessionID: import("@shucode/contracts").SessionId;
-  }): Promise<SessionGoal | null>;
+  }): Promise<SessionTarget | null>;
   sessionEntries?(input: {
     sessionID: import("@shucode/contracts").SessionId;
     type?: string;
@@ -145,7 +145,7 @@ interface MergeInput {
   memoryEvents: readonly SessionEvent[];
   messages: readonly MessageWithParts[];
   sessionId: string;
-  target?: SessionGoal | null;
+  target?: SessionTarget | null;
 }
 
 const MEMORY_ONLY_EVENT_TYPES = new Set<string>([

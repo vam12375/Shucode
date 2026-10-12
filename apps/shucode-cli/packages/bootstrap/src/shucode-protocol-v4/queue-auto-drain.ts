@@ -1,4 +1,4 @@
-import type { GoalStatus } from "@shucode/contracts";
+import type { TargetStatus } from "@shucode/contracts";
 
 /**
  * 普通 queue 的唯一自动提升闸门。fail-open 不在这里开旁路：verifier 仍先把
@@ -8,7 +8,7 @@ export function shouldAutoDrainV4QueueHead(input: {
   autoDrain: boolean;
   dispatchState: "queued" | "reserved" | "promoting";
   sessionBusy: boolean;
-  targetStatus: GoalStatus | null;
+  targetStatus: TargetStatus | null;
 }): boolean {
   return (
     input.autoDrain &&

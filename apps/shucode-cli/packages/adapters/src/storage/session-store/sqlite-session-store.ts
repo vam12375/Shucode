@@ -12,7 +12,7 @@ import type {
   FileDiff,
   ForkCommitBundle,
   ForkChildSessionMetadata,
-  GoalStatus,
+  TargetStatus,
   InputHistoryAttachment,
   InputHistoryEntry,
   InputHistoryKind,
@@ -38,7 +38,7 @@ import type {
   ScriptWorkflowRunRecord,
   ScriptWorkflowRunStatus,
   ScriptWorkflowStorePort,
-  SessionGoal,
+  SessionTarget,
   SessionId,
   SessionInfo,
   SessionInputDelivery,
@@ -737,16 +737,16 @@ export class SqliteSessionStore
     return todoRepository.updateTodos(this.db, input);
   }
 
-  async readTarget(input: { sessionID: SessionId }): Promise<SessionGoal | null> {
+  async readTarget(input: { sessionID: SessionId }): Promise<SessionTarget | null> {
     return readSessionTarget(this.db, input);
   }
 
   async setTarget(input: {
     objective: string;
     sessionID: SessionId;
-    status?: GoalStatus;
+    status?: TargetStatus;
     tokenBudget?: number | null;
-  }): Promise<SessionGoal> {
+  }): Promise<SessionTarget> {
     return setSessionTarget(this.db, {
       objective: input.objective,
       sessionID: input.sessionID,
@@ -756,10 +756,10 @@ export class SqliteSessionStore
   }
 
   async cloneTargetForFork(input: {
-    source: SessionGoal;
+    source: SessionTarget;
     sessionID: SessionId;
-    status?: GoalStatus;
-  }): Promise<SessionGoal> {
+    status?: TargetStatus;
+  }): Promise<SessionTarget> {
     this.throwBeforeWrite();
     return cloneSessionTargetForFork(this.db, {
       source: input.source,
@@ -772,14 +772,14 @@ export class SqliteSessionStore
     objective: string;
     sessionID: SessionId;
     tokenBudget?: number | null;
-  }): Promise<SessionGoal | null> {
+  }): Promise<SessionTarget | null> {
     return createSessionTarget(this.db, input);
   }
 
   async updateTargetStatus(input: {
     sessionID: SessionId;
-    status: GoalStatus;
-  }): Promise<SessionGoal | null> {
+    status: TargetStatus;
+  }): Promise<SessionTarget | null> {
     return updateSessionTargetStatus(this.db, input);
   }
 
@@ -788,7 +788,7 @@ export class SqliteSessionStore
     targetID: string;
     inputID: string;
     startedAtMs: number;
-  }): Promise<SessionGoal | null> {
+  }): Promise<SessionTarget | null> {
     return startSessionTargetRun(this.db, input);
   }
 
@@ -797,7 +797,7 @@ export class SqliteSessionStore
     targetID: string;
     inputID: string;
     seenAtMs: number;
-  }): Promise<SessionGoal | null> {
+  }): Promise<SessionTarget | null> {
     return heartbeatSessionTargetRun(this.db, input);
   }
 
@@ -806,13 +806,13 @@ export class SqliteSessionStore
     targetID: string;
     inputID: string;
     endedAtMs: number;
-    status?: GoalStatus;
+    status?: TargetStatus;
     tokensUsedDelta?: number;
-  }): Promise<SessionGoal | null> {
+  }): Promise<SessionTarget | null> {
     return finishSessionTargetRun(this.db, input);
   }
 
-  async recoverInterruptedTargetRun(input: { sessionID: SessionId }): Promise<SessionGoal | null> {
+  async recoverInterruptedTargetRun(input: { sessionID: SessionId }): Promise<SessionTarget | null> {
     return recoverInterruptedSessionTargetRun(this.db, input);
   }
 
@@ -821,7 +821,7 @@ export class SqliteSessionStore
     targetID: string;
     tokensUsedDelta?: number;
     timeUsedSecondsDelta?: number;
-  }): Promise<SessionGoal | null> {
+  }): Promise<SessionTarget | null> {
     return accountSessionTargetUsage(this.db, input);
   }
 
@@ -829,7 +829,7 @@ export class SqliteSessionStore
     sessionID: SessionId;
     targetID: string;
     summaryTitle: string;
-  }): Promise<SessionGoal | null> {
+  }): Promise<SessionTarget | null> {
     return updateSessionTargetSummaryTitle(this.db, input);
   }
 

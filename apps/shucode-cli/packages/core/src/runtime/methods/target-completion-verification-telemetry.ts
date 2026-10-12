@@ -1,4 +1,4 @@
-import type { SessionGoal, TraceContext } from "../deps.js";
+import type { SessionTarget, TraceContext } from "../deps.js";
 import { isTurnCancellationError } from "../helpers/turn-errors.js";
 import type { AgentRuntimeInternal } from "../internal.js";
 import type { TargetCompletionVerificationResult } from "./target-completion-verification.js";
@@ -7,7 +7,7 @@ export async function runTargetCompletionVerificationWithTelemetry(
   runtime: AgentRuntimeInternal,
   input: {
     abortSignal?: AbortSignal;
-    target: SessionGoal;
+    target: SessionTarget;
     traceContext: TraceContext;
   },
   execute: () => Promise<TargetCompletionVerificationResult>,

@@ -19,8 +19,8 @@ import type {
   StreamRecoveryAnchorProjectionInfo,
   StreamingToolLedgerProjectionInfo,
 } from "../events/stream-recovery.events.js";
-import type { SessionGoal } from "../tools/target.js";
-import type { GoalCompletionVerificationOutput } from "../tools/target.js";
+import type { SessionTarget } from "../tools/target.js";
+import type { TargetCompletionVerificationOutput } from "../tools/target.js";
 import type { PermissionOptionsPolicy, PermissionUpdate } from "./permission.port.js";
 import type { ToolResultDisplayPayload } from "../tools/tool-result-metadata.js";
 import type { ModelSelection } from "../model/model.js";
@@ -103,8 +103,8 @@ export interface SessionProjection {
   lastCheckpoint?: CheckpointProjectionInfo;
   lastStreamRecoveryAnchor?: StreamRecoveryAnchorProjectionInfo;
   lastRewind?: RewindProjectionInfo;
-  target?: SessionGoal | null;
-  targetCompletionVerifications: GoalCompletionVerificationOutput[];
+  target?: SessionTarget | null;
+  targetCompletionVerifications: TargetCompletionVerificationOutput[];
   targetCompletionVerificationTimeline: TargetCompletionVerificationProjectionInfo[];
 }
 
@@ -112,7 +112,7 @@ export interface TargetCompletionVerificationProjectionInfo {
   targetId: string;
   status: "started" | "completed" | "failed_closed" | "cancelled";
   verificationId: string;
-  verification?: GoalCompletionVerificationOutput;
+  verification?: TargetCompletionVerificationOutput;
   goalIteration?: number;
   anchorAssistantMessageId?: MessageId;
   anchorTurnId?: TurnId;

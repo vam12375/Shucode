@@ -3,7 +3,7 @@
 import type {
   CompactTimelineStatus,
   CompactTrigger,
-  GoalStatus,
+  TargetStatus,
   SyntheticUserMessageSource,
   ToolResultPayload,
   TurnResultType,
@@ -143,10 +143,10 @@ export function mapCompactMarkerOrigin(
   return trigger === "manual" ? "manual" : "auto";
 }
 
-// 旧 GoalStatus → v4 GoalState.status。
+// 旧 TargetStatus → v4 GoalState.status。
 // budget_limited 归 paused：预算耗尽与被 stop 一样等待用户显式 resume；
 // complete 归 verified：旧词表没有 verifying/notSatisfied 细分，终态语义等价。
-export function mapGoalStatus(status: GoalStatus): GoalState["status"] {
+export function mapGoalStatus(status: TargetStatus): GoalState["status"] {
   switch (status) {
     case "active":
       return "active";

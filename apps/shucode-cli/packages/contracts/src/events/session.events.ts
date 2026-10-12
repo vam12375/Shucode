@@ -41,7 +41,7 @@ import type {
 } from "../compact/index.js";
 import type { HookRunLifecyclePayload } from "../hooks/index.js";
 import type { CheckpointCreatedPayload, RewindTriggeredPayload } from "../rewind/index.js";
-import type { GoalCompletionVerificationOutput, SessionGoal } from "../tools/target.js";
+import type { TargetCompletionVerificationOutput, SessionTarget } from "../tools/target.js";
 import type { ToolSideEffectScope } from "../tools/contract.js";
 import type { ToolResultDisplayPayload } from "../tools/tool-result-metadata.js";
 import type { SkillTelemetryMetadata } from "../skills/index.js";
@@ -662,7 +662,7 @@ export interface TargetCompletionVerificationPayload {
   foregroundExecutionId?: string;
   /** sendQueuedNow 抢占 verifier 时只暂停 goal，不暂停 future queue。 */
   preserveQueueAutoDrainOnCancel?: boolean;
-  verification?: GoalCompletionVerificationOutput;
+  verification?: TargetCompletionVerificationOutput;
   goalIteration?: number;
   anchorAssistantMessageId?: MessageId;
   anchorTurnId?: TurnId;
@@ -1045,8 +1045,8 @@ export type TargetChangedSource = "command" | "tool" | "runtime";
 export interface TargetChangedPayload {
   action: TargetChangedAction;
   source: TargetChangedSource;
-  target: SessionGoal | null;
-  previousTarget?: SessionGoal | null;
+  target: SessionTarget | null;
+  previousTarget?: SessionTarget | null;
 }
 
 // -----------------------------------------------

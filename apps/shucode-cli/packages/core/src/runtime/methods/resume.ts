@@ -7,7 +7,7 @@ import {
   SessionEventType,
   createCoreError,
   traceContextToLogContext,
-  formatGoalStateForModel,
+  formatTargetStateForModel,
   activeSessionMessages,
   hydrateReadFileStateFromSession,
   hydrateMessageHistoryFromSession,
@@ -17,7 +17,7 @@ import type {
   EnvInfo,
   MessageWithParts,
   SessionEvent,
-  SessionGoal,
+  SessionTarget,
   SessionInfo,
   SessionTitleSource,
   TodoItem,
@@ -410,7 +410,7 @@ export async function readSessionTodosForContext(
 export async function readSessionTargetForContext(
   this: AgentRuntimeInternal,
   traceContext: TraceContext,
-): Promise<SessionGoal | null> {
+): Promise<SessionTarget | null> {
   if (!this.sessionStore) {
     return null;
   }
@@ -433,9 +433,9 @@ export async function readSessionTargetForContext(
 
 export function injectTargetStateIntoMessageHistory(
   this: AgentRuntimeInternal,
-  target: SessionGoal | null,
+  target: SessionTarget | null,
 ): void {
-  const targetState = formatGoalStateForModel(target);
+  const targetState = formatTargetStateForModel(target);
   if (!targetState) {
     return;
   }

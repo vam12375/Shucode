@@ -7,7 +7,7 @@ import {
   traceContextToLogContext,
   type CollaborationMode,
   type ExecutionPort,
-  type GoalStatus,
+  type TargetStatus,
   type Logger,
   type LoggerFactory,
   type LocalSettingStorePort,
@@ -166,7 +166,7 @@ export function createSessionFacade(deps: CreateSessionFacadeDeps): SessionFacad
     input: {
       objective?: string;
       displayText?: string;
-      status?: GoalStatus;
+      status?: TargetStatus;
       tokenBudget?: number | null;
       intent?: TurnInputIntentMetadata;
     },

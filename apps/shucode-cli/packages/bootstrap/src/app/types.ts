@@ -48,7 +48,7 @@ import type {
   ExecutionPort,
   BrowserControlPort,
   FileSystemPort,
-  GoalStatus,
+  TargetStatus,
   HttpClientPort,
   ImageProcessorPort,
   PdfDocumentPort,
@@ -67,7 +67,7 @@ import type {
   SessionEvent,
   SessionEventSink,
   SessionEventStorePort,
-  SessionGoal,
+  SessionTarget,
   SessionId,
   SessionMailboxPort,
   SessionStorePort,
@@ -333,7 +333,7 @@ export interface ShucodeApp {
     childSessionId: string,
   ): Promise<import("./subagent-observation.js").SubagentTranscriptSnapshot>;
   readTodos(): Promise<TodoItem[]>;
-  readTarget(): Promise<SessionGoal | null>;
+  readTarget(): Promise<SessionTarget | null>;
   setCustomSessionTitle(input: { title: string; traceContext?: TraceContext }): Promise<void>;
   readToolResultArtifact(uri: string): Promise<ToolArtifactReadResult>;
   /** chunk transaction commit 后把完整二进制原子寄存到 session artifact store。 */
@@ -368,11 +368,11 @@ export interface ShucodeApp {
     objective: string;
     /** 用户提交的原始 goal 命令；target 仍只存 objective，聊天行按该文本展示。 */
     displayText?: string;
-    status?: GoalStatus;
+    status?: TargetStatus;
     tokenBudget?: number | null;
     intent?: TurnInputIntentMetadata;
-  }): Promise<SessionGoal>;
-  updateTargetStatus(status: GoalStatus): Promise<SessionGoal | null>;
+  }): Promise<SessionTarget>;
+  updateTargetStatus(status: TargetStatus): Promise<SessionTarget | null>;
   clearTarget(): Promise<boolean>;
   continueActiveTarget(options?: SubmitPromptOptions): Promise<TurnResult | null>;
   recordInputHistory(

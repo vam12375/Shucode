@@ -3,12 +3,12 @@ import {
   SessionEventType,
   createChildTraceContext,
   createCoreError,
-  formatGoalContinuationPrompt,
+  formatTargetContinuationPrompt,
   traceContextToLogContext,
 } from "../deps.js";
 import type {
   ModelUsageSummary,
-  SessionGoal,
+  SessionTarget,
   TargetChangedPayload,
   TraceContext,
 } from "../deps.js";
@@ -146,7 +146,7 @@ export async function executeTargetContinuationCommand(
   const continuationTarget = latestTarget;
   const prompt = wrapSystemReminderForSource(
     "target_continuation",
-    formatGoalContinuationPrompt(continuationTarget, verificationResult?.verification),
+    formatTargetContinuationPrompt(continuationTarget, verificationResult?.verification),
   );
   const continuationTrace = createChildTraceContext(traceContext, {
     sessionId: this.sessionId,
@@ -181,7 +181,7 @@ export async function executeTargetContinuationCommand(
 export async function targetContinuationCandidate(
   this: AgentRuntimeInternal,
   traceContext: TraceContext,
-): Promise<SessionGoal | null> {
+): Promise<SessionTarget | null> {
   if (this.hasActiveOrQueuedTurnWork()) return null;
   return await targetContinuationCandidateForCommand.call(this, traceContext);
 }
@@ -189,7 +189,7 @@ export async function targetContinuationCandidate(
 async function targetContinuationCandidateForCommand(
   this: AgentRuntimeInternal,
   traceContext: TraceContext,
-): Promise<SessionGoal | null> {
+): Promise<SessionTarget | null> {
   if (!this.sessionStore) return null;
   if (this.getPlanEnabled()) return null;
   if (this.activeTurn || this.activeTurnStartReservation) return null;
@@ -211,7 +211,7 @@ export async function accountTargetTurnCompletion(
   input: {
     inputID: string;
     startedAtMs: number;
-    startedTarget: SessionGoal | null;
+    startedTarget: SessionTarget | null;
     traceContext: TraceContext;
     usage?: ModelUsageSummary;
   },
@@ -265,10 +265,10 @@ export async function startTargetTurnAccounting(
   input: {
     inputID: string;
     startedAtMs: number;
-    startedTarget: SessionGoal | null;
+    startedTarget: SessionTarget | null;
     traceContext: TraceContext;
   },
-): Promise<SessionGoal | null> {
+): Promise<SessionTarget | null> {
   const target = input.startedTarget;
   if (!target || !this.sessionStore?.startTargetRun) return target;
   if (target.status !== "active") return target;
@@ -309,7 +309,7 @@ export async function heartbeatTargetTurnAccounting(
   input: {
     inputID: string;
     seenAtMs: number;
-    startedTarget: SessionGoal | null;
+    startedTarget: SessionTarget | null;
     traceContext: TraceContext;
   },
 ): Promise<void> {
@@ -340,11 +340,11 @@ export async function finishTargetTurnAccounting(
   input: {
     inputID: string;
     endedAtMs: number;
-    startedTarget: SessionGoal | null;
+    startedTarget: SessionTarget | null;
     status?: "paused";
     traceContext: TraceContext;
   },
-): Promise<SessionGoal | null> {
+): Promise<SessionTarget | null> {
   const target = input.startedTarget;
   if (!target || !this.sessionStore?.finishTargetRun) return target;
   if (target.status !== "active") return target;
@@ -421,7 +421,7 @@ export async function pauseActiveTargetForCancellation(
 export async function activatePausedTargetAfterResume(
   this: AgentRuntimeInternal,
   traceContext: TraceContext,
-): Promise<SessionGoal | null> {
+): Promise<SessionTarget | null> {
   if (!this.sessionStore || this.getPlanEnabled()) return null;
   const target = await this.readSessionTargetForContext(traceContext);
   // 用户 Stop 运行中的 goal 时，取消收口会把 target 标记为 paused。
