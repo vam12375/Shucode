@@ -13,6 +13,7 @@ import {
   type DesktopCommandId,
   type ApplicationIconRequest,
   type Locale,
+  type AppSettingsPatch,
   type LoadCliMcpFromUserDirectoryRequest,
   type MigrateLegacyCommonMcpRequest,
   type OpenInEditorOptions,
@@ -87,7 +88,9 @@ export function registerPlatformIpcHandlers(options: {
     autoDownloadAndInstallUpdates: boolean;
   }>;
   setAutoDownloadAndInstallUpdates: (enabled: boolean) => Promise<void>;
-  syncAppSettings: (patch: unknown) => void;
+  // 载荷在 SyncAppSettings 入口已用 appSettingsPatchSchema 校验；契约承接校验后的具体类型，
+  // 不用 unknown 让下游（syncImmediateAppSettings）承担重复收窄。
+  syncAppSettings: (patch: AppSettingsPatch) => void;
   /** 快捷键设置页录制态开关：true 时 main 重建菜单摘除可配置 accelerator */
   setShortcutRecordingActive?: (active: boolean, ownerWebContentsId?: number | null) => void;
   /** 桌面端设备标识符（基于 userData 路径的 SHA-256） */
