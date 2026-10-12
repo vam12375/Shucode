@@ -6,5 +6,12 @@
     "types": ["node"],
     "allowJs": true
   },
-  "include": ["src"]
+  "include": ["src"],
+  // model-option-map 经 exports 以源码形态直引（".".→./src/index.ts）。加引用后 TS 把该 import
+  // 重定向到其声明产物（dist），跨包源码不再是本工程程序的输入文件：
+  // 1) 其类型错误由该包自己的 typecheck 项目负责（根门禁已纳入）；
+  // 2) 消除增量陷阱——tsc -b 的 up-to-date 快速检查只 stat 本项目 include 的文件，
+  //    旧形态下对端源码改动永不触发本工程重检（实测 tsbuildinfo 内容哈希被跳过）。
+  // 运行时解析不受影响（vite/tsup 仍按 exports 拿源码）。
+  "references": [{ "path": "../model-option-map" }]
 }

@@ -373,10 +373,9 @@ export async function createElectronBrowserWebmRecorder(
     if (!closed) fail(recorderError(`recorder renderer exited: ${details.reason ?? "unknown"}`));
   };
   recorderWindow.webContents.on("render-process-gone", onRendererGone);
-  const onConsoleMessage = (
-    _event: unknown,
-    details: { level?: string; message?: string },
-  ): void => {
+  // Electron 41 起 console-message 事件首参即 details（level/message 等；
+  // 后续 level/message 裸参已标记 deprecated），不能再按旧签名从第二参取详情。
+  const onConsoleMessage = (details: { level?: string; message?: string }): void => {
     debug?.(
       `[browser-recording] recorder console level=${details.level ?? "unknown"} message=${details.message ?? ""}`,
     );

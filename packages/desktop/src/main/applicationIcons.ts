@@ -74,6 +74,8 @@ async function buildApplicationPathIndex(
   const worker = async () => {
     while (cursor < appPaths.length) {
       const appPath = appPaths[cursor++];
+      // noUncheckedIndexedAccess：游标逼近数组尾时读取可能为 undefined，直接收口本 worker。
+      if (appPath === undefined) return;
       const remainingMs = deadline - dependencies.now();
       if (remainingMs <= 0) return;
       try {

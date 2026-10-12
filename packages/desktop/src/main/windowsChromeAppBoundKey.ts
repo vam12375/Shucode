@@ -76,6 +76,10 @@ interface HelperProcessResult {
 interface ReadAppBoundKeyOptions {
   appExecutablePath?: string;
   chromeExecutablePath: string;
+  // 公开 WindowsChromeAppBoundKeyReader 已声明这两个期望值；内部接口此前遗漏，
+  // verifyHelper 读到 undefined 才走 SHUCODE_VERSION/SHUCODE_COMMIT 默认值分支。
+  expectedAppVersion?: string;
+  expectedBuildCommit?: string;
   helperPath?: string;
   isPackaged?: boolean;
   logger: BrowserDataLogger;

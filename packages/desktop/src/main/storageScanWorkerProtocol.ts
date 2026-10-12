@@ -1,4 +1,4 @@
-import type { StorageRootSpec } from "@shucode/services";
+import type { StorageRootSpec } from "@shucode/shared";
 import type { StorageScanProgress } from "@shucode/services/node";
 
 export interface StorageScanWorkerData {

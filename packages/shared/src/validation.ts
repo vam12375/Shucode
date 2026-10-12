@@ -1,8 +1,5 @@
 import { databaseStartupControlSchema, databaseStartupStateSchema } from "./database-startup.js";
-import {
-  sessionCreateTelemetrySchema,
-  automationSessionCreateTelemetrySchema,
-} from "./sessionCreateTelemetry.js";
+import { automationSessionCreateTelemetrySchema } from "./sessionCreateTelemetry.js";
 /* eslint-disable max-lines -- 运行时 schema 当前集中在共享包入口，外部 relay payload 校验加入后先保持单一导出面。 */
 import { z } from "zod";
 import { shucodeProcessDiagnosticSchema } from "./process-diagnostic.js";
@@ -22,9 +19,7 @@ import {
   shucodeProcessResourceSampleSchema,
 } from "./shucode-protocol/index.js";
 import { shucodeTaskModeSchema } from "./shucode-task-mode-schema.js";
-import { PROTOCOL_V4_LIMITS } from "./shucode-protocol-v4/core.js";
 import { errorAttributionSchema } from "./shucode-protocol-v4/snapshot.js";
-import { sessionWorkflowActivitySchema } from "./shucode-protocol-v4/sessions-index-workflow-activity.js";
 import {
   taskOwnerCommandDeliverySchema,
   taskOwnerCommandRequestSchema,
@@ -48,6 +43,7 @@ export {
   appSettingsSchema,
   localeSchema,
   postUpdateReleaseNotesPayloadSchema,
+  type AppSettingsPatch,
 } from "./validationAppSettings.js";
 
 export function formatZodError(error: z.ZodError): string {
@@ -1157,7 +1153,7 @@ export const shucodePersistedMessageSchema = z.object({
     .optional(),
 });
 
-export const shucodeTaskGoalStatusSchema = z.enum([
+export const shucodeTaskTargetStatusSchema = z.enum([
   "active",
   "paused",
   "budget_limited",
@@ -1176,14 +1172,14 @@ export const shucodeTaskTargetChangedActionSchema = z.enum([
 
 export const shucodeTaskTargetChangedSourceSchema = z.enum(["command", "tool", "runtime"]);
 
-export const shucodeTaskGoalSchema = z.object({
+export const shucodeTaskTargetSchema = z.object({
   sessionID: nonEmptyStringSchema,
   targetID: nonEmptyStringSchema,
   objective: nonEmptyStringSchema,
   // 2.15.0 之前的 /goal 历史任务没有写 summaryTitle。
   // 读取 task index 老数据时要补成 null，否则整个任务列表会被运行时 schema 拒绝。
   summaryTitle: z.string().min(1).nullable().default(null),
-  status: shucodeTaskGoalStatusSchema,
+  status: shucodeTaskTargetStatusSchema,
   tokenBudget: z.number().int().positive().nullable(),
   tokensUsed: z.number().int().nonnegative(),
   timeUsedSeconds: z.number().int().nonnegative(),
@@ -1196,16 +1192,13 @@ export const shucodeTaskGoalSchema = z.object({
   }),
 });
 
-export const shucodeTaskGoalChangedPatchSchema = z.object({
+export const shucodeTaskTargetChangedPatchSchema = z.object({
   action: shucodeTaskTargetChangedActionSchema,
   source: shucodeTaskTargetChangedSourceSchema,
-  target: shucodeTaskGoalSchema.nullable(),
-  previousTarget: shucodeTaskGoalSchema.nullable().optional(),
+  target: shucodeTaskTargetSchema.nullable(),
+  previousTarget: shucodeTaskTargetSchema.nullable().optional(),
 });
 
-export const shucodeTaskTargetStatusSchema = shucodeTaskGoalStatusSchema;
-export const shucodeTaskTargetSchema = shucodeTaskGoalSchema;
-export const shucodeTaskTargetChangedPatchSchema = shucodeTaskGoalChangedPatchSchema;
 
 export const shucodeTaskMetaSchema = z.object({
   taskId: nonEmptyStringSchema,
@@ -1259,7 +1252,7 @@ export const shucodeTaskMetaSchema = z.object({
       ),
     })
     .optional(),
-  target: shucodeTaskGoalSchema.nullable().optional(),
+  target: shucodeTaskTargetSchema.nullable().optional(),
 });
 
 export const shucodeTaskIndexEntrySchema = z.object({

@@ -15,9 +15,36 @@ function serializeRuntimeCall(fn: (...args: any[]) => unknown, ...args: unknown[
   return `(${fn.toString()})(${args.map((arg) => JSON.stringify(arg)).join(",")})`;
 }
 
+// 下列 *Runtime 函数经 serializeRuntimeCall(fn.toString()) 后在页面上下文执行（见文件头）；
+// main 工程 lib 不含 DOM，未引入全局 dom 类型（避免 main 进程代码误用 DOM）。这里声明
+// 页面真实存在的最小全局与类型，只覆盖本文件实际用法。
+declare const CSS: { escape?(value: string): string } | undefined;
+interface Element {
+  id: string;
+  style: { cssText: string };
+  append(...children: Element[]): void;
+  remove(): void;
+  getAttribute(name: string): string | null;
+  getBoundingClientRect(): { x: number; y: number; width: number; height: number };
+  matches(selector: string): boolean;
+  readonly outerHTML: string;
+  readonly tagName: string;
+}
+interface HTMLElement extends Element {
+  innerText?: string;
+}
+interface HTMLInputElement extends Element {
+  value: string;
+}
+declare const document: {
+  createElement(tagName: string): Element;
+  documentElement: Element;
+  elementsFromPoint(x: number, y: number): Element[];
+  getElementById(id: string): Element | null;
+};
+
 function elementInfoRuntime(options: { x: number; y: number; includeNonInteractable?: boolean }) {
-  const cssEscape = (value: string) =>
-    globalThis.CSS?.escape?.(value) ?? value.replace(/[^\w-]/g, "\\$&");
+  const cssEscape = (value: string) => CSS?.escape?.(value) ?? value.replace(/[^\w-]/g, "\\$&");
   const candidatesFor = (element: Element) => {
     const values: string[] = [];
     if (element.id) values.push(`#${cssEscape(element.id)}`);

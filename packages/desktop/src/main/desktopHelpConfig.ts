@@ -11,7 +11,11 @@ export function createDesktopHelpConfigReader(options: {
   appVersion: string;
   deviceMid: string;
 }) {
-  const read = createHelpAppConfigReader({ fetchImpl: (input, init) => net.fetch(input, init) });
+  const read = createHelpAppConfigReader({
+    // reader 的 fetchImpl 类型是 typeof fetch（可含 URL 入参），electron net.fetch 只收
+    // string | Request；在包装层归一化，不改变 reader 的公开签名。
+    fetchImpl: (input, init) => net.fetch(input instanceof URL ? input.toString() : input, init),
+  });
   return async () => {
     const endpointOrigin = await options.resolveEndpointOrigin();
     return read(

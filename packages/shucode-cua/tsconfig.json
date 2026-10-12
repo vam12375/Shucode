@@ -1,0 +1,14 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    // 占位包（Computer Use 未随此构建发布）没有 TS 源码：唯一接口面就是手写 .d.ts。
+    // 消费者读取这些声明时被各自的 skipLibCheck:true 整体跳过，等于全链无人校验；
+    // 本工程以显式 include + skipLibCheck:false 把声明文件本身纳入检查（内部一致性、
+    // 类型引用可达性；不校验与 .js 实现的行为一致性——那属于占位语义）。
+    "composite": false,
+    "noEmit": true,
+    "skipLibCheck": false,
+    "types": ["node"]
+  },
+  "include": ["*.d.ts"]
+}

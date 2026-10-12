@@ -2,10 +2,20 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "outDir": "out/main",
-    "rootDir": "src/main",
+    // main 与 preload 一样跨目录引用 src/shared（armsRumShared），rootDir 必须提到 src。
+    // emitDeclarationOnly：tsc 只做类型检查与 .d.ts 产出，运行时打包归 tsup（out/main/index.js），
+    // 避免逐文件 tsc JS 产物混进 out/main 干扰 electron-builder 的 out/** 打包。
+    "rootDir": "src",
+    "emitDeclarationOnly": true,
     "lib": ["es2025"]
   },
-  "include": ["src/main"],
+  "include": ["src/main", "src/shared/armsRumShared.ts"],
   // main 直接依赖 shared 和 services；把引用补齐后，desktop 子工程也能稳定复用上游声明产物。
-  "references": [{ "path": "../shared" }, { "path": "../services" }]
+  // scheduler 引用：desktopCronScheduler 以 type import 引 schedulerProtocol，
+  // 经工程引用重定向到 out/scheduler 声明产物，不把 src/scheduler 拉进 main 的 file list。
+  "references": [
+    { "path": "../shared" },
+    { "path": "../services" },
+    { "path": "./tsconfig.scheduler.json" }
+  ]
 }

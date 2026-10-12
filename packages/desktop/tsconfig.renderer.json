@@ -9,5 +9,11 @@
   },
   "include": ["src/renderer"],
   // renderer 直接 import 了 shared；把它补进 references，避免 renderer 单独检查时再走源码回退路径。
-  "references": [{ "path": "../shared" }, { "path": "../ui" }, { "path": "../client" }]
+  // preload 引用：window.shucode 的 Window 声明经 ShucodeBridge（typeof preload 桥对象）派生。
+  "references": [
+    { "path": "../shared" },
+    { "path": "../ui" },
+    { "path": "../client" },
+    { "path": "./tsconfig.preload.json" }
+  ]
 }

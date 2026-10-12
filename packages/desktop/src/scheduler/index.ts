@@ -243,6 +243,17 @@ async function handleOffPeakClaimed(task: ShucodeOffPeakTask, now: number): Prom
     await offPeakRepo.releaseClaim(task.offPeakTaskId, { now });
     return;
   }
+  // 契约（off-peak-types）：旧记录缺完整 Selection 的任务必须留给用户修复、不得进入调度
+  // （正常路径 schedulable=false，此处为认领边界的防御收口）。派发帧的 modelSelection
+  // 是必填，绝不能带 undefined 构造——释放认领并告警，等修复后再调度。
+  if (!task.modelSelection) {
+    await offPeakRepo.releaseClaim(task.offPeakTaskId, { now });
+    log(
+      "warn",
+      `off-peak task ${task.offPeakTaskId} claim released: modelSelection missing (repair-required)`,
+    );
+    return;
+  }
   offPeakInFlight.add(task.offPeakTaskId);
   const request: SchedulerToMainMessage = {
     type: "offpeak-dispatch-request",

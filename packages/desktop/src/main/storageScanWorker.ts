@@ -4,7 +4,7 @@
  * 遍历、分类、聚合逻辑全部来自 @shucode/services（单一扫描路径）。
  */
 import { isMainThread, parentPort, workerData } from "node:worker_threads";
-import type { StorageRootSpec } from "@shucode/services";
+import type { StorageRootSpec } from "@shucode/shared";
 import { runStorageScan } from "@shucode/services/node";
 import {
   isStorageScanWorkerCommand,

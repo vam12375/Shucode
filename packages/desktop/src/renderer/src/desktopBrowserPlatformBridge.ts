@@ -27,7 +27,10 @@ type DesktopBrowserPlatformBridge = Pick<
 // Rebase 集成：browser bridge 若继续内联在 renderer 入口，会让入口越过 max-lines 门禁。
 // 独立对象只做 preload 委托与旧 bridge 兼容兜底，不持有 Browser 业务状态。
 export const desktopBrowserPlatformBridge = {
-  getPathForFile: (file) => window.shucode.getPathForFile?.(file) ?? null,
+  // IPlatformService 契约按 unknown 收参（shared 无 DOM lib）；preload 的 webUtils
+  // 只接受 File，边界处运行时收窄，非 File 输入按“取不到路径”返回 null。
+  getPathForFile: (file) =>
+    file instanceof File ? (window.shucode.getPathForFile?.(file) ?? null) : null,
   saveFile: (payload) =>
     window.shucode.saveFile?.(payload) ??
     Promise.resolve({ success: false, error: "not_supported" }),

@@ -9,7 +9,6 @@ import { randomUUID } from "node:crypto";
 import { readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { shell } from "electron";
-import type { CuaHelperInstallerOptions } from "@shucode/services/node";
 import {
   resolveHelperPermissionSubjectIdentity,
   type HelperPermissionSubjectIdentity,
@@ -206,7 +205,15 @@ async function verifyHelperPermissionIdentityUnchanged(
   return fingerprint;
 }
 
-type CuaHelperInstallerLogger = NonNullable<CuaHelperInstallerOptions["logger"]>;
+// CuaHelperInstallerOptions.logger 上游声明为 unknown（NonNullable<unknown> 即 {}），
+// 直接用别名做对象字面量返回类型时四个方法拿不到上下文类型（参数隐式 any）。
+// 这里按 installer 的调用形态（首参 traceId + 透传负载）声明适配壳的精确签名。
+type CuaHelperInstallerLogger = {
+  debug: (traceId: string, ...args: unknown[]) => void;
+  info: (traceId: string, ...args: unknown[]) => void;
+  warn: (traceId: string, ...args: unknown[]) => void;
+  error: (traceId: string, ...args: unknown[]) => void;
+};
 
 function toInstallerLogger(
   logger: OpenCuaAccessibilitySettingsOptions["logger"],

@@ -1,5 +1,6 @@
 import { copyFile, mkdtemp, open, rm, writeFile } from "node:fs/promises";
 import { lookup } from "node:dns/promises";
+import type { LookupAddress } from "node:dns";
 import { BlockList } from "node:net";
 import type { LookupFunction } from "node:net";
 import { tmpdir } from "node:os";
@@ -59,12 +60,14 @@ function parseRemoteImageUrl(value: unknown): URL | null {
   }
 }
 
-async function resolvePublicRemoteUrl(url: URL): Promise<Awaited<ReturnType<typeof lookup>>> {
+// typeof lookup 的 ReturnType 会按重载末位推断成单地址 Promise（LookupAddress），
+// 而这里固定用 { all: true } 拿地址列表；显式标注 LookupAddress[] 对齐实际返回。
+async function resolvePublicRemoteUrl(url: URL): Promise<LookupAddress[]> {
   const hostname = url.hostname.replace(/^\[|\]$/g, "").toLowerCase();
   if (hostname === "localhost" || hostname.endsWith(".localhost")) {
     throw new SaveFileError("remote_address_not_allowed");
   }
-  let addresses: Awaited<ReturnType<typeof lookup>>;
+  let addresses: LookupAddress[];
   try {
     addresses = await lookup(hostname, { all: true, verbatim: true });
   } catch {
@@ -189,14 +192,17 @@ export function registerDesktopSaveFileIpcHandler(logger: { warn: (...args: unkn
       }
       const suggestedName = basename(payload.suggestedName.trim()).slice(0, 120);
       const sourceUrl = parseRemoteImageUrl(payload.sourceUrl);
-      const hasData = payload.data instanceof ArrayBuffer;
+      // payload.data 是可选属性：先取本地引用再 instanceof，后续分支 continue 用它，
+      // 避免 hasData 布尔量与属性访问之间丢失收窄。
+      const data = payload.data;
+      const hasData = data instanceof ArrayBuffer;
       if (!suggestedName || (sourceUrl === null && !hasData)) {
         return { success: false, error: "invalid_file_payload" };
       }
-      if (hasData && payload.data.byteLength === 0) {
+      if (data instanceof ArrayBuffer && data.byteLength === 0) {
         return { success: false, error: "invalid_file_payload" };
       }
-      if (hasData && payload.data.byteLength > MAX_SAVE_FILE_BYTES) {
+      if (data instanceof ArrayBuffer && data.byteLength > MAX_SAVE_FILE_BYTES) {
         return { success: false, error: "file_too_large" };
       }
 
@@ -212,8 +218,8 @@ export function registerDesktopSaveFileIpcHandler(logger: { warn: (...args: unkn
       try {
         if (sourceUrl) {
           await downloadRemoteFile(sourceUrl, result.filePath);
-        } else if (hasData) {
-          await writeFile(result.filePath, new Uint8Array(payload.data));
+        } else if (data instanceof ArrayBuffer) {
+          await writeFile(result.filePath, new Uint8Array(data));
         }
         return { success: true, path: result.filePath };
       } catch (error) {

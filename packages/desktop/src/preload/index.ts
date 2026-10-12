@@ -243,8 +243,10 @@ window.addEventListener("DOMContentLoaded", updateRendererProcessTitle, {
  *
  * 凭据管理已迁移到 host process 的 ICredentialService，
  * 通过 MessagePort RPC 访问，不再经过此 bridge。
+ *
+ * 桥对象先落变量再 expose：renderer 的 Window.shucode 类型由 ShucodeBridge（typeof 本对象）派生。
  */
-contextBridge.exposeInMainWorld("shucode", {
+const shucodeBridge = {
   connectRemote: (
     options: RemoteTarget,
     requestId?: string,
@@ -821,7 +823,16 @@ contextBridge.exposeInMainWorld("shucode", {
     ipcRenderer.invoke(PlatformChannels.SetTitleBarTheme, theme),
   /** 获取桌面端设备标识符（deviceMid） */
   getDeviceId: () => ipcRenderer.invoke(PlatformChannels.GetDeviceId),
-});
+};
+
+contextBridge.exposeInMainWorld("shucode", shucodeBridge);
+
+/**
+ * renderer 的 `window.shucode` 契约：由 preload 实际暴露对象推导。
+ * renderer 工程经 tsconfig project reference 引此类型声明全局 Window，
+ * 桥增删方法时 renderer 侧类型同步，无需手写镜像声明。
+ */
+export type ShucodeBridge = typeof shucodeBridge;
 
 /**
  * MessagePort 不能通过 contextBridge 传递（contextBridge 会把它包成 Proxy，

@@ -66,22 +66,8 @@ interface PendingProviderProvisioningExecution {
   readonly reject: (error: Error) => void;
 }
 
-function normalizeServerRemoteUrlForComparison(url: string): string {
-  try {
-    const parsed = new URL(url.trim());
-    if (parsed.protocol === "ws:") parsed.protocol = "http:";
-    if (parsed.protocol === "wss:") parsed.protocol = "https:";
-    parsed.hash = "";
-    parsed.search = "";
-    const normalizedPath = parsed.pathname.replace(/\/+$/g, "");
-    parsed.pathname = normalizedPath.endsWith("/ws")
-      ? normalizedPath.slice(0, -"/ws".length) || "/"
-      : normalizedPath || "/";
-    return parsed.toString().replace(/\/$/g, "");
-  } catch {
-    return url.trim().replace(/\/+$/g, "");
-  }
-}
+// normalizeServerRemoteUrlForComparison 已随 server 型 RemoteTarget 退役删除
+// （RemoteTarget 联合只剩 ssh/wsl/docker；main 工程接入 typecheck 后确认无匹配路径）。
 
 function isSameRemoteTarget(left: RemoteTarget, right: RemoteTarget): boolean {
   if (left.kind !== right.kind) return false;
@@ -102,12 +88,6 @@ function isSameRemoteTarget(left: RemoteTarget, right: RemoteTarget): boolean {
       );
     case "docker":
       return right.kind === "docker" && left.container === right.container;
-    case "server":
-      return (
-        right.kind === "server" &&
-        normalizeServerRemoteUrlForComparison(left.url) ===
-          normalizeServerRemoteUrlForComparison(right.url)
-      );
   }
 }
 
@@ -119,8 +99,6 @@ function buildRemoteTargetTelemetryKey(target: RemoteTarget): string {
       return `wsl:${target.distro?.trim() || "default"}\0${target.user?.trim() ?? ""}`;
     case "docker":
       return `docker:${target.container}`;
-    case "server":
-      return `server:${normalizeServerRemoteUrlForComparison(target.url)}`;
   }
 }
 

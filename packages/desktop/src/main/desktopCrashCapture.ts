@@ -175,6 +175,8 @@ function pruneCrashDumpArchive(
 
   while (keptCount > 1 && (keptCount > maxFiles || keptBytes > maxTotalBytes)) {
     const dump = dumps[keptCount - 1];
+    // noUncheckedIndexedAccess 守卫；循环条件保证索引在界内，这里仅为类型收口。
+    if (dump === undefined) break;
     dumpsToDelete.push(dump);
     keptCount -= 1;
     keptBytes -= dump.size;

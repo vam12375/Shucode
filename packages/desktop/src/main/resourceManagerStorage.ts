@@ -8,12 +8,12 @@ import { BrowserWindow, ipcMain, shell, type IpcMainInvokeEvent, type WebContent
 import { homedir } from "node:os";
 import { isAbsolute, relative, resolve } from "node:path";
 import { PlatformChannels, type StorageCleanRequest, type StorageRootSpec } from "@shucode/shared";
+import type { IStorageService } from "@shucode/services";
 import {
   createFsStorageCleaner,
   createStorageRootsResolver,
   createStorageService,
   getDataBaseDir,
-  type IStorageService,
 } from "@shucode/services/node";
 import { logger } from "./logger.js";
 import { createStorageScanWorkerRunner } from "./storageScanWorkerClient.js";

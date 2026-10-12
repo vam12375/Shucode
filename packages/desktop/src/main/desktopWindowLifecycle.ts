@@ -31,7 +31,9 @@ export function createWindow(options: {
   spawnHostProcess: (
     win: BrowserWindow,
     label: string,
-    initMessage: HostInitMessage,
+    // shucodeBuiltinProviderConfigFilePath 由 index.ts 包装补齐（Electron 安装布局属
+    // main 知识）；本层只构建其余字段，用 Omit 表达真实契约。
+    initMessage: Omit<HostInitMessage, "shucodeBuiltinProviderConfigFilePath">,
   ) => ElectronUtilityProcess;
   disposeHostProcess: (
     child: ElectronUtilityProcess,
@@ -117,7 +119,6 @@ export function createWindow(options: {
   }
 
   const wcId = win.webContents.id;
-  const browserWindowId = win.id;
   // 资源遥测据此把主窗口 renderer 归 renderer_main；辅助窗口与 DevTools 归 chromium_other。
   registerMainApplicationWindow(wcId);
   let domReadyGeneration = 0;
