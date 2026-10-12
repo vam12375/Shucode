@@ -2,7 +2,6 @@ import type {
   ShucodePersistedFileChange,
   ShucodeTaskChangeSummary,
   ShucodeTaskChangedFileSummary,
-  ShucodeTaskMeta,
 } from "@shucode/shared";
 import { computeLineChangeStat } from "@shucode/shared";
 

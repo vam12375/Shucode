@@ -833,7 +833,9 @@ export const v4AttachmentBeginParamsSchema = z
       .string()
       .min(1)
       .max(255)
-      .regex(/^[^\0\r\n]+$/),
+      // 拒绝文件名中的 NUL 与换行是刻意的注入防线；规则的“改用 Unicode 转义”提示对控制字符类不豁免，定点豁免。
+      // eslint-disable-next-line no-control-regex -- 校验目标就是排除控制字符。
+      .regex(/^[^\u0000\r\n]+$/),
     mime: z
       .string()
       .min(3)

@@ -164,8 +164,6 @@ export function SettingsPage({
   captionWorkspacePath,
   onBack,
   onCreateTask,
-  onOpenWorkspace,
-  allowOpenWorkspace = true,
   onLogin,
   onLogout,
   user,

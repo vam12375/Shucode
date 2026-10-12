@@ -104,7 +104,8 @@ export class StartupDiskSampler {
     if (this.busy || this.stopped) return;
     this.busy = true;
     try {
-      for (const scope of [...this.scopes.values()]) {
+      // 迭代快照：采样跨 await，期间 scopes 增删按下一轮生效。
+      for (const scope of Array.from(this.scopes.values())) {
         if (this.stopped) break;
         try {
           const result = await this.probe(scope.path);

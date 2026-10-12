@@ -87,14 +87,18 @@ export async function prepareTasksIndexStorage(
         /* 不可扩展异常仍保留原错误。 */
       }
     }
-    throw error;
-  } finally {
-    try {
-      db.close();
-    } catch (error) {
-      if (!failure) throw error;
-    }
   }
+  // 原实现把 close 放在 finally 里守卫式 throw——语义正确但属 lint 警示的
+  // 「finally 内改控制流」陷阱模式。改为显式收尾阶段：close 总是执行，
+  // 失败只在无首因时浮出，绝不覆盖已捕获的主异常（no-unsafe-finally 根治）。
+  let closeFailure: unknown;
+  try {
+    db.close();
+  } catch (error) {
+    closeFailure = error;
+  }
+  if (failure) throw failure;
+  if (closeFailure) throw closeFailure;
   markTasksStorageMigrated(path);
   const repos = [
     new TaskIndexRepo(path, LOCK_WAIT_MS),
@@ -107,18 +111,19 @@ export async function prepareTasksIndexStorage(
     for (const repo of repos) await repo.ensureReady();
   } catch (error) {
     preparationFailure = error;
-    throw error;
-  } finally {
-    let closeFailure: unknown;
-    for (const repo of repos) {
-      try {
-        repo.close({ throwOnError: true });
-      } catch (error) {
-        closeFailure ??= error;
-      }
-    }
-    if (!preparationFailure && closeFailure) throw closeFailure;
   }
+  // 同上：ensureReady 失败时仍要逐个 close（收集首个 close 错误），
+  // 但首因优先，close 错误只在准备阶段成功时浮出。
+  let repoCloseFailure: unknown;
+  for (const repo of repos) {
+    try {
+      repo.close({ throwOnError: true });
+    } catch (error) {
+      repoCloseFailure ??= error;
+    }
+  }
+  if (preparationFailure) throw preparationFailure;
+  if (repoCloseFailure) throw repoCloseFailure;
   markTasksStoragePrepared(path);
   report("ready", migration);
 }

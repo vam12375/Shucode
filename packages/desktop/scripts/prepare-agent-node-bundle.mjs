@@ -23,7 +23,6 @@ const scriptDir = dirname(fileURLToPath(import.meta.url));
 const desktopRoot = resolve(scriptDir, "..");
 const repoRoot = resolve(desktopRoot, "..", "..");
 const cliBundlePath = resolve(repoRoot, "apps/shucode-cli/packages/cli/dist/shucode.cjs");
-const adaptersRoot = resolve(repoRoot, "apps/shucode-cli/packages/adapters");
 const pnpmRunEnv = {
   ...process.env,
   // pnpm 11 会在 apps/shucode-cli 子 workspace 执行 run 前触发 install；

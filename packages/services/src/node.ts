@@ -520,7 +520,6 @@ import {
   shucodeAccountAccessSchema,
   shucodeProviderAccountAccessSchema,
   SHUCODE_VERSION,
-  SHUCODE_ENV,
   buildRuntimeShucodeApiUrl,
 } from "@shucode/shared";
 
@@ -1659,11 +1658,6 @@ export function createLocalServices(options: {
   const subagentsService = createSubagentsService({
     isDesktopRuntime: true,
   });
-  const commandsService = createCommandsService({ isDesktopRuntime: true });
-  const hooksService = createHooksService({
-    grantWorkspaceHookTrust: (params) => shucodeAgentService.grantWorkspaceHookTrust(params),
-  });
-  const memoryService = createMemoryService();
   // 只要当前进程已经装配 Provider Runtime，就由该 Environment 自己的 Selection View
   // 决定执行就绪状态。Desktop-attached remote 也读取远端自己的 Config/Account Facts。
   const modelSelectionReadinessSource = providerRuntime.modelSelection;

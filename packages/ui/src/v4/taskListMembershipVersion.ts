@@ -10,7 +10,8 @@ const listeners = new Set<() => void>();
 /** task row 或 membership mutation 后调用：通知所有 sessions-index 派生列表重新拉取左表。 */
 export function bumpTaskListMembershipVersion(): void {
   version += 1;
-  for (const listener of [...listeners]) {
+  // 派发快照：listener 在回调里增删不应影响本次通知。
+  for (const listener of Array.from(listeners)) {
     listener();
   }
 }
