@@ -9,7 +9,73 @@
 
 本仓库为二开版本，版本号从 `0.1.0` 起独立计算：功能级改动递增次版本号，文档、脚本与工程类小改动递增修订号。
 
-版本历程：`v0.1.0`–`v0.10.2` 为同批次导入的连续提交，`v0.11.0` 起为二开定制改动，`v0.12.0` 起为桌面像素厨房视觉重构，`v0.13.0` 起为桌面启动开场动画与后续修复，`v0.14.0` 起为设置页模型发现与启动动画改版，`v0.16.0` 起为用量统计仪表盘，`v0.17.0` 起为开场动画开关与子智能体状态色。每个提交对应一个 tag。
+版本历程：`v0.1.0`–`v0.10.2` 为同批次导入的连续提交，`v0.11.0` 起为二开定制改动，`v0.12.0` 起为桌面像素厨房视觉重构，`v0.13.0` 起为桌面启动开场动画与后续修复，`v0.14.0` 起为设置页模型发现与启动动画改版，`v0.16.0` 起为用量统计仪表盘，`v0.17.0` 起为开场动画开关与子智能体状态色，`v0.18.0` 起为完全访问确认、协议架构治理与实时协调器进程下沉。每个提交对应一个 tag。
+
+## [0.18.10] - 2026-10-12
+
+### 变更
+
+- 版本号更新为 `0.18.10`；README 与英文 README 的更新说明同步到当前版本。
+
+## [0.18.9] - 2026-10-12
+
+### 文档
+
+- 收录《代码优化分析报告-2026-10-12.md》（全仓四路审计与 file:line 证据）与 P2 清理批次记录 `specs/cleanup/p2-cleanup-batch.md`。
+
+## [0.18.8] - 2026-10-12
+
+### 修复
+
+- 清除全仓 61 条 lint 警告（unused 导入/变量/参数、unsafe-finally、this 别名、控制字符正则与 unicorn 规则），其中 `tasksDatabase/startup.ts` 两处 finally 守卫式 throw 重构为显式收尾语义（首因优先不变），无新增豁免。
+
+## [0.18.7] - 2026-10-12
+
+### 修复
+
+- 桌面端设置同步 IPC 的载荷契约改收校验后的 `AppSettingsPatch` 具体类型，不再以 `unknown` 让下游重复收窄。
+
+## [0.18.6] - 2026-10-12
+
+### 变更
+
+- 完成 Goal→Target 类型词汇收尾：`contracts/tools/target.ts` 的 27 个 Target\* 名字升为正本、删除 36 个别名与 14 个零使用旧名，core/adapters/bootstrap 共 22 个文件跟随改名，旧名全仓零残留。
+
+## [0.18.5] - 2026-10-12
+
+### 变更
+
+- services 日志统一到 `createServiceLogger`：oauthService、settingService、zaiProviderAdapter、mcpSyncService、shucodeAgentService 五处 console 直连日志迁入统一诊断通道。
+
+## [0.18.4] - 2026-10-12
+
+### 变更
+
+- 依赖清单整理：补齐 8 处 unlisted dependencies（zod、builder-util-runtime、vite、lucide-react、yaml、yazl、@modelcontextprotocol/sdk）；ui 包移除 11 个经逐项验证的零引用依赖（含 `@stripe/*`、`marked`、`media-chrome` 等）。
+
+## [0.18.3] - 2026-10-12
+
+### 修复
+
+- 修复 desktop 主进程与 preload/renderer 的全部类型错误（211 处，含 Electron 41 `console-message` 新签名），main/scheduler/taskRealtime/preload/renderer 纳入根 typecheck 门禁；`window.shucode` 类型改由 preload 桥对象 `typeof` 派生，防止镜像声明漂移。
+
+## [0.18.2] - 2026-10-12
+
+### 变更
+
+- task realtime 协调器下沉为独立 UtilityProcess：租约仲裁、流攒批与回放缓冲、会话消息路由移出 Main 进程，Main 只保留按 hostId 的无状态帧转发；新增 Main↔协调器帧协议、崩溃自动重启（60 秒 5 次熔断）与该子系统首批 10 条单测。
+
+## [0.18.1] - 2026-10-12
+
+### 变更
+
+- 打破协议双栈目录级依赖环：v4 目录对旧栈的 3 处反向 import 清零（model-execution 迁入 v4、residency lease 拆分），旧栈退役在结构上可行；同时退役 5 个全仓零调用的旧协议方法（session/fork、session/stop、session/cancelBackgroundTask、session/usage、usage/stats）与专属 schema。
+
+## [0.18.0] - 2026-10-12
+
+### 新增
+
+- 输入框模式菜单选择「完全访问」时新增确认弹窗：列出授予的能力与风险，确认后才切换模式，菜单点选与快捷键循环两条路径统一拦截。
 
 ## [0.17.5] - 2026-10-10
 
