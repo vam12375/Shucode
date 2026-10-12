@@ -131,7 +131,7 @@ const desktopNodeRuntimeExternals = [
   "yauzl",
 ];
 
-function createDevReadyMarkerHook(target: "main" | "host" | "preload"): string {
+function createDevReadyMarkerHook(target: "main" | "host" | "preload" | "scheduler" | "taskRealtime"): string {
   // CLI 级 --onSuccess 在多 config watch 模式下会被每个子构建分别触发。
   // 之前 preload 先成功时就提前写入 ready 标记，Electron 仍会在 main/host 未完成时启动。
   // 这里改成每个 config 自己在成功后写独立 marker，让 dev 启动脚本能精确等待全部构建完成。
@@ -265,6 +265,25 @@ export default defineConfig([
       options.chunkNames = "scheduler/chunk-[hash]";
     },
     onSuccess: createDevReadyMarkerHook("scheduler"),
+    ...desktopTsupBundleSecurityOptions,
+  },
+  {
+    name: "taskRealtime",
+    entry: { "taskRealtime/index": "src/taskRealtime/index.ts" },
+    outDir: "out",
+    format: "esm",
+    platform: "node",
+    target: "node22",
+    // 协调器只依赖 @shucode/shared（帧协议 + 业务事件类型），其余全外部——
+    // 与 host/scheduler 同构，避免 Electron ESM runtime 的 dynamic require 崩溃。
+    external: desktopNodeRuntimeExternals,
+    noExternal: ["@shucode/shared"],
+    define: createSharedDefines(),
+    esbuildOptions(options) {
+      applyDesktopTsupEsbuildSecurityOptions(options);
+      options.chunkNames = "taskRealtime/chunk-[hash]";
+    },
+    onSuccess: createDevReadyMarkerHook("taskRealtime"),
     ...desktopTsupBundleSecurityOptions,
   },
 ]);

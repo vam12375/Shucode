@@ -35,7 +35,7 @@ import {
 } from "@shucode/shared";
 import { getMainLaunchPartialMarks } from "./desktopLaunchMarks.js";
 import { BroadcastHub } from "./broadcastHub.js";
-import type { TaskRealtimeBus } from "./taskRealtimeBus.js";
+import type { TaskRealtimeCoordinatorBridge } from "./desktopTaskRealtimeCoordinator.js";
 import { createHostLogRelay } from "./hostLogRelay.js";
 import {
   registerHostAgentProcess,
@@ -167,7 +167,7 @@ export function spawnHostProcess(
       warn: (...args: unknown[]) => void;
     };
     broadcastHub: BroadcastHub;
-    taskRealtimeBus?: TaskRealtimeBus;
+    taskRealtimeBus?: TaskRealtimeCoordinatorBridge;
     windowHostProcessMap: Map<number, ElectronUtilityProcess>;
     hostRunningTaskCountMap: Map<ElectronUtilityProcess, number>;
     onWorkspaceRunningTaskCountChanged?: (

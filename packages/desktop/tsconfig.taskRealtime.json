@@ -1,0 +1,13 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "out/taskRealtime",
+    "rootDir": "src/taskRealtime",
+    "lib": ["es2025"],
+    // 协调器只把 Electron.MessageEvent 当类型用、不 import "electron" 值（同 scheduler），
+    // 故显式引入 node + electron 全局类型（process/setTimeout/Electron 命名空间）。
+    "types": ["node", "electron"]
+  },
+  "include": ["src/taskRealtime"],
+  "references": [{ "path": "../shared" }]
+}

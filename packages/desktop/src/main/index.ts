@@ -46,7 +46,7 @@ import {
 import type { UtilityProcess as ElectronUtilityProcess } from "electron";
 import { spawn } from "node:child_process";
 import { join, resolve } from "node:path";
-import { homedir, hostname } from "node:os";
+import { homedir } from "node:os";
 import {
   createCredentialService,
   createSettingService,
@@ -66,6 +66,7 @@ import {
   desktopMenuMessageIds,
   type Locale,
   type AppSettings,
+  type AppSettingsPatch,
   PlatformChannels,
   SHUCODE_ENV,
   SHUCODE_PRODUCT_FLAVOR,
@@ -74,7 +75,6 @@ import {
   SHUCODE_VERSION,
   SHUCODE_TELEMETRY_ENABLED,
   SHUCODE_ARMS_RUM_ENDPOINT,
-  buildShucodeEndpointUrls,
   resolveShucodeEndpointOrigin,
   shouldEnableE2ETestBridge,
   type UpdateStatePayload,
@@ -98,7 +98,7 @@ import {
   syncReadyUpdateToWindow,
 } from "./autoUpdater.js";
 import { BroadcastHub } from "./broadcastHub.js";
-import { TaskRealtimeBus } from "./taskRealtimeBus.js";
+import { spawnTaskRealtimeCoordinator } from "./desktopTaskRealtimeCoordinator.js";
 import { createAppLaunchGate } from "./appLaunchGate.js";
 import { createAppLaunchCoordinator } from "./appLaunchCoordinator.js";
 import { createAppTelemetryRuntime } from "./appTelemetryRuntime.js";
@@ -112,7 +112,6 @@ import {
   type AppShutdownKind,
 } from "./appShutdownPolicy.js";
 import { createPrimaryWindowCoordinator } from "./primaryWindowCoordinator.js";
-import { createTempTextAttachment } from "./tempTextAttachment.js";
 import { flushMainE2ECoverage } from "./e2eCoverage.js";
 import { resolveStartupWindowBootstrap, type StartupWindowBootstrap } from "./startupWorkspace.js";
 import {
@@ -199,11 +198,6 @@ import {
 } from "./resourceManagerWindow.js";
 import { createDesktopHelpConfigReader } from "./desktopHelpConfig.js";
 import { registerPlatformIpcHandlers } from "./desktopMainIpcPlatform.js";
-import {
-  loadCliMcpFromUserDirectory,
-  migrateLegacyCommonMcp,
-  saveCliMcpToUserDirectory,
-} from "./mcpUserDirectory/index.js";
 import { registerRemoteIpcHandlers } from "./desktopMainIpcRemote.js";
 import {
   configureDesktopStabilityTelemetry,
@@ -538,7 +532,9 @@ let activeAppShutdownKind: AppShutdownKind | null = null;
 const WINDOWS_AGENT_FORCE_KILL_TIMEOUT_MS = 2_000;
 
 const broadcastHub = new BroadcastHub();
-const taskRealtimeBus = new TaskRealtimeBus({ logger });
+// task realtime 协调器：租约/攒批/回放/路由状态已下沉到独立 UtilityProcess，
+// Main 只保留进程句柄与无状态帧转发（见 specs/desktop/main-process-state-ownership.md）。
+const taskRealtimeBus = spawnTaskRealtimeCoordinator({ logger });
 // 内存诊断计数器：desktopResourceTelemetry 每 60s collect
 // 一次写主日志。will-download 监听数用于观察关窗后 defaultSession 是否残留监听。
 mainMemoryDiagnosticsRegistry.register("taskBus", () => taskRealtimeBus.collectMemoryDiagnostics());
@@ -947,7 +943,7 @@ function syncCloseToTrayOnWindows(value: unknown) {
   logger.info(`[settings] closeToTrayOnWindows=${value}`);
 }
 
-function syncImmediateAppSettings(patch: Partial<AppSettings>) {
+function syncImmediateAppSettings(patch: AppSettingsPatch) {
   syncCloseToTrayOnWindows(patch.closeToTrayOnWindows);
 
   if (typeof patch.startupAnimationEnabled === "boolean") {
@@ -1044,6 +1040,8 @@ async function prepareAppQuit(reason: string, kind: AppShutdownKind = "normal"):
   const cronSchedulerToDispose = cronScheduler;
   cronScheduler = null;
 
+  const taskRealtimeCoordinatorToDispose = taskRealtimeBus;
+
   const hostProcesses = [
     ...new Set([...windowHostProcessMap.values(), ...listDisposingHostProcesses()]),
   ];
@@ -1068,6 +1066,13 @@ async function prepareAppQuit(reason: string, kind: AppShutdownKind = "normal"):
         await cronSchedulerToDispose?.dispose();
       } catch (error) {
         logger.warn(`[app-quit] cron scheduler dispose failed (${reason}):`, error);
+      }
+    })(),
+    (async () => {
+      try {
+        await taskRealtimeCoordinatorToDispose.dispose();
+      } catch (error) {
+        logger.warn(`[app-quit] task realtime coordinator dispose failed (${reason}):`, error);
       }
     })(),
     // remote session、attachment 和 transport 都由窗口 Host 持有；这里先清理
@@ -1860,7 +1865,8 @@ function createWindowInstance(startupBootstrap: StartupWindowBootstrap = {}) {
     initialWindowSize: currentDesktopWindowSize,
     currentApplicationLocale: () => currentApplicationLocale,
     resolveBrowserViewOwner: (webContentsId) =>
-      browserGuestManager.getTabOwnerByWebContentsId(webContentsId),
+      // 契约两侧空值语义不同：manager 返回 null，windowChrome 期望 undefined。
+      browserGuestManager.getTabOwnerByWebContentsId(webContentsId) ?? undefined,
     persistWindowSize: async (state) => {
       currentDesktopWindowSize = state;
       await mainSettingService.update({ desktopWindowSize: state });
@@ -2306,7 +2312,8 @@ app.whenReady().then(async () => {
   });
 
   const protocolUrl = extractDeepLinkUrlFromArgs(process.argv);
-  if (startupDeepLinkConsumptionGate.shouldHandleReadyProtocolUrl(protocolUrl)) {
+  // gate 对 null 恒 false；先判空让 handleDeepLink(url: string) 的契约在类型层成立。
+  if (protocolUrl && startupDeepLinkConsumptionGate.shouldHandleReadyProtocolUrl(protocolUrl)) {
     handleDeepLink(protocolUrl, logger, {
       confirmationCopy: resolveExternalWorkspaceConfirmationCopy(),
       resolveApplicationWindow: () => getApplicationWindowsExcludingCuaIndicator()[0] ?? null,

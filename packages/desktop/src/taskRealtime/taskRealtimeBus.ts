@@ -1,5 +1,10 @@
-/* oxlint-disable eslint(max-lines) -- task realtime bus owns lease, stream batching, replay and command routing state in one main-process coordinator. */
-import type { UtilityProcess as ElectronUtilityProcess } from "electron";
+/* oxlint-disable eslint(max-lines) -- 租约/攒批/回放/路由协调逻辑必须原子演进，见 specs/desktop/main-process-state-ownership.md。 */
+// Task realtime 协调器核心：跨窗口 Host 的租约仲裁、流攒批与回放缓冲、会话消息路由。
+// 进程归属：运行在独立协调器 UtilityProcess 内（main 只做按 hostId 的无状态帧转发，
+// 生命周期控制见 ../main/desktopTaskRealtimeCoordinator.ts，进程契约见
+// @shucode/shared 的 task-realtime-coordinator 协议）。
+// 传输边界：不感知 Electron——Host 端点是 registerHost 注入的 post 回调，便于单测与
+// 未来换传输（保持 desktop continuous 与 web remote replayable 同一条 delivery 语义）。
 import {
   type TaskOwnerCommandDelivery,
   type TaskOwnerCommandRequest,
@@ -11,15 +16,14 @@ import {
   type TaskRunLeaseResult,
   type TaskRunLeaseTarget,
   type TaskStreamMirrorBatchEvent,
+  type TaskStreamMirrorableEvent,
   type TaskStreamMirrorOp,
   type TaskStreamMirrorPublishOp,
   type TaskStreamWatermark,
   formatZodError,
   HostMessageTypes,
-  HostResponseTypes,
   hostResponseMessageSchema,
 } from "@shucode/shared";
-import { logger as defaultLogger } from "./logger.js";
 
 const STREAM_MIRROR_FLUSH_INTERVAL_MS = 1000;
 const STREAM_MIRROR_MAX_REPLAY_BATCHES = 60;
@@ -29,17 +33,12 @@ const STREAM_MIRROR_TEXT_OP_MAX_CHARS = 128 * 1024;
 const OWNER_COMMAND_TIMEOUT_MS = 30_000;
 const SESSION_MESSAGE_DELIVERY_TIMEOUT_MS = 30_000;
 
-type HostMessageListener = (message: unknown) => void;
-type HostExitListener = () => void;
-
 interface RegisteredRealtimeHost {
   hostId: string;
-  windowId: number;
-  child: ElectronUtilityProcess;
   workspaceKeys: Set<string>;
   deliveryKind: TaskRealtimeHostDeliveryKind;
-  onMessage: HostMessageListener;
-  onExit: HostExitListener;
+  /** 协调器 → 该 Host 的下行帧出口（协调器入口封装为 deliver envelope 经 parentPort 发往 Main）。 */
+  post: (message: unknown) => void;
 }
 
 interface TaskRunLease {
@@ -115,7 +114,7 @@ interface TaskRealtimeBusLogger {
 }
 
 interface TaskRealtimeBusOptions {
-  logger?: TaskRealtimeBusLogger;
+  logger: TaskRealtimeBusLogger;
   seenEventLimit?: number;
 }
 
@@ -134,48 +133,34 @@ export class TaskRealtimeBus {
     PendingSessionMessageDelivery
   >();
 
-  constructor(options: TaskRealtimeBusOptions = {}) {
-    this.logger = options.logger ?? defaultLogger;
+  constructor(options: TaskRealtimeBusOptions) {
+    this.logger = options.logger;
     this.seenEventLimit = options.seenEventLimit ?? 1000;
   }
 
   registerHost(params: {
     hostId: string;
-    windowId: number;
-    child: ElectronUtilityProcess;
     workspaceKeys: Iterable<string>;
     deliveryKind?: TaskRealtimeHostDeliveryKind;
+    /** 该 Host 的下行帧出口；由协调器入口封装 deliver envelope。 */
+    post: (message: unknown) => void;
   }): void {
     const existing = this.hosts.get(params.hostId);
     if (existing) {
       this.unregisterHost(params.hostId);
     }
 
-    const onMessage: HostMessageListener = (message) => {
-      this.handleHostMessage(params.hostId, message);
-    };
-    const onExit: HostExitListener = () => {
-      this.unregisterHost(params.hostId);
-    };
-
-    params.child.on("message", onMessage);
-    params.child.once("exit", onExit);
-
     const workspaceKeys = new Set(params.workspaceKeys);
     const deliveryKind = params.deliveryKind ?? "desktop_window";
     this.hosts.set(params.hostId, {
       hostId: params.hostId,
-      windowId: params.windowId,
-      child: params.child,
       workspaceKeys,
       deliveryKind,
-      onMessage,
-      onExit,
+      post: params.post,
     });
 
     this.logger.info("[task-realtime] registered host", {
       hostId: params.hostId,
-      windowId: params.windowId,
       workspaceKeyCount: workspaceKeys.size,
       deliveryKind,
     });
@@ -189,8 +174,6 @@ export class TaskRealtimeBus {
       return;
     }
 
-    registered.child.off?.("message", registered.onMessage);
-    registered.child.off?.("exit", registered.onExit);
     this.hosts.delete(hostId);
     this.failPendingOwnerCommandsForHost(hostId, "Owner command host exited.");
     this.unregisterSessionRoutesForHost(hostId);
@@ -202,7 +185,6 @@ export class TaskRealtimeBus {
 
     this.logger.info("[task-realtime] unregistered host", {
       hostId,
-      windowId: registered.windowId,
     });
   }
 
@@ -226,11 +208,8 @@ export class TaskRealtimeBus {
     );
   }
 
-  getHostDeliveryKindForTest(hostId: string): TaskRealtimeHostDeliveryKind | undefined {
-    return this.hosts.get(hostId)?.deliveryKind;
-  }
-
-  private handleHostMessage(hostId: string, message: unknown): void {
+  /** 协调器入口把 Main 转发来的 Host 上行帧交到这里；帧 schema 在此严格校验。 */
+  acceptHostFrame(hostId: string, message: unknown): void {
     const parsed = hostResponseMessageSchema.safeParse(message);
     if (!parsed.success) {
       this.logger.warn(
@@ -246,32 +225,40 @@ export class TaskRealtimeBus {
       return;
     }
 
+    // HostResponseTypes.* 常量不是字面量类型（channels.ts 未 as const），case 用常量
+    // 无法触发 discriminatedUnion 窄化；这里按 wire 字面量分发并注释常量名对应。
+    // 校验后的 event/op 在 schema 推导里比 core 合约更宽（passthrough 载荷），
+    // 与 host/taskRealtimeBridge 同一处理：通过共享 schema 校验后收口到合约类型。
     switch (parsed.data.type) {
-      case HostResponseTypes.TaskRealtimePublish:
-        this.handleRealtimePublish(origin, parsed.data.event);
+      case "task-realtime-publish": // HostResponseTypes.TaskRealtimePublish
+        this.handleRealtimePublish(origin, parsed.data.event as TaskRealtimeEvent);
         break;
-      case HostResponseTypes.TaskRunLeaseAcquire:
+      case "task-run-lease-acquire": // HostResponseTypes.TaskRunLeaseAcquire
         this.handleLeaseAcquire(origin, parsed.data.request);
         break;
-      case HostResponseTypes.TaskRunLeaseRelease:
+      case "task-run-lease-release": // HostResponseTypes.TaskRunLeaseRelease
         this.releaseLease(origin.hostId, parsed.data.target);
         break;
-      case HostResponseTypes.TaskStreamOpPublish:
-        this.handleStreamOpPublish(origin, parsed.data.target, parsed.data.op);
+      case "task-stream-op-publish": // HostResponseTypes.TaskStreamOpPublish
+        this.handleStreamOpPublish(
+          origin,
+          parsed.data.target,
+          parsed.data.op as TaskStreamMirrorPublishOp,
+        );
         break;
-      case HostResponseTypes.TaskOwnerCommandRequest:
+      case "task-owner-command-request": // HostResponseTypes.TaskOwnerCommandRequest
         this.handleOwnerCommandRequest(origin, parsed.data.command);
         break;
-      case HostResponseTypes.TaskOwnerCommandResult:
+      case "task-owner-command-result": // HostResponseTypes.TaskOwnerCommandResult
         this.handleOwnerCommandResult(origin, parsed.data.result);
         break;
-      case HostResponseTypes.SessionMessageSendRequested:
+      case "session-message-send-requested": // HostResponseTypes.SessionMessageSendRequested
         this.handleSessionMessageSendRequested(origin, parsed.data.request);
         break;
-      case HostResponseTypes.SessionRouteAnnounce:
+      case "session-route-announce": // HostResponseTypes.SessionRouteAnnounce
         this.rememberSessionRoute(origin, parsed.data.route);
         break;
-      case HostResponseTypes.SessionMessageDeliverResult:
+      case "session-message-deliver-result": // HostResponseTypes.SessionMessageDeliverResult
         this.handleSessionMessageDeliverResult(origin, parsed.data.result);
         break;
       default:
@@ -300,7 +287,7 @@ export class TaskRealtimeBus {
     origin: RegisteredRealtimeHost,
     request: TaskRunLeaseAcquireRequest,
   ): void {
-    origin.child.postMessage({
+    origin.post({
       type: HostMessageTypes.TaskRunLeaseResult,
       result: this.acquireLease(origin.hostId, request),
     });
@@ -393,8 +380,15 @@ export class TaskRealtimeBus {
     target: TaskRunLeaseTarget,
     op: TaskStreamMirrorPublishOp,
   ): void {
-    const lease = this.leases.get(this.getLeaseKey(target.workspaceKey, target.taskId));
-    if (!lease || lease.ownerHostId !== origin.hostId || lease.runId !== target.runId) {
+    const leaseKey = this.getLeaseKey(target.workspaceKey, target.taskId);
+    const lease = this.leases.get(leaseKey);
+    if (!lease) {
+      // 协调器重启恢复：fresh 协调器没有租约账本，但租约生命周期本就是
+      // 「run 开始 acquire / run 结束 release」——仍在本 run 内持续 publish 的 host
+      // 就是真实 owner。这里允许无冲突隐式回收，避免协调器崩溃把在途镜像流冻结到
+      // 终态。已有租约时维持严格 owner/runId 校验（stale 防护不变）。
+      this.claimLeaseForStreamRecovery(origin.hostId, target);
+    } else if (lease.ownerHostId !== origin.hostId || lease.runId !== target.runId) {
       return;
     }
 
@@ -405,7 +399,7 @@ export class TaskRealtimeBus {
     if (this.isTerminalOrImmediateOp(op)) {
       this.flushBatch(batchKey, true);
       if (op.kind === "stream_event" && this.isTerminalEventType(op.event.type)) {
-        this.leases.delete(this.getLeaseKey(target.workspaceKey, target.taskId));
+        this.leases.delete(leaseKey);
       }
       return;
     }
@@ -416,6 +410,31 @@ export class TaskRealtimeBus {
         this.flushBatch(batchKey, false);
       }, STREAM_MIRROR_FLUSH_INTERVAL_MS);
     }
+  }
+
+  /** 无租约时的流恢复回收（见 handleStreamOpPublish 注释）；等同 acquire 但不做冲突拒绝。 */
+  private claimLeaseForStreamRecovery(hostId: string, target: TaskRunLeaseTarget): void {
+    const now = Date.now();
+    this.leases.set(this.getLeaseKey(target.workspaceKey, target.taskId), {
+      key: this.getLeaseKey(target.workspaceKey, target.taskId),
+      workspaceKey: target.workspaceKey,
+      workspacePath: target.workspacePath,
+      workspaceIdentity: target.workspaceIdentity,
+      taskId: target.taskId,
+      runId: target.runId,
+      traceId: target.traceId,
+      ownerClientId: target.ownerClientId,
+      ownerDeviceLabel: target.ownerDeviceLabel,
+      ownerHostId: hostId,
+      acquiredAt: now,
+      updatedAt: now,
+    });
+    this.logger.info("[task-realtime] task run lease reclaimed after coordinator restart", {
+      hostId,
+      workspaceKey: target.workspaceKey,
+      taskId: target.taskId,
+      runId: target.runId,
+    });
   }
 
   private getOrCreateBatch(
@@ -591,13 +610,11 @@ export class TaskRealtimeBus {
     const coalesced: TaskStreamMirrorPublishOp[] = [];
     for (const op of ops) {
       const previous = coalesced[coalesced.length - 1];
-      if (this.canMergeTextChunk(previous, op)) {
+      const mergedEvent = this.mergeTextChunkEvent(previous, op);
+      if (mergedEvent !== null) {
         coalesced[coalesced.length - 1] = {
           kind: "stream_event",
-          event: {
-            ...previous.event,
-            content: previous.event.content + op.event.content,
-          },
+          event: mergedEvent,
         };
         continue;
       }
@@ -647,29 +664,38 @@ export class TaskRealtimeBus {
     return splitOps;
   }
 
-  private canMergeTextChunk(
+  /**
+   * 文本 chunk 合并：返回合并后的事件，否则 null。
+   * （原 canMergeTextChunk 谓词只能收窄入参之一，且调用点 spread 宽联合时与
+   * elicitation_response/task_complete 的 content 字段类型冲突；由本方法在内部
+   * 收窄到 message/thought chunk 成员并承担拼接。）
+   */
+  private mergeTextChunkEvent(
     previous: TaskStreamMirrorPublishOp | undefined,
     op: TaskStreamMirrorPublishOp,
-  ): previous is Extract<TaskStreamMirrorPublishOp, { kind: "stream_event" }> & {
-    event: {
-      type: "agent_message_chunk" | "agent_thought_chunk";
-      taskId: string;
-      traceId: string;
-      content: string;
-    };
-  } {
-    return (
-      previous?.kind === "stream_event" &&
-      op.kind === "stream_event" &&
-      (op.event.type === "agent_message_chunk" || op.event.type === "agent_thought_chunk") &&
-      previous.event.type === op.event.type &&
-      previous.event.taskId === op.event.taskId &&
-      previous.event.traceId === op.event.traceId &&
-      "content" in previous.event &&
-      "content" in op.event &&
-      typeof previous.event.content === "string" &&
-      typeof op.event.content === "string"
-    );
+  ): Extract<
+    TaskStreamMirrorableEvent,
+    { type: "agent_message_chunk" | "agent_thought_chunk" }
+  > | null {
+    if (
+      previous?.kind !== "stream_event" ||
+      op.kind !== "stream_event" ||
+      (op.event.type !== "agent_message_chunk" && op.event.type !== "agent_thought_chunk") ||
+      (previous.event.type !== "agent_message_chunk" &&
+        previous.event.type !== "agent_thought_chunk") ||
+      previous.event.type !== op.event.type ||
+      previous.event.taskId !== op.event.taskId ||
+      previous.event.traceId !== op.event.traceId
+    ) {
+      return null;
+    }
+    // 收窄后两个 chunk 成员的 content 均为 string；passthrough 场景仍按 typeof 复核。
+    const previousContent: string = previous.event.content;
+    const opContent: string = op.event.content;
+    if (typeof previousContent !== "string" || typeof opContent !== "string") {
+      return null;
+    }
+    return { ...previous.event, content: previousContent + opContent };
   }
 
   private isRedundantStateEvent(type: string): boolean {
@@ -692,7 +718,7 @@ export class TaskRealtimeBus {
       if (!target.workspaceKeys.has(batch.workspaceKey)) {
         continue;
       }
-      target.child.postMessage({
+      target.post({
         type: HostMessageTypes.TaskRealtimeDeliver,
         event: {
           ...event,
@@ -716,7 +742,7 @@ export class TaskRealtimeBus {
     if (!target?.workspaceKeys.has(batch.workspaceKey)) {
       return;
     }
-    target.child.postMessage({
+    target.post({
       type: HostMessageTypes.TaskRealtimeDeliver,
       event: {
         ...event,
@@ -768,7 +794,7 @@ export class TaskRealtimeBus {
         continue;
       }
       for (const event of batch.replay) {
-        host.child.postMessage({
+        host.post({
           type: HostMessageTypes.TaskRealtimeDeliver,
           event: { ...event, originHostId: batch.ownerHostId, deliveryPurpose: "observer" },
         });
@@ -833,7 +859,7 @@ export class TaskRealtimeBus {
       if (!shouldDeliver(target) || !target.workspaceKeys.has(delivered.workspaceKey)) {
         continue;
       }
-      target.child.postMessage({
+      target.post({
         type: HostMessageTypes.TaskRealtimeDeliver,
         event: delivered,
       });
@@ -891,7 +917,7 @@ export class TaskRealtimeBus {
       timeout,
     });
 
-    owner.child.postMessage({
+    owner.post({
       type: HostMessageTypes.TaskOwnerCommandDeliver,
       command: { ...command, requesterHostId: requester.hostId } satisfies TaskOwnerCommandDelivery,
     });
@@ -911,7 +937,7 @@ export class TaskRealtimeBus {
   }
 
   private postOwnerCommandResult(hostId: string, result: TaskOwnerCommandResult): void {
-    this.hosts.get(hostId)?.child.postMessage({
+    this.hosts.get(hostId)?.post({
       type: HostMessageTypes.TaskOwnerCommandResult,
       result,
     });
@@ -969,7 +995,7 @@ export class TaskRealtimeBus {
       timeout,
     });
 
-    target.child.postMessage({
+    target.post({
       type: HostMessageTypes.SessionMessageDeliver,
       request,
     });
@@ -992,7 +1018,7 @@ export class TaskRealtimeBus {
     hostId: string,
     result: SessionMessageDeliveryResult,
   ): void {
-    this.hosts.get(hostId)?.child.postMessage({
+    this.hosts.get(hostId)?.post({
       type: HostMessageTypes.SessionMessageDeliveryResult,
       result,
     });

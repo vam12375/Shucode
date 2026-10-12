@@ -206,6 +206,12 @@ export type {
   ApplicationIconRequest,
   BrowserGuestAttachRejectReason,
   BrowserGuestAttachResult,
+  // desktop main 的截图 surface 契约与窗口控制浮层载荷：定义在 platform.ts，
+  // 此前漏出 barrel，main/preload 工程接入 typecheck 后暴露（TS2305）。
+  BrowserViewSurfaceScaleMode,
+  WindowControlsOverlayReadyPayload,
+  WindowControlsOverlayMetrics,
+  DesktopZoomState,
   EmbeddedBrowserDataClearResult,
   EmbeddedBrowserOpenUrlRequest,
   IPlatformService,
@@ -238,6 +244,7 @@ export * from "./background-task-notifications.js";
 export * from "./background-bash-jobs.js";
 export * from "./shucode-agent-model-state.js";
 export * from "./task-realtime.js";
+export * from "./task-realtime-coordinator.js";
 export { formatTimestamp, formatLogPrefix } from "./log-format.js";
 export * from "./model-provider-types.js";
 export * from "./model-provider-family.js";
