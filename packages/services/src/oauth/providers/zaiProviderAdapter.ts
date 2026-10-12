@@ -2,13 +2,13 @@ import { Buffer } from "node:buffer";
 import {
   ApiError,
   type ApiClient,
-  formatLogPrefix,
   ZAI_PROVIDER_ID,
   type OAuthCallbackParams,
   type OAuthProviderMeta,
   type OAuthTokenSet,
   type OAuthUserProfile,
 } from "@shucode/shared";
+import { createServiceLogger } from "../../logger/serviceLogger.js";
 import { readApiJson } from "../../providers/api/apiJson.js";
 import { ZaiBusinessTokenResolver } from "../../providers/zaiBusinessTokenResolver.js";
 import { parseOAuthLoginAttribution } from "../callbackAttribution.js";
@@ -56,7 +56,7 @@ interface ZaiUserInfoPayload {
 /** OAuth 启动恢复允许的最长等待时间（1 分钟） */
 const OAUTH_USERINFO_TIMEOUT_MS = 60_000;
 const ZAI_BUSINESS_TOKEN_TIMEOUT_MS = 10_000;
-const log = (...args: unknown[]) => console.log(formatLogPrefix("zaiOAuth", process.pid), ...args);
+const serviceLog = createServiceLogger("zaiOAuth");
 
 function normalizeExpiresIn(raw: number | undefined, now: () => number): number | undefined {
   if (!raw || !Number.isFinite(raw)) {
@@ -229,7 +229,7 @@ function logTokenResponseError(error: unknown): void {
 
   // 后端 4xx/5xx 排查需要响应里的 request id；直接记录完整 headers 会把 cookie 等敏感值落盘。
   // readApiJson 只透出安全的链路追踪头，这里把它们和状态码一起打印出来，方便后端按 x-request-id 定位。
-  log("token response error", {
+  serviceLog.info(undefined, "token response error", {
     method: error.method,
     url: error.url,
     status: error.status,
@@ -311,7 +311,7 @@ export class ZaiProviderAdapter implements OAuthProviderAdapter {
   ): Promise<OAuthTokenSet> {
     // 后端 OAuth token 路由排查时，原日志只记录了 404 结果，看不到客户端实际请求形态。
     // 这里记录 method/url/headers/body 结构，同时脱敏一次性 code，避免敏感授权码落盘。
-    log("token request", {
+    serviceLog.info(undefined, "token request", {
       method: "POST",
       url: this.config.tokenUrl,
       headers: { "Content-Type": "application/json" },
@@ -350,7 +350,7 @@ export class ZaiProviderAdapter implements OAuthProviderAdapter {
     // ZAI token 响应在 adapter 内会立刻映射成 OAuthTokenSet，Root 层只能看到归一化后的登录结果，
     // 因此排查线上返回结构时看不到最终 response body。这里在映射前打印脱敏 body，保留 code/msg/data 结构，
     // 同时避免完整 access token 落盘。
-    log("token final response body", sanitizeTokenPayloadForLog(tokenPayload));
+    serviceLog.info(undefined, "token final response body", sanitizeTokenPayloadForLog(tokenPayload));
 
     if (tokenPayload.code !== 0) {
       throw new Error(tokenPayload.msg?.trim() || "ZAI 后端 token 交换失败");

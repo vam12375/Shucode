@@ -20,7 +20,6 @@ import { completeNewModelSelection } from "@shucode/provider";
 import type { OffPeakClientConfig } from "#src/coding-plan-subscription/codingPlanSubscription.js";
 import {
   SHUCODE_SESSION_RUNTIME_PREFERENCES_REQUEST_TIMEOUT_MS,
-  formatLogPrefix,
   resolveWorkspaceKey,
   type TraceId,
   SHUCODE_AGENT_PROVIDER,
@@ -4886,16 +4885,12 @@ export function createShucodeAgentService(
             }
             if (attempt >= SESSION_SUBSCRIBE_MAX_ATTEMPTS - 1) {
               // 彻底失败时打 warn 让问题可观测，而不是无声失效。
-              console.warn(
-                formatLogPrefix("shucode-agent", process.pid),
-                "session 订阅建立失败，已达最大重试次数，放弃",
-                {
-                  sessionId: params.sessionId,
-                  workspaceKey: resolveWorkspaceKey(params),
-                  attempts: attempt + 1,
-                  message: error instanceof Error ? error.message : String(error),
-                },
-              );
+              logger.warn(undefined, "session 订阅建立失败，已达最大重试次数，放弃", {
+                sessionId: params.sessionId,
+                workspaceKey: resolveWorkspaceKey(params),
+                attempts: attempt + 1,
+                message: error instanceof Error ? error.message : String(error),
+              });
               // 订阅失败后不再无限压住 live 事件；此时没有 replay 权威补洞，只能恢复 continuous 流。
               releaseBufferedLiveEvents();
               return;

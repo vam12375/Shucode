@@ -19,6 +19,7 @@ import type {
   SettingsDirectorySource,
 } from "@shucode/shared";
 import type { IMcpSyncService } from "./mcpSync.js";
+import { createServiceLogger } from "../logger/serviceLogger.js";
 import { checkRemoteSyncDirectoryWriteAccess } from "../remote-sync/remoteSyncWriteAccess.js";
 
 type McpConfigKeyName = "mcp.servers" | "mcpServers";
@@ -64,6 +65,7 @@ const ENABLED_KEY = "enabled";
 // 现在读写逻辑一律只认 enabled，这里只保留一次性迁移；存量配置清空后整块删除。
 const LEGACY_ENABLE_KEY = "enable";
 const SECRET_CONFIG_FILE_MODE = 0o600;
+const serviceLog = createServiceLogger("mcpSyncService");
 const DIRECTORY_MCP_DESCRIPTORS: readonly DirectoryMcpDescriptor[] = [
   SHUCODE_MCP_DESCRIPTOR,
   AGENTS_MCP_DESCRIPTOR,
@@ -512,7 +514,12 @@ async function readServerMapWithLegacyMigration(
     const next = writeServerMapToJson(parsed, configKeyName, migration.servers);
     await writeTextAtomic(filePath, `${JSON.stringify(next, null, 2)}\n`);
   } catch (error) {
-    console.warn("[mcp-sync] legacy enable migration failed:", filePath, formatErrorMessage(error));
+    serviceLog.warn(
+      undefined,
+      "[mcp-sync] legacy enable migration failed:",
+      filePath,
+      formatErrorMessage(error),
+    );
   }
   return migration.servers;
 }

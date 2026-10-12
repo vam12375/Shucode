@@ -2,7 +2,6 @@
 import { randomBytes } from "node:crypto";
 import {
   ApiError,
-  formatLogPrefix,
   type ApiClient,
   BIGMODEL_PROVIDER_ID,
   ZAI_PROVIDER_ID,
@@ -38,8 +37,6 @@ import {
 const OAUTH_TIMEOUT_MS = 5 * 60 * 1000;
 const COMPLETED_POLLING_STATE_GRACE_MS = 30 * 1000;
 const SHUCODE_JWT_TOKEN_KEY = "shucodejwttoken";
-const log = (...args: unknown[]) =>
-  console.log(formatLogPrefix("oauthService", process.pid), ...args);
 const serviceLog = createServiceLogger("oauthService");
 
 interface PendingState {
@@ -183,13 +180,13 @@ export class OAuthService implements IOAuthService {
     const restoreGeneration = this.oauthSessionGeneration;
     const activeProvider = await this.repo.getActiveProvider();
     if (!activeProvider) {
-      log("restoreCachedSession skipped: no active provider");
+      serviceLog.info(undefined, "restoreCachedSession skipped: no active provider");
       return { status: "signed-out" };
     }
 
     const adapter = this.adapters.get(activeProvider);
     if (!adapter || !adapter.meta.enabled) {
-      log(
+      serviceLog.info(undefined, 
         "restoreCachedSession aborted: provider unavailable, clearing active provider:",
         activeProvider,
       );
@@ -202,7 +199,7 @@ export class OAuthService implements IOAuthService {
       // zai / bigmodel 这类 OAuth token 生命周期很短，启动时如果强依赖远端 userinfo 校验，
       // 用户明明刚登录过，也会因为 access_token 过期被误判成未登录。
       // 这里改为优先读取登录成功时持久化的 user_info，只要用户没有手动退出，就按缓存恢复展示态。
-      log("restoreCachedSession skipped: missing cached user profile:", activeProvider);
+      serviceLog.info(undefined, "restoreCachedSession skipped: missing cached user profile:", activeProvider);
       return { status: "signed-out" };
     }
 
@@ -240,7 +237,7 @@ export class OAuthService implements IOAuthService {
       })
         .then((migratedProfile) => {
           if (migratedProfile !== profile) {
-            log(
+            serviceLog.info(undefined, 
               "restoreCachedSession migrated cached profile:",
               activeProvider,
               migratedProfile.id,
@@ -248,7 +245,7 @@ export class OAuthService implements IOAuthService {
           }
         })
         .catch((error: unknown) => {
-          log(
+          serviceLog.info(undefined, 
             "restoreCachedSession background profile migration failed:",
             activeProvider,
             error instanceof Error ? error.message : String(error),
@@ -260,12 +257,12 @@ export class OAuthService implements IOAuthService {
       if (!shucodeJwtToken) {
         // sidebar 登录入口之前只看缓存 user_info，会把“缺少 shucodejwttoken”的状态误判成已登录。
         // 这里补充 shucodejwttoken 门槛，确保没有后端 JWT 时统一按未登录处理。
-        log("restoreCachedSession skipped: missing shucodejwttoken:", activeProvider);
+        serviceLog.info(undefined, "restoreCachedSession skipped: missing shucodejwttoken:", activeProvider);
         return { status: "signed-out" };
       }
     }
 
-    log("restoreCachedSession restored:", activeProvider, profile.id);
+    serviceLog.info(undefined, "restoreCachedSession restored:", activeProvider, profile.id);
     return { status: "authenticated", userInfo: toUserInfo(profile) };
   }
 
@@ -319,7 +316,7 @@ export class OAuthService implements IOAuthService {
   ): Promise<OAuthTokenSet | null> {
     return this.runSessionMutation(async () => {
       if (this.oauthSessionGeneration !== expectedGeneration) {
-        log("restoreCachedSession skipped stale BigModel token migration");
+        serviceLog.info(undefined, "restoreCachedSession skipped stale BigModel token migration");
         return null;
       }
 
@@ -332,7 +329,7 @@ export class OAuthService implements IOAuthService {
       ) {
         // 迁移请求目标固定是 BigModel，token 也必须固定读取 BigModel 命名空间；
         // 发请求前先复核持久化快照，避免切换到 ZAI 后把其他 provider token 发给 BigModel。
-        log("restoreCachedSession skipped stale BigModel token migration:", activeProvider);
+        serviceLog.info(undefined, "restoreCachedSession skipped stale BigModel token migration:", activeProvider);
         return null;
       }
 
@@ -347,13 +344,13 @@ export class OAuthService implements IOAuthService {
   ): Promise<void> {
     await this.runSessionMutation(async () => {
       if (this.oauthSessionGeneration !== expectedGeneration) {
-        log("restoreCachedSession skipped stale BigModel profile migration");
+        serviceLog.info(undefined, "restoreCachedSession skipped stale BigModel profile migration");
         return;
       }
 
       const activeProvider = await this.repo.getActiveProvider();
       if (activeProvider !== BIGMODEL_PROVIDER_ID) {
-        log("restoreCachedSession skipped stale BigModel profile migration:", activeProvider);
+        serviceLog.info(undefined, "restoreCachedSession skipped stale BigModel profile migration:", activeProvider);
         return;
       }
 
@@ -361,7 +358,7 @@ export class OAuthService implements IOAuthService {
       if (!currentProfile || !isSameOAuthProfile(currentProfile, expectedCachedProfile)) {
         // BigModel 旧缓存迁移在后台完成，期间用户可能 logout、切到 ZAI，
         // 或重新登录 BigModel。只有当前缓存仍是启动时那份旧缓存时，旧迁移结果才允许落盘。
-        log("restoreCachedSession skipped outdated BigModel profile migration");
+        serviceLog.info(undefined, "restoreCachedSession skipped outdated BigModel profile migration");
         return;
       }
 
@@ -517,15 +514,15 @@ export class OAuthService implements IOAuthService {
   async restoreSession(): Promise<UserInfo | null> {
     const activeProvider = await this.repo.getActiveProvider();
     if (!activeProvider) {
-      log("restoreSession skipped: no active provider");
+      serviceLog.info(undefined, "restoreSession skipped: no active provider");
       return null;
     }
 
-    log("restoreSession started:", activeProvider);
+    serviceLog.info(undefined, "restoreSession started:", activeProvider);
 
     const adapter = this.adapters.get(activeProvider);
     if (!adapter || !adapter.meta.enabled) {
-      log(
+      serviceLog.info(undefined, 
         "restoreSession aborted: provider unavailable, clearing active provider:",
         activeProvider,
       );
@@ -535,20 +532,20 @@ export class OAuthService implements IOAuthService {
 
     let tokenSet = await this.repo.loadActiveTokenSet();
     if (!tokenSet && adapter.loadLegacyTokenSet) {
-      log("restoreSession fallback: trying provider legacy token set:", activeProvider);
+      serviceLog.info(undefined, "restoreSession fallback: trying provider legacy token set:", activeProvider);
       tokenSet = await adapter.loadLegacyTokenSet((key) => this.credentialService.load(key));
 
       // 多 provider 改造后，旧版 BigModel 仍可能只保留 legacy token key。
       // 这里在 provider 兼容读取成功后回填命名空间 key，避免每次启动都重复走 legacy 分支。
       if (tokenSet) {
-        log("restoreSession fallback hit: migrating legacy token set:", activeProvider);
+        serviceLog.info(undefined, "restoreSession fallback hit: migrating legacy token set:", activeProvider);
         await this.repo.saveActiveTokenSet(tokenSet);
         await this.repo.saveTokenSet(activeProvider, tokenSet);
       }
     }
 
     if (!tokenSet || !adapter.fetchUserInfo) {
-      log(
+      serviceLog.info(undefined, 
         "restoreSession failed: missing token or user-info capability, logging out:",
         activeProvider,
       );
@@ -557,7 +554,7 @@ export class OAuthService implements IOAuthService {
     }
 
     try {
-      log("restoreSession validating token with provider userinfo endpoint:", activeProvider);
+      serviceLog.info(undefined, "restoreSession validating token with provider userinfo endpoint:", activeProvider);
       const profile = await this.runWithAdapterError(adapter, () =>
         adapter.fetchUserInfo!(tokenSet, {
           providerId: activeProvider,
@@ -569,7 +566,7 @@ export class OAuthService implements IOAuthService {
 
       await this.repo.saveActiveUserProfile(withProviderProfileSchema(activeProvider, profile));
       await this.repo.setActiveProvider(activeProvider);
-      log("restoreSession validated:", activeProvider, profile.id);
+      serviceLog.info(undefined, "restoreSession validated:", activeProvider, profile.id);
       return toUserInfo(profile);
     } catch (error) {
       const normalized = adapter.normalizeError(error);
@@ -577,12 +574,12 @@ export class OAuthService implements IOAuthService {
       // 启动恢复只看本地凭据会把“过期 token”误判成已登录。
       // 当远端明确返回未授权（401/403）时，立即按退出流程清理本地登录态。
       if (this.isUnauthorizedError(normalized)) {
-        log("restoreSession unauthorized, logging out:", activeProvider, normalized.message);
+        serviceLog.info(undefined, "restoreSession unauthorized, logging out:", activeProvider, normalized.message);
         await this.logout();
         return null;
       }
 
-      log("restoreSession validation error:", activeProvider, normalized.message);
+      serviceLog.info(undefined, "restoreSession validation error:", activeProvider, normalized.message);
 
       throw normalized;
     }

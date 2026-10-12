@@ -9,13 +9,12 @@ import type {
 import {
   appSettingsPatchSchema,
   appSettingsSchema,
-  formatLogPrefix,
   formatZodError,
 } from "@shucode/shared";
 import type { ISettingService } from "./setting.js";
+import { createServiceLogger } from "../logger/serviceLogger.js";
 import { normalizeSettingsPatch } from "#src/setting/normalizeSettingsPatch.js";
 import { copyDataDirectory, getDataBaseDir, validateDataBaseDirTarget } from "../paths.js";
-import { isEffectiveDevelopmentNodeEnv } from "../runtime-tools/nodeEnv.js";
 import { maybeThrowInjectedFsFault } from "../fs/fsFaultInjection.js";
 import { atomicWriteText } from "../fs/atomicFileUtils.js";
 import { withSettingsWriteQueueTimeout } from "./settingsWriteQueue.js";
@@ -31,16 +30,7 @@ const MAX_RECENT_PROJECTS = 10;
 const DEFAULT_PROJECT_NAME = "ShucodeProject";
 const SETTINGS_PARSE_RETRY_DELAY_MS = 300;
 const SETTINGS_PARSE_RETRY_COUNT = 3;
-
-const log = (...args: unknown[]) =>
-  console.log(formatLogPrefix("settingService", process.pid), ...args);
-const debugLog = (...args: unknown[]) => {
-  // NODE_ENV 来自用户 shell 时会误导服务层 debug 开关；统一使用 SHUCODE_RUNTIME_ENV。
-  if (!isEffectiveDevelopmentNodeEnv()) {
-    return;
-  }
-  console.debug(formatLogPrefix("settingService", process.pid), ...args);
-};
+const serviceLog = createServiceLogger("settingService");
 
 function resolveUserHomeDir() {
   // 独立桌面 Dev 实例已设置自己的 home，设置服务却仍写真实 HOME，
@@ -76,7 +66,7 @@ async function quarantineCorruptSettingsFile(settingsFile: string, error: unknow
     // 如果只返回默认值不隔离坏文件，每次启动都会重复解析失败；这里保留备份后让后续 update 重建合法配置。
     maybeThrowInjectedFsFault({ operation: "rename", path: settingsFile });
     await rename(settingsFile, backupPath);
-    log("invalid settings json backed up:", backupPath, "error:", error);
+    serviceLog.info(undefined, "invalid settings json backed up:", backupPath, "error:", error);
   } catch (renameError) {
     if (
       renameError &&
@@ -86,10 +76,10 @@ async function quarantineCorruptSettingsFile(settingsFile: string, error: unknow
     ) {
       // 启动时多个服务可能同时读取同一个坏 setting.json。
       // 第一个读取已经完成隔离后，后续读取再 rename 会遇到 ENOENT；这是并发下的预期结果，不应当按备份失败刷错误日志。
-      log("invalid settings json already quarantined by another reader, returning defaults");
+      serviceLog.info(undefined, "invalid settings json already quarantined by another reader, returning defaults");
       return;
     }
-    log("invalid settings json backup failed, returning defaults. error:", renameError);
+    serviceLog.info(undefined, "invalid settings json backup failed, returning defaults. error:", renameError);
   }
 }
 
@@ -118,7 +108,7 @@ async function readSettingsWithMeta(): Promise<ReadSettingsResult> {
   try {
     // settingService.get() 会被 UI 和远程会话高频调用。
     // 之前每次读取都把完整配置写入生产日志，导致日志暴涨且暴露路径/配置细节；普通读取只保留开发态 debug。
-    debugLog("reading settings from:", settingsFile);
+    serviceLog.debug(undefined, "reading settings from:", settingsFile);
     const raw = await readFile(settingsFile, "utf-8");
     let rawValue: unknown;
     try {
@@ -146,7 +136,7 @@ async function readSettingsWithMeta(): Promise<ReadSettingsResult> {
     }
     const result = appSettingsSchema.safeParse(migrateLegacyAccountConnectionSettings(rawValue));
     if (!result.success) {
-      log(
+      serviceLog.info(undefined, 
         "read failed schema validation, returning defaults. error:",
         formatZodError(result.error),
       );
@@ -155,7 +145,7 @@ async function readSettingsWithMeta(): Promise<ReadSettingsResult> {
         needsMigrationPersist: false,
       };
     }
-    debugLog("read result:", JSON.stringify(result.data));
+    serviceLog.debug(undefined, "read result:", JSON.stringify(result.data));
     return {
       settings: result.data,
       needsMigrationPersist: shouldPersistSettingsMigrations(rawValue),
@@ -167,7 +157,7 @@ async function readSettingsWithMeta(): Promise<ReadSettingsResult> {
       "code" in err &&
       (err as { code?: string }).code === "ENOENT"
     ) {
-      debugLog("settings file missing, using defaults");
+      serviceLog.debug(undefined, "settings file missing, using defaults");
       return {
         settings: defaultSettings(),
         needsMigrationPersist: false,
@@ -175,7 +165,7 @@ async function readSettingsWithMeta(): Promise<ReadSettingsResult> {
     }
 
     // 文件解析失败等异常兜底返回默认值
-    log("read failed, returning defaults. error:", err);
+    serviceLog.info(undefined, "read failed, returning defaults. error:", err);
     return {
       settings: defaultSettings(),
       needsMigrationPersist: false,
@@ -198,7 +188,7 @@ async function writeSettings(
   const settingsFile = getSettingsFile();
   // Windows 下测试只改了 HOME，模块顶层常量如果在导入时就把 homedir() 固化，
   // 后续读写仍会串到真实用户目录。这里改成每次按当前环境解析配置路径，保证本地和测试都稳定。
-  log("writing settings to:", settingsFile, JSON.stringify(settings));
+  serviceLog.info(undefined, "writing settings to:", settingsFile, JSON.stringify(settings));
   maybeThrowInjectedFsFault({ operation: "mkdir", path: settingsDir });
   await mkdir(settingsDir, { recursive: true });
   if (!shouldCommit()) return;
@@ -225,7 +215,7 @@ async function writeSettings(
         await renameFile();
       }),
   });
-  log("write done");
+  serviceLog.info(undefined, "write done");
 }
 
 export function createSettingService(): ISettingService {
@@ -349,9 +339,9 @@ export function createSettingServiceWithMigrations(): {
       }
 
       if (currentBaseDir !== targetBaseDir) {
-        log("copying data directory from", currentBaseDir, "to", targetBaseDir);
+        serviceLog.info(undefined, "copying data directory from", currentBaseDir, "to", targetBaseDir);
         await copyDataDirectory(currentBaseDir, targetBaseDir);
-        log("data directory copy done");
+        serviceLog.info(undefined, "data directory copy done");
       }
 
       await this.update({ dataBaseDir: newDir });
@@ -368,7 +358,7 @@ export function createSettingServiceWithMigrations(): {
         maybeThrowInjectedFsFault({ operation: "mkdir", path });
         await mkdir(path, { recursive: true });
       } catch (error) {
-        log("ensureDefaultProject failed:", error);
+        serviceLog.info(undefined, "ensureDefaultProject failed:", error);
         throw error;
       }
 
