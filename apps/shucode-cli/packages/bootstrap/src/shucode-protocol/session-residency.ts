@@ -1,4 +1,8 @@
 // Session 常驻池的真实事实适配与去激活执行面。
+// residency finalization lease（runWithSessionResidencyFinalization）已迁至 v4 栈
+// shucode-protocol-v4/session-residency-finalization.ts（破环搬迁，见
+// specs/cli/protocol-stack-dependency-direction.md）；本文件只保留依赖旧栈
+// server-types / session-resident-pool 的池去激活胶水。
 
 import type { SessionId } from "@shucode/contracts";
 import type {
@@ -6,41 +10,6 @@ import type {
   SessionResidentPoolHost,
 } from "./session-resident-pool.js";
 import type { ShucodeProtocolAgentServerContext } from "./server-types.js";
-
-interface SessionResidencyFinalizationOwner {
-  residencyFinalizationCount?: number;
-}
-
-/**
- * residency lease 只覆盖 Bootstrap detached runner 的收尾窗口，避免 pool 回收仍在使用的
- * record。Prompt admission 的 busy/idle authority 已归 Core；activeAbortController 仅是旧命令
- * 路径的兼容取消句柄，不能再作为 prompt 调度锁。
- */
-function acquireSessionResidencyFinalization(
-  record: SessionResidencyFinalizationOwner,
-): () => void {
-  record.residencyFinalizationCount = (record.residencyFinalizationCount ?? 0) + 1;
-  let released = false;
-  return () => {
-    if (released) return;
-    released = true;
-    record.residencyFinalizationCount = Math.max(0, (record.residencyFinalizationCount ?? 1) - 1);
-  };
-}
-
-/** 同步登记 lease，再启动 detached runner；同步抛错和异步终态都保证释放。 */
-export function runWithSessionResidencyFinalization<T>(
-  record: SessionResidencyFinalizationOwner,
-  run: () => Promise<T>,
-): Promise<T> {
-  const release = acquireSessionResidencyFinalization(record);
-  try {
-    return run().finally(release);
-  } catch (error) {
-    release();
-    return Promise.reject(error);
-  }
-}
 
 /**
  * 只释放 resident runtime，不删除任何持久 session/task 事实。

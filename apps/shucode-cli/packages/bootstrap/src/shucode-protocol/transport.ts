@@ -222,13 +222,14 @@ export class ShucodeProtocolNdjsonConnection {
   }
 
   private shouldBypassProcessingQueue(message: ShucodeProtocolMessage): boolean {
-    // 模型任务占住串行队列时，停止/取消请求必须仍能进入 server，
-    // 才能把底层 AbortSignal 传给真实模型请求。控制面只旁路当前执行，普通请求仍保持串行。
+    // 模型任务占住串行队列时，取消请求必须仍能进入 server，才能把底层 AbortSignal
+    // 传给真实模型请求。控制面只旁路当前执行，普通请求仍保持串行。
+    // session/stop 已删除：v4 stop 走 admission 异步设计（不等模型完成返回），
+    // 不需要旁路（见 specs/cli/protocol-stack-dependency-direction.md）。
     return (
       "id" in message &&
       "method" in message &&
-      (message.method === shucodeProtocolMethods.sessionStop ||
-        message.method === shucodeProtocolMethods.workspaceCancelGenerateText)
+      message.method === shucodeProtocolMethods.workspaceCancelGenerateText
     );
   }
 

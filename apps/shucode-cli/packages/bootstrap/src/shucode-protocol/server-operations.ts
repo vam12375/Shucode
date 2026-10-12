@@ -6,7 +6,7 @@ import {
 } from "../shucode-protocol-v4/task-list-session-membership.js";
 import { resolveEffectiveBashShellSelection } from "@shucode/adapters/exec";
 import { inputIntentMetadata } from "../shucode-protocol-v4/commands/input-intent.js";
-import { createModelExecutionContext } from "./model-execution.js";
+import { createModelExecutionContext } from "../shucode-protocol-v4/model-execution.js";
 import type { SendInputOptions } from "../app/types.js";
 import { repairPersistedRemoteSessionPaths, type TurnAttachment } from "@shucode/core";
 import {
@@ -45,12 +45,10 @@ import {
   SHUCODE_SESSION_RUNTIME_PREFERENCES_REQUEST_TIMEOUT_MS,
   shucodeProtocolErrorCodes,
   shucodeProtocolMethods,
-  shucodeSessionCancelBackgroundTaskParamsSchema,
   shucodeSessionCompactParamsSchema,
   shucodeSessionCloseParamsSchema,
   shucodeSessionCreateParamsSchema,
   shucodeSessionEventsParamsSchema,
-  shucodeSessionForkParamsSchema,
   shucodeSessionGoalParamsSchema,
   shucodeSessionListParamsSchema,
   shucodeSessionMessagesParamsSchema,
@@ -61,12 +59,10 @@ import {
   shucodeSessionSetModeParamsSchema,
   shucodeSessionSetModelParamsSchema,
   shucodeSessionSetThoughtLevelParamsSchema,
-  shucodeSessionStopParamsSchema,
   shucodeSessionSubscribeParamsSchema,
   shucodeSessionSubagentsParamsSchema,
   shucodeTaskTokenUsageParamsSchema,
   shucodeWorkspaceGenerateTextParamsSchema,
-  getConversationMessageProjectionPolicy,
   parseRemoteWorkspaceIdentity,
   type ShucodeAutomationBotDeliveryTarget,
   type ShucodeSessionCreateParams,
@@ -77,7 +73,6 @@ import {
   type ShucodeModelContextBudgetStrategy,
   type ShucodeProtocolTrace,
   type ShucodeSessionEvent,
-  type ShucodeSessionHistoryTarget,
   type ShucodeSessionResumeParams,
   type ShucodeSessionPersistence,
   type ShucodeStateUpdatedNotification,
@@ -102,7 +97,10 @@ import {
   type ShucodeProtocolSessionRecord,
   type ShucodeProtocolToolInputTransmissionState,
 } from "./server-types.js";
-import { createWorkspaceShucodeApp, ensureSessionModelAvailable } from "./workspace-model-runtime.js";
+import {
+  createWorkspaceShucodeApp,
+  ensureSessionModelAvailable,
+} from "./workspace-model-runtime.js";
 import { createProtocolInteractionBroker } from "./interaction-broker.js";
 import { createProtocolAutomationPort } from "./automation-port.js";
 import { createProtocolOffPeakPort } from "./offpeak-port.js";
@@ -116,7 +114,7 @@ import {
   projectSessionSubagents,
 } from "./subagent-session-query.js";
 import { runSessionModelConfigMutation } from "../shucode-protocol-v4/model-config-mutation.js";
-import { runWithSessionResidencyFinalization } from "./session-residency.js";
+import { runWithSessionResidencyFinalization } from "../shucode-protocol-v4/session-residency-finalization.js";
 
 const PLAN_MODE_GOAL_CONTINUATION_SKIPPED_MESSAGE = "Plan mode 下已记录 goal，但不会自动继续。";
 const SLOW_SNAPSHOT_LOG_THRESHOLD_MS = 1000;
@@ -1514,7 +1512,10 @@ export async function activateSessionForResume(
   };
 }
 
-export async function resumeSession(context: ShucodeProtocolAgentServerContext, rawParams: unknown) {
+export async function resumeSession(
+  context: ShucodeProtocolAgentServerContext,
+  rawParams: unknown,
+) {
   const params = parseParams(shucodeSessionResumeParamsSchema, rawParams);
   const activated = await activateSessionForResume(context, params);
   return await snapshot(context, activated.record, activated.knownSession);
@@ -1955,7 +1956,10 @@ export async function sendPrompt(context: ShucodeProtocolAgentServerContext, raw
   return afterPromptAccepted(context, record, "prompt_started");
 }
 
-export async function compactSession(context: ShucodeProtocolAgentServerContext, rawParams: unknown) {
+export async function compactSession(
+  context: ShucodeProtocolAgentServerContext,
+  rawParams: unknown,
+) {
   const params = parseParams(shucodeSessionCompactParamsSchema, rawParams);
   const record = requireSession(context, params.sessionId);
   assertExpectedRevision(record, params.expectedRevision);
@@ -2169,32 +2173,14 @@ export async function goalSession(context: ShucodeProtocolAgentServerContext, ra
   });
 }
 
-export async function forkSession(context: ShucodeProtocolAgentServerContext, rawParams: unknown) {
-  const params = parseParams(shucodeSessionForkParamsSchema, rawParams);
-  const record = requireSession(context, params.sessionId);
-  assertExpectedRevision(record, params.expectedRevision);
-  ensureNoActiveTurn(record, "Cannot fork while a prompt is running");
-  const forkTarget = await resolveForkTarget(context, record, params.target);
-  const parentMode = record.app.getMode();
-  const parentModel = record.app.getModel();
-  const parentThoughtLevel = record.app.getThoughtLevel();
-  const fork = await record.app.forkFromCheckpoint({
-    targetCheckpointId: forkTarget.targetCheckpointId,
-    targetMessageId: forkTarget.targetMessageId,
-  });
-  return await registerForkedSession(context, record, fork, {
-    runtimeConfig: {
-      mode: parentMode,
-      model: parentModel,
-      thoughtLevel: parentThoughtLevel,
-    },
-    inheritLatestTarget: true,
-  });
-}
+// session/stop、session/cancelBackgroundTask、session/fork 三个旧 op 已随旧词删除
+// （v4 命令通道承接同等语义；v4 fork 复用的 registerForkedSession 保留，见
+// specs/cli/protocol-stack-dependency-direction.md）。
 
 /**
- * 已完成 core copy 后只注册 child record。V4 running fork 复用这段宿主生命周期，
- * 但不会进入 forkSession 的 active-turn guard / workspace fork；runtimeConfig 可固定在 fork 点。
+ * 已完成 core copy 后只注册 child record。V4 running fork 复用这段宿主生命周期；
+ * runtimeConfig 可固定在 fork 点。旧 session/fork op 已删除，其 active-turn guard
+ * 语义由 v4 fork handler 自理（见 specs/cli/protocol-stack-dependency-direction.md）。
  */
 export async function registerForkedSession(
   context: ShucodeProtocolAgentServerContext,
@@ -2532,94 +2518,6 @@ async function runGoalContinuationInBackground(
   await afterStateMutation(context, record, mutationReason);
 }
 
-export async function stopSession(context: ShucodeProtocolAgentServerContext, rawParams: unknown) {
-  const params = parseParams(shucodeSessionStopParamsSchema, rawParams);
-  const record = requireSession(context, params.sessionId);
-  const hadActivePrompt = Boolean(record.activeAbortController);
-  let pausedTarget: ProtocolGoalTarget | null = null;
-  context.logger?.info("Shucode Protocol session/stop received", {
-    hadActivePrompt,
-    sessionId: params.sessionId,
-    workspacePath: record.workspace.workspacePath,
-  });
-  if (hadActivePrompt) {
-    pausedTarget = await pauseActiveGoalForSessionStop(context, record, {
-      sessionId: params.sessionId,
-    });
-  }
-  record.activeAbortController?.abort(new Error("Shucode Protocol session stopped"));
-  if (pausedTarget) {
-    await afterStateMutation(context, record, "session_stop_goal_paused");
-  }
-  return {};
-}
-
-async function pauseActiveGoalForSessionStop(
-  context: ShucodeProtocolAgentServerContext,
-  record: ShucodeProtocolSessionRecord,
-  params: { sessionId: string },
-): Promise<ProtocolGoalTarget | null> {
-  if (!record.app.readTarget || !record.app.updateTargetStatus) {
-    return null;
-  }
-  const target = await record.app.readTarget();
-  if (!target || target.status !== "active") {
-    return null;
-  }
-
-  try {
-    // Stop 只 abort controller 时，goal verifier 若没及时收到 abort，
-    // 会在队列仍持有 stopRequested 的情况下保留 active goal，导致后续队列无法 drain。
-    const pausedTarget = await record.app.updateTargetStatus("paused");
-    if (pausedTarget) {
-      context.logger?.info("Shucode Protocol session/stop paused active goal", {
-        sessionId: params.sessionId,
-        targetId: pausedTarget.targetID,
-        workspacePath: record.workspace.workspacePath,
-      });
-    }
-    return pausedTarget;
-  } catch (error) {
-    context.logger?.warn("Shucode Protocol session/stop failed to pause active goal", {
-      error: error instanceof Error ? error.message : String(error),
-      sessionId: params.sessionId,
-      targetId: target.targetID,
-      workspacePath: record.workspace.workspacePath,
-    });
-    return null;
-  }
-}
-
-export async function cancelBackgroundTask(
-  context: ShucodeProtocolAgentServerContext,
-  rawParams: unknown,
-) {
-  const params = parseParams(shucodeSessionCancelBackgroundTaskParamsSchema, rawParams);
-  const record = requireSession(context, params.sessionId);
-  context.logger?.info("Shucode Protocol session/cancelBackgroundTask received", {
-    sessionId: params.sessionId,
-    taskId: params.taskId,
-    workspacePath: record.workspace.workspacePath,
-  });
-
-  if (!record.app.cancelBackgroundTask) {
-    throw new ProtocolRequestError(
-      -32031,
-      "Background task cancellation is not supported by this session runtime",
-      {
-        sessionId: params.sessionId,
-        taskId: params.taskId,
-      },
-    );
-  }
-
-  const result = await record.app.cancelBackgroundTask(params.taskId);
-  // 后台 bash 取消是运行态变更，不会经过普通 prompt 终态。
-  // 取消后立即发 state.updated，让桌面 continuous 和手机 replayable 都通过各自 snapshot 边界刷新投影。
-  await afterStateMutation(context, record, "background_task_cancelled");
-  return result;
-}
-
 export async function setModel(context: ShucodeProtocolAgentServerContext, rawParams: unknown) {
   const params = parseParams(shucodeSessionSetModelParamsSchema, rawParams);
   const record = requireSession(context, params.sessionId);
@@ -2786,64 +2684,6 @@ export async function ensureSessionModelAvailableForNextTurn(
   if (await ensureSessionModelAvailable(context, record)) {
     record.stateRevision++;
   }
-}
-
-async function resolveForkTarget(
-  context: ShucodeProtocolAgentServerContext,
-  record: ShucodeProtocolSessionRecord,
-  target: ShucodeSessionHistoryTarget,
-): Promise<{ targetCheckpointId?: string; targetMessageId?: string }> {
-  if (target.kind === "latestCheckpoint") {
-    return {};
-  }
-  if (target.kind === "checkpoint") {
-    return { targetCheckpointId: target.checkpointId };
-  }
-  if (target.kind === "message") {
-    return { targetMessageId: target.messageId };
-  }
-  return {
-    targetMessageId: await resolveTurnMessageId(context, record, target.turnIndex, "assistant"),
-  };
-}
-
-async function resolveTurnMessageId(
-  context: ShucodeProtocolAgentServerContext,
-  record: ShucodeProtocolSessionRecord,
-  turnIndex: number,
-  role: "assistant" | "user",
-): Promise<MessageId> {
-  const messages = (await readActiveSessionMessages(context, record)).filter(
-    isUserVisibleSessionMessage,
-  );
-  let currentTurn = -1;
-  let lastAssistantForTargetTurn: MessageId | undefined;
-  for (const message of messages) {
-    if (message.info.role === "user") {
-      if (role === "assistant" && currentTurn === turnIndex && lastAssistantForTargetTurn) {
-        // fork/rewind 的 legacy turn target 是“目标轮次的 assistant”，
-        // 不是“扫描到历史末尾时仍然处于目标轮次”。遇到下一条 user 就清空已找到的
-        // assistant，导致只有最后一轮能 fork；compact summary 和 fork notice 这类 synthetic
-        // user 又会把最后一轮变成非最后一轮。离开目标轮次前直接返回稳定目标。
-        return lastAssistantForTargetTurn;
-      }
-      currentTurn += 1;
-      if (role === "user" && currentTurn === turnIndex) {
-        return message.info.id as MessageId;
-      }
-      continue;
-    }
-    if (message.info.role === "assistant" && currentTurn === turnIndex) {
-      lastAssistantForTargetTurn = message.info.id as MessageId;
-    }
-  }
-  if (role === "assistant" && lastAssistantForTargetTurn) {
-    return lastAssistantForTargetTurn;
-  }
-  throw new ProtocolRequestError(
-    shucodeProtocolErrorCodes.sessionUnavailable,
-    `Cannot resolve ${role} message for turnIndex=${turnIndex}`,
-  );
 }
 
 export async function getTaskTokenUsage(
@@ -3848,14 +3688,6 @@ function isRewindCommandAckMessage(
   // 内部 `/rewind conversation <messageId>` 的成功回执可能被旧事件投影落成
   // assistant 文本。它只是编辑/重试的控制命令 ACK，刷新或恢复时不能再渲染给用户。
   return text === ackText || text.endsWith(`\n${ackText}`);
-}
-
-function isUserVisibleSessionMessage(message: MessageWithParts): boolean {
-  if (message.info.role !== "user") {
-    return true;
-  }
-  const policy = getConversationMessageProjectionPolicy(message);
-  return policy === "realUserInput" || policy === "timelineOnly";
 }
 
 function applyRewindBranch(

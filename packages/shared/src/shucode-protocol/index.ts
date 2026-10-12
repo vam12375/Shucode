@@ -1792,55 +1792,9 @@ export const shucodeSessionSendResultSchema = z
   .strict();
 export type ShucodeSessionSendResult = z.infer<typeof shucodeSessionSendResultSchema>;
 
-export const shucodeSessionHistoryTargetSchema = z.discriminatedUnion("kind", [
-  z
-    .object({
-      kind: z.literal("turn"),
-      turnIndex: z.number().int().nonnegative(),
-    })
-    .strict(),
-  z
-    .object({
-      kind: z.literal("message"),
-      messageId: nonEmptyString,
-    })
-    .strict(),
-  z
-    .object({
-      kind: z.literal("checkpoint"),
-      checkpointId: nonEmptyString,
-    })
-    .strict(),
-  z
-    .object({
-      kind: z.literal("latestCheckpoint"),
-    })
-    .strict(),
-]);
-export type ShucodeSessionHistoryTarget = z.infer<typeof shucodeSessionHistoryTargetSchema>;
-
-export const shucodeSessionForkParamsSchema = z
-  .object({
-    sessionId: nonEmptyString,
-    target: shucodeSessionHistoryTargetSchema.default({
-      kind: "latestCheckpoint",
-    }),
-    expectedRevision: z.number().int().nonnegative().optional(),
-  })
-  .strict();
-export type ShucodeSessionForkParams = z.infer<typeof shucodeSessionForkParamsSchema>;
-
-export const shucodeSessionForkResultSchema = z
-  .object({
-    forkedSessionId: nonEmptyString,
-    parentSessionId: nonEmptyString.optional(),
-    targetMessageId: nonEmptyString.optional(),
-    targetCheckpointId: nonEmptyString.optional(),
-    response: z.string(),
-    snapshot: shucodeSessionStateSnapshotSchema,
-  })
-  .strict();
-export type ShucodeSessionForkResult = z.infer<typeof shucodeSessionForkResultSchema>;
+// session/fork 已随 v4 命令通道（edit/retry fork、forkStableConversation）退役删除；
+// shucodeSessionHistoryTargetSchema / ForkParams / ForkResult 一并移除（2026-10，见
+// specs/cli/protocol-stack-dependency-direction.md）。
 
 export const shucodeSessionCompactParamsSchema = z
   .object({
@@ -1898,72 +1852,10 @@ export const shucodeSessionGoalResultSchema = z
   .strict();
 export type ShucodeSessionGoalResult = z.infer<typeof shucodeSessionGoalResultSchema>;
 
-export const shucodeSessionStopParamsSchema = z
-  .object({
-    sessionId: nonEmptyString,
-  })
-  .strict();
-const shucodeBackgroundTaskInfoStatusSchema = z.enum([
-  "running",
-  "completed",
-  "failed",
-  "timed_out",
-  "cancelled",
-  "spawn_error",
-  "lost",
-]);
-
-export const shucodeBackgroundTaskInfoSchema = z
-  .object({
-    taskId: nonEmptyString,
-    toolCallId: nonEmptyString.optional(),
-    toolName: nonEmptyString.optional(),
-    taskKind: z.enum(["bash", "subagent"]).optional(),
-    blocked: z.boolean().optional(),
-    blockedReason: z.string().optional(),
-    cancellable: z.boolean().optional(),
-    cancelRequestedAt: protocolInstantSchema.optional(),
-    command: z.string().optional(),
-    description: z.string().optional(),
-    status: shucodeBackgroundTaskInfoStatusSchema,
-    pid: z.number().int().positive().optional(),
-    startedAt: protocolInstantSchema.optional(),
-    completedAt: protocolInstantSchema.optional(),
-    outputPath: z.string().optional(),
-    stderrPersistedOutputPath: z.string().optional(),
-    stdoutPersistedOutputPath: z.string().optional(),
-    outputBytes: z.number().int().nonnegative().optional(),
-    outputTruncated: z.boolean().optional(),
-    outputTail: z.string().optional(),
-    stderrBytes: z.number().int().nonnegative().optional(),
-    stderrTail: z.string().optional(),
-    stdoutBytes: z.number().int().nonnegative().optional(),
-    stdoutTail: z.string().optional(),
-    terminalId: nonEmptyString.optional(),
-  })
-  .strict();
-export const shucodeSessionCancelBackgroundTaskParamsSchema = z
-  .object({
-    sessionId: nonEmptyString,
-    taskId: nonEmptyString,
-  })
-  .strict();
-export type ShucodeSessionCancelBackgroundTaskParams = z.infer<
-  typeof shucodeSessionCancelBackgroundTaskParamsSchema
->;
-
-export const shucodeSessionCancelBackgroundTaskResultSchema = z
-  .object({
-    cancelled: z.boolean(),
-    reason: z.string().optional(),
-    snapshot: shucodeBackgroundTaskInfoSchema.optional(),
-    status: shucodeBackgroundTaskInfoStatusSchema,
-    taskId: nonEmptyString,
-  })
-  .strict();
-export type ShucodeSessionCancelBackgroundTaskResult = z.infer<
-  typeof shucodeSessionCancelBackgroundTaskResultSchema
->;
+// session/stop 与 session/cancelBackgroundTask 已随 v4 命令通道（stop、
+// cancelBackgroundWork→app.cancelBackgroundTask）退役删除；stop params 与
+// backgroundTaskInfo / cancel 参数与结果 schema 一并移除（2026-10，见
+// specs/cli/protocol-stack-dependency-direction.md）。
 
 export const shucodeSessionSetModelParamsSchema = z
   .object({
@@ -3661,16 +3553,9 @@ export const shucodeProtocolMethods = {
   // @deprecated（部分）：send 主路径已收敛 v4 sendText；仅剩 adapter 附件
   // 回退分支消费（v4 attachmentRef 上传/寄存命令面未建模），待附件命令面落地后移除。
   sessionSend: "session/send",
-  // @deprecated：host 客户端方法已删（stop 已收敛 v4 stop 命令）。
-  // wire case 留兼容（transport bypass 名单仍引用），随旧词整体删除时一并移除。
-  sessionStop: "session/stop",
-  // @deprecated：host 客户端方法已删（已收敛 v4 cancelBackgroundWork 命令）。
-  // wire case 留兼容，随旧词整体删除时一并移除。
-  sessionCancelBackgroundTask: "session/cancelBackgroundTask",
-  // @deprecated：host 客户端方法已删（v4 forkAssistant 原生 handler 经
-  // forkSessionAtMessage 钩子直调 server-operations.forkSession op）。wire case 与
-  // fork params/result schema 保留＝op 存活面；fork record 归 v4 原生重写。
-  sessionFork: "session/fork",
+  // session/stop、session/cancelBackgroundTask、session/fork 已随 v4 命令通道
+  // （stop / cancelBackgroundWork / forkAssistant·edit-fork）退役删除（2026-10，见
+  // specs/cli/protocol-stack-dependency-direction.md）。
   sessionCompact: "session/compact",
   sessionGoal: "session/goal",
   sessionClose: "session/close",
@@ -3737,12 +3622,8 @@ export const shucodeProtocolMethods = {
   // Off-Peak 会话内创建：与 automation 兄弟并列的独立方法族。
   offPeakCreate: "offPeak/create",
   offPeakList: "offPeak/list",
-  // @deprecated：host 消费已清零（shucodeAgentService 改走 v4/usage/stats）。
-  // 仅剩 CLI server 的 wire 兼容 case；随旧词整体删除时一并移除。
-  usageStats: "usage/stats",
-  // Shucode Protocol 对 agent 只暴露 session-first 方法；task 是 UI 投影概念，不能泄露进协议方法名。
-  // @deprecated：host 已改走 v4/conversation/usage；后续与 usage/stats 一并移除。
-  sessionUsage: "session/usage",
+  // usage/stats 与 session/usage 已随 v4 usageStats / conversationUsage 退役删除
+  // （2026-10，见 specs/cli/protocol-stack-dependency-direction.md；host 消费此前已清零）。
   // 资源管理器：CLI 回报其 MCP 子进程 pid 与插件归属（纯内存，无 I/O），采样在 Host 侧完成。
   processChildProcesses: "process/childProcesses",
   interactionRequestPermission: "interaction/requestPermission",

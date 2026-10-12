@@ -9,6 +9,9 @@ import { readBackgroundBashOutputFromOwner } from "./background-work-owner.js";
 //
 // 不做桥接：依赖方向只允许 旧目录 → v4 目录。
 // 本文件在旧目录，import v4 executor 合法；v4 目录禁止反向 import 本目录任何模块。
+// 曾有 3 处 v4→旧 import（session-residency lease / model-execution）构成目录级依赖环，
+// 已于 2026-10 将这两个叶子迁入 v4 目录（见 specs/cli/protocol-stack-dependency-direction.md）；
+// 旧栈如需共用协议栈内原语，一律放 v4 栈后按本方向引用，不得再放回旧目录。
 import {
   isConversationRealUserTurnStarter,
   parseRemoteWorkspaceIdentity,
@@ -71,7 +74,7 @@ import type {
   DynamicWorkflowRunProgressPayload,
   EventId,
   ForkCommitBundle,
-  GoalStatus,
+  TargetStatus,
   MessageId,
   ModelSelection,
   SessionEvent,
@@ -614,7 +617,7 @@ export function createConversationV4Gateway(
       scheduleAutoDrainRetry(record);
       return;
     }
-    let targetStatus: GoalStatus | null = null;
+    let targetStatus: TargetStatus | null = null;
     if (head.autoDrain && head.dispatchState === "queued" && !record.activeAbortController) {
       try {
         targetStatus = (await record.app.readTarget())?.status ?? null;

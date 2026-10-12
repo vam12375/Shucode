@@ -7,7 +7,7 @@ import { type TurnBackgroundAttribution, type TurnInputIntentMetadata } from "@s
 import type { TurnAttachment } from "@shucode/core";
 import type { ShucodeAutomationBotDeliveryTarget } from "@shucode/shared";
 import type { SendInputOptions, SendInputResult } from "../../app/types.js";
-import { runWithSessionResidencyFinalization } from "../../shucode-protocol/session-residency.js";
+import { runWithSessionResidencyFinalization } from "../session-residency-finalization.js";
 import type { V4CommandCoreHost, V4SessionRecordView } from "./types.js";
 
 interface StartPromptTurnParamsBase {

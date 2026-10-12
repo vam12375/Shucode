@@ -8,7 +8,7 @@ import type {
   SubmissionMode,
 } from "@shucode/shared/shucode-protocol-v4";
 import type { ModelSelection } from "@shucode/shared";
-import { createModelExecutionContext } from "../../../shucode-protocol/model-execution.js";
+import { createModelExecutionContext } from "../../model-execution.js";
 import type { SteerTurnOptions } from "../../../app/types.js";
 import { parseProviderQualifiedModelSelection } from "../../../app/provider-registry-selection.js";
 import type { TurnAttachment } from "@shucode/core";

@@ -24,11 +24,9 @@ import type {
   ShucodeProtocolResponse,
 } from "@shucode/shared";
 import {
-  cancelBackgroundTask,
   closeSession,
   compactSession,
   createSession,
-  forkSession,
   generateWorkspaceText,
   goalSession,
   getTaskTokenUsage,
@@ -43,7 +41,6 @@ import {
   setMode,
   setModel,
   setThoughtLevel,
-  stopSession,
   subscribeSession,
 } from "./server-operations.js";
 import { listChildProcesses } from "./process-child-processes.js";
@@ -558,7 +555,7 @@ export class ShucodeProtocolAgentServer {
         return await this.requireV4Gateway().attachmentPreviewSource(request.params);
       // ── usage query（additive）：与旧 usage/stats、session/usage 同一数据访问
       // 层（usage store 聚合），仅换 v4 名字空间——不经 v4Gateway（无会话投影依赖），
-      // 也不经旧 op 分派（无桥）。旧 case 保留到旧词删除（老 host 版本兼容）。──
+      // 也不经旧 op 分派（无桥）。旧 usage/stats / session/usage case 已随旧词删除。──
       case V4_METHODS.usageStats:
         return await getUsageStats(this.context, request.params);
       case V4_METHODS.conversationUsage:
@@ -585,12 +582,6 @@ export class ShucodeProtocolAgentServer {
         return await subscribeSession(this.context, request.params);
       case shucodeProtocolMethods.sessionSend:
         return await sendPrompt(this.context, request.params);
-      case shucodeProtocolMethods.sessionStop:
-        return await stopSession(this.context, request.params);
-      case shucodeProtocolMethods.sessionCancelBackgroundTask:
-        return await cancelBackgroundTask(this.context, request.params);
-      case shucodeProtocolMethods.sessionFork:
-        return await forkSession(this.context, request.params);
       case shucodeProtocolMethods.sessionCompact:
         return await compactSession(this.context, request.params);
       case shucodeProtocolMethods.sessionGoal:
@@ -710,12 +701,11 @@ export class ShucodeProtocolAgentServer {
         return await validatePlugin(this.context, request.params);
       case shucodeProtocolMethods.pluginsDescribe:
         return await describePlugin(this.context, request.params);
-      case shucodeProtocolMethods.usageStats:
-        return await getUsageStats(this.context, request.params);
+      // 旧 usage/stats 与 session/usage 已删除：host 消费清零，v4 侧
+      // V4_METHODS.usageStats / conversationUsage 复用同一 handler（见
+      // specs/cli/protocol-stack-dependency-direction.md）。
       case shucodeProtocolMethods.sessionDebug:
         return querySessionDebug(this.context, request.params);
-      case shucodeProtocolMethods.sessionUsage:
-        return await getTaskTokenUsage(this.context, request.params);
       default:
         throw new ProtocolRequestError(-32601, `Method not found: ${request.method}`);
     }

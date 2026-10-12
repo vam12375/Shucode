@@ -1,3 +1,6 @@
+// 两种输入协议共用的执行材料投影；原在旧栈 shucode-protocol/（破环搬迁，见
+// specs/cli/protocol-stack-dependency-direction.md），旧栈按 旧→v4 方向引用。
+
 import type { ModelRequestAuth } from "@shucode/contracts";
 import type { CommandPayloadMap } from "@shucode/shared/shucode-protocol-v4";
 import type { SendInputOptions } from "../app/types.js";
