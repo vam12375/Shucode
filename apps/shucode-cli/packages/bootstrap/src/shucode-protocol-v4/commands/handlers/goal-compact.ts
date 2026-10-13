@@ -1,3 +1,9 @@
+/* eslint-disable max-lines --
+   god-file 拆分债务登记：本文件超出 400 行上限，是优化报告 2026-10-12 立项的既有
+   god-file（拆分批次见 specs/cli/god-file-maxlines-deferral.md 与相关领域 spec）。
+   在该文件的拆分批次落地前保留本豁免标记；每完成一次文件拆分必须摘除本标记，
+   新增代码不得复制本标记到新文件。 */
+
 // goal/compact 命令组：compact / sendGoalCommand / pauseGoal / resumeGoal。
 // 语义自旧 server-operations compactSession/goalSession/continueGoalAfterChange 搬运，
 // 决策逻辑（compact 去重 / active turn barrier / goal 续跑）直驱 core，不经旧协议 op。

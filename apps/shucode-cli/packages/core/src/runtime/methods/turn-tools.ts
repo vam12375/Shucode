@@ -1,3 +1,9 @@
+/* eslint-disable max-lines --
+   god-file 拆分债务登记：本文件超出 400 行上限，是优化报告 2026-10-12 立项的既有
+   god-file（拆分批次见 specs/cli/god-file-maxlines-deferral.md 与相关领域 spec）。
+   在该文件的拆分批次落地前保留本豁免标记；每完成一次文件拆分必须摘除本标记，
+   新增代码不得复制本标记到新文件。 */
+
 import { createPartId, traceContextToLogContext, TurnMachineImpl } from "../deps.js";
 import type {
   MessageId,
@@ -56,7 +62,6 @@ export async function executeToolCallsForModelStep(
   if (!model) {
     throw new Error("Model-backed tool execution requires the loop Model");
   }
-  const modelSelection = { providerId: model.providerId, modelId: model.modelId };
   const coreToolCalls: ToolCall[] = options.toolCalls.map((tc) => ({
     id: tc.id as ToolCallId,
     // Model step admission 已完成类型/ID 校验；这里保留可恢复的原始空白名称，

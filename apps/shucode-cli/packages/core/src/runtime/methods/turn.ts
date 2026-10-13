@@ -1,3 +1,9 @@
+/* eslint-disable max-lines --
+   god-file 拆分债务登记：本文件超出 400 行上限，是优化报告 2026-10-12 立项的既有
+   god-file（拆分批次见 specs/cli/god-file-maxlines-deferral.md 与相关领域 spec）。
+   在该文件的拆分批次落地前保留本豁免标记；每完成一次文件拆分必须摘除本标记，
+   新增代码不得复制本标记到新文件。 */
+
 import { beginLocalTurnPreparation, type LocalTtftDetail } from "@shucode/contracts";
 import { runtimeInputMetadata } from "../../agent/runtime-input-presentation.js";
 import {
@@ -265,9 +271,13 @@ export async function executeTurnCommand(
           options?.inputId,
         );
       }
-      activeTurn = this.beginActiveTurn(turnId, turnTraceContext, "regular", true, {
-        ...(options?.inputId === undefined ? {} : { inputId: options.inputId }),
-      });
+      activeTurn = this.beginActiveTurn(
+        turnId,
+        turnTraceContext,
+        "regular",
+        true,
+        options?.inputId === undefined ? {} : { inputId: options.inputId },
+      );
       this.logger?.info("Turn started", {
         ...traceContextToLogContext(turnTraceContext),
         event: "turn.started",

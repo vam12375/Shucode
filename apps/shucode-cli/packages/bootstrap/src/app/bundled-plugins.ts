@@ -1,3 +1,9 @@
+/* eslint-disable max-lines --
+   god-file 拆分债务登记：本文件超出 400 行上限，是优化报告 2026-10-12 立项的既有
+   god-file（拆分批次见 specs/cli/god-file-maxlines-deferral.md 与相关领域 spec）。
+   在该文件的拆分批次落地前保留本豁免标记；每完成一次文件拆分必须摘除本标记，
+   新增代码不得复制本标记到新文件。 */
+
 import { createHash } from "node:crypto";
 import {
   chmodSync,
@@ -346,7 +352,7 @@ function writeOfficialMarketplace(storageRoot: string, source: OfficialPluginSee
           name: plugin.definition.name,
           source: source.kind,
           version: plugin.definition.version,
-          ...(plugin.definition.listing ?? {}),
+          ...plugin.definition.listing,
         };
       }),
       version: 1,
@@ -599,7 +605,7 @@ function modeForSeedFile(filePath: string, sourceMode?: number): number {
   // 直接执行 hook 脚本，若落盘成 0644 会 permission denied。这里保留源码执行位，
   // 并对旧 manifest 缺少 mode 的 hook 脚本兜底。
   if (/(?:^|\/)dist\/mcp\/server\.js$/i.test(normalizedPath)) return 0o755;
-  if (/^hooks\//u.test(normalizedPath) && !/\.(json|md|txt)$/iu.test(normalizedPath)) {
+  if (normalizedPath.startsWith("hooks/") && !/\.(json|md|txt)$/iu.test(normalizedPath)) {
     return 0o755;
   }
 

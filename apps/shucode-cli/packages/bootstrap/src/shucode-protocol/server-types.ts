@@ -25,7 +25,6 @@ import {
   type ShucodeProtocolRequest,
   type ShucodeProtocolRequestId,
   type ShucodeProtocolTrace,
-  type ShucodeSessionMode,
   type ShucodeSessionPersistence,
   type ShucodeWorkspaceRef,
 } from "@shucode/shared";

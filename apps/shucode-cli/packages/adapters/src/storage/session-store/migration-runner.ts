@@ -91,6 +91,9 @@ export async function runSqliteSessionMigrationsAsync(
       steps.return();
       db.exec(`pragma busy_timeout = ${DEFAULT_SQLITE_STARTUP_LOCK_TIMEOUT_MS}`);
     } catch (error) {
+      // 防御 finally-throw 覆盖主流程原始异常：仅当主流程迁移已失败（failed）时吞掉清理错误；
+      // 重写为 finally 外抛会改变异常传播顺序，cleanup 与迁移在同一连接生命周期内必须同步执行。
+      // eslint-disable-next-line no-unsafe-finally
       if (!failed) throw error;
     }
   }

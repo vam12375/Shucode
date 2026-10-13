@@ -54,16 +54,6 @@ export function createScriptWorkflowBridge(deps: ScriptWorkflowBridgeDeps): Scri
   };
 }
 
-function createScriptWorkflowFacade(runtime: ScriptWorkflowRuntime): ScriptWorkflowFacade {
-  return {
-    listScriptWorkflows: runtime.list.bind(runtime),
-    resumeWorkflowScript: (input, options) => runtime.resume(input, toRuntimeOptions(options)),
-    runWorkflowScript: (input, options) => runtime.run(input, toRuntimeOptions(options)),
-    scriptWorkflowStatus: runtime.status.bind(runtime),
-    validateWorkflowScript: runtime.validate.bind(runtime),
-  };
-}
-
 function toRuntimeOptions(
   options: Parameters<NonNullable<ShucodeApp["runWorkflowScript"]>>[1],
 ): ScriptWorkflowRuntimeOptions | undefined {

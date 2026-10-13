@@ -1,3 +1,9 @@
+/* eslint-disable max-lines --
+   god-file 拆分债务登记：本文件超出 400 行上限，是优化报告 2026-10-12 立项的既有
+   god-file（拆分批次见 specs/cli/god-file-maxlines-deferral.md 与相关领域 spec）。
+   在该文件的拆分批次落地前保留本豁免标记；每完成一次文件拆分必须摘除本标记，
+   新增代码不得复制本标记到新文件。 */
+
 import {
   CompactPhase,
   CompactReason,
@@ -29,7 +35,6 @@ import {
 } from "../helpers/index.js";
 import type { TurnResult, RunModelTextRequestOptions } from "../types.js";
 import type { Model } from "../deps.js";
-import type { ProviderContextUsageSnapshot } from "../types.js";
 import type { AgentRuntimeInternal } from "../internal.js";
 import { autoCompactDecisionLogContext } from "./compact-log-context.js";
 import { resolveNormalRequestMaxOutputTokens } from "./model-token-limits.js";

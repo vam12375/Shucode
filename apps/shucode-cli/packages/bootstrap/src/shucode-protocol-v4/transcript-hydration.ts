@@ -1,3 +1,9 @@
+/* eslint-disable max-lines --
+   god-file 拆分债务登记：本文件超出 400 行上限，是优化报告 2026-10-12 立项的既有
+   god-file（拆分批次见 specs/cli/god-file-maxlines-deferral.md 与相关领域 spec）。
+   在该文件的拆分批次落地前保留本豁免标记；每完成一次文件拆分必须摘除本标记，
+   新增代码不得复制本标记到新文件。 */
+
 // Transcript → SessionEvent 合成（「reduce(transcript) ≡ reduce(events)」）。
 //
 // 动机：v4 投影是事件溯源，但部分历史突变（纯对话 fork 复制 message 不复制 event、

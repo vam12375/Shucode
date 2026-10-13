@@ -1,3 +1,5 @@
+/* eslint-disable max-lines -- god-file 拆分债务登记,见 specs/cli/god-file-maxlines-deferral.md */
+
 // ============================================================
 // Read Tool Handler
 // ============================================================

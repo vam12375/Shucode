@@ -1,3 +1,9 @@
+/* eslint-disable max-lines --
+   god-file 拆分债务登记：本文件超出 400 行上限，是优化报告 2026-10-12 立项的既有
+   god-file（拆分批次见 specs/cli/god-file-maxlines-deferral.md 与相关领域 spec）。
+   在该文件的拆分批次落地前保留本豁免标记；每完成一次文件拆分必须摘除本标记，
+   新增代码不得复制本标记到新文件。 */
+
 import { randomUUID } from "node:crypto";
 import { resolve } from "node:path";
 import { isDeepStrictEqual } from "node:util";
@@ -33,7 +39,6 @@ import type {
   OfficialMcpAuthFailureReason,
   OfficialMcpAuthHeadersPort,
   OfficialMcpTrustedOriginRegistry,
-  TraceContext,
 } from "@shucode/contracts";
 import { SHUCODE_MCP_SERVER_REQUEST_ID_META_KEY } from "@shucode/contracts";
 import { normalizeMcpToolDescriptor } from "./descriptor.js";
@@ -1131,7 +1136,7 @@ class NodeMcpAdapter implements McpPort {
           event: "mcp.server.connection_lost",
           mcpServerName: name,
           ...(mcpTransportPid != null ? { mcpTransportPid } : {}),
-          ...(mcpProcessIdentity ?? {}),
+          ...mcpProcessIdentity,
           ...(processExit
             ? { exitCode: processExit.exitCode, signal: processExit.signal ?? undefined }
             : {}),
@@ -1166,7 +1171,7 @@ class NodeMcpAdapter implements McpPort {
         mcpProtocolEra: negotiatedProtocolEra ?? "unknown",
         mcpProtocolVersion: negotiatedProtocolVersion ?? "unknown",
         mcpServerName: name,
-        ...(mcpProcessIdentity ?? {}),
+        ...mcpProcessIdentity,
         ...(mcpTransportPid != null ? { mcpTransportPid } : {}),
         mcpVersionNegotiationMode: formatVersionNegotiationMode(config),
         status: "completed",

@@ -141,6 +141,9 @@ export async function prepareProtocolStartupStorage(options: {
     try {
       store?.close();
     } catch (error) {
+      // 防御 finally-throw 覆盖启动主流程的原始存储异常：failure 已存在时必须吞掉清理错误，
+      // 且 store 关闭必须与启动流程同步执行，不能摘出 finally。
+      // eslint-disable-next-line no-unsafe-finally
       if (!failure) throw error;
     }
   }
