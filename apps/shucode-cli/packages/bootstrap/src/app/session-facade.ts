@@ -212,7 +212,7 @@ export function createSessionFacade(deps: CreateSessionFacadeDeps): SessionFacad
           traceContext: deps.traceContext,
         });
       }
-      // TUI 和协议客户端可能在重连或恢复后仍缓存旧 goal。
+      // 协议客户端可能在重连或恢复后仍缓存旧 goal。
       // 即使 session store 已经是空，也要把显式 clear 投影成 target:null，
       // 让客户端不能只因为“No goal to clear.”这条文本而继续保留旧面板。
       await deps.runtime.recordTargetChanged({

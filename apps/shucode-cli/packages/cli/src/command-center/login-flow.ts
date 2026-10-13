@@ -1,10 +1,10 @@
-import type { TuiSelection, TuiSubmitPrompt } from "@shucode/tui";
+import type { Selection, SubmitPrompt } from "./interaction-types.js";
 import { getShucodeCopy } from "@shucode/i18n";
 import type { CommandCenterApp, CommandCenterLoginResult } from "./types.js";
 import { randomUUID } from "node:crypto";
 
-export function buildLoginSelection(locale?: string): TuiSelection {
-  const copy = getShucodeCopy(locale).tui.loginSetup;
+export function buildLoginSelection(locale?: string): Selection {
+  const copy = getShucodeCopy(locale).commandCenter.loginSetup;
   return {
     emptyMessage: copy.emptyMessage,
     filterable: false,
@@ -83,7 +83,7 @@ export function buildLoginSelection(locale?: string): TuiSelection {
 }
 
 export function loginSetupResponse(locale?: string): string {
-  return getShucodeCopy(locale).tui.loginSetup.response;
+  return getShucodeCopy(locale).commandCenter.loginSetup.response;
 }
 
 export function formatLoginResult(result: CommandCenterLoginResult): string {
@@ -115,7 +115,7 @@ export function formatProviderSetupResult(result: {
 }
 
 export async function emitLoginAuthorizeMessage(
-  options: Parameters<TuiSubmitPrompt>[1],
+  options: Parameters<SubmitPrompt>[1],
   authorizeUrl: string,
   providerName: string,
   session: Pick<CommandCenterApp, "sessionId" | "traceId">,

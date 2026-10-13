@@ -11,7 +11,10 @@ import {
 import { dirname, join, resolve, sep } from "node:path";
 import { writeBundledOfficialMarketplacePartitionSync } from "@shucode/adapters";
 import { SHUCODE_OFFICIAL_PLUGIN_MARKETPLACE, type Logger } from "@shucode/contracts";
-import { isShucodeCuaInternalFeatureEnabled, SHUCODE_CUA_OFFICIAL_PLUGIN_ID } from "@shucode/shared";
+import {
+  isShucodeCuaInternalFeatureEnabled,
+  SHUCODE_CUA_OFFICIAL_PLUGIN_ID,
+} from "@shucode/shared";
 import {
   createOfficialPluginCacheRetryBudget,
   getOfficialPluginCacheRetryAttempts,
@@ -31,8 +34,6 @@ import {
 } from "./official-plugin-seed-lock.js";
 
 const OFFICIAL_PLUGIN_MARKETPLACE = SHUCODE_OFFICIAL_PLUGIN_MARKETPLACE;
-const SEA_PLUGIN_ASSET_PREFIX = "shucode-official-plugins/";
-const SEA_PLUGIN_MANIFEST_ASSET_KEY = `${SEA_PLUGIN_ASSET_PREFIX}manifest.json`;
 const SEED_MARKER_FILE = ".zcode-plugin-seed.json";
 const SEED_LOCK_TOTAL_BUDGET_MS = 15_000;
 
@@ -59,7 +60,7 @@ interface OfficialPluginSeedFile {
   mode?: number;
   path: string;
   sha256: string;
-  sourcePath?: string;
+  sourcePath: string;
 }
 
 interface OfficialPluginSeedPluginSource {
@@ -71,22 +72,9 @@ interface OfficialPluginSeedPluginSource {
 }
 
 interface OfficialPluginSeedSource {
-  kind: "filesystem" | "sea";
+  kind: "filesystem";
   plugins: OfficialPluginSeedPluginSource[];
 }
-
-interface SeaOfficialPluginManifest {
-  hash: string;
-  plugins: Array<{
-    files: OfficialPluginSeedFile[];
-    marketplace: string;
-    name: string;
-    version: string;
-  }>;
-  version: 1;
-}
-
-type SeaModule = typeof import("node:sea");
 
 function seedBundledOfficialPlugins(input: {
   logger?: Logger;
@@ -149,7 +137,7 @@ function seedBundledOfficialPlugins(input: {
 
           try {
             for (const file of plugin.files) {
-              const bytes = readSeedFileBytes(source, plugin, file);
+              const bytes = readSeedFileBytes(file);
               if (hashBytes(bytes) !== file.sha256) {
                 throw new Error(
                   `Bundled plugin asset hash mismatch: ${plugin.definition.name}/${file.path}`,
@@ -255,40 +243,7 @@ export function resolveOfficialPluginRoots(input: {
 }
 
 function resolveSeedSource(): OfficialPluginSeedSource | undefined {
-  const seaSource = resolveSeaSeedSource();
-  if (seaSource) return seaSource;
   return resolveFilesystemSeedSource();
-}
-
-function resolveSeaSeedSource(): OfficialPluginSeedSource | undefined {
-  const sea = getSeaModule();
-  if (!sea?.isSea()) return undefined;
-
-  const manifest = readSeaManifest(sea);
-  if (!manifest) return undefined;
-  const plugins = OFFICIAL_PLUGIN_DEFINITIONS.flatMap((definition) => {
-    const plugin = manifest.plugins.find(
-      (item) =>
-        item.marketplace === OFFICIAL_PLUGIN_MARKETPLACE &&
-        item.name === definition.name &&
-        item.version === definition.version,
-    );
-    if (!plugin) return [];
-    return [
-      {
-        definition,
-        files: plugin.files,
-        hash: hashSeedFiles(plugin.files),
-        missingSeedPaths: findMissingOfficialPluginSeedPaths(definition, plugin.files),
-      },
-    ];
-  });
-  if (plugins.length === 0) return undefined;
-
-  return {
-    kind: "sea",
-    plugins,
-  };
 }
 
 function resolveFilesystemSeedSource(): OfficialPluginSeedSource | undefined {
@@ -321,25 +276,6 @@ function findMissingOfficialPluginSeedPaths(
   return (definition.requiredSeedPaths ?? []).filter(
     (requiredPath) => !availablePaths.has(requiredPath),
   );
-}
-
-function getSeaModule(): SeaModule | undefined {
-  const getBuiltinModule = process.getBuiltinModule as ((id: "node:sea") => SeaModule) | undefined;
-  try {
-    return getBuiltinModule?.("node:sea");
-  } catch {
-    return undefined;
-  }
-}
-
-function readSeaManifest(sea: SeaModule): SeaOfficialPluginManifest | undefined {
-  try {
-    const raw = sea.getAsset(SEA_PLUGIN_MANIFEST_ASSET_KEY, "utf8");
-    const manifest = JSON.parse(raw) as SeaOfficialPluginManifest;
-    return manifest.version === 1 && Array.isArray(manifest.plugins) ? manifest : undefined;
-  } catch {
-    return undefined;
-  }
 }
 
 function resolveFilesystemPluginRoot(definition: OfficialPluginDefinition): string | undefined {
@@ -391,19 +327,8 @@ function* walkFiles(
   }
 }
 
-function readSeedFileBytes(
-  source: OfficialPluginSeedSource,
-  plugin: OfficialPluginSeedPluginSource,
-  file: OfficialPluginSeedFile,
-): Buffer {
-  if (source.kind === "filesystem" && file.sourcePath) return readFileSync(file.sourcePath);
-  const sea = getSeaModule();
-  if (!sea?.isSea()) throw new Error("SEA plugin asset is unavailable outside SEA runtime.");
-  return Buffer.from(
-    sea.getRawAsset(
-      `${SEA_PLUGIN_ASSET_PREFIX}${OFFICIAL_PLUGIN_MARKETPLACE}/${plugin.definition.name}/${plugin.definition.version}/${file.path}`,
-    ),
-  );
+function readSeedFileBytes(file: OfficialPluginSeedFile): Buffer {
+  return readFileSync(file.sourcePath);
 }
 
 function writeOfficialMarketplace(storageRoot: string, source: OfficialPluginSeedSource): void {
@@ -414,7 +339,7 @@ function writeOfficialMarketplace(storageRoot: string, source: OfficialPluginSee
         // 商店信息（listing）与描述随目录条目下发：键名与 CDN 目录 schema 一致，
         // 由 adapter 的同一套 parseEntryStoreListing 解析，UI 才能给内置插件渲染
         // 显示名/分类/作者/示例提示词。描述取自插件包内 plugin.json（单一事实源）。
-        const description = readSeedPluginDescription(source, plugin);
+        const description = readSeedPluginDescription(plugin);
         return {
           cachePath: officialPluginCacheRoot(storageRoot, plugin.definition),
           ...(description ? { description } : {}),
@@ -431,14 +356,11 @@ function writeOfficialMarketplace(storageRoot: string, source: OfficialPluginSee
 }
 
 /** 从 seed 文件集中读插件 plugin.json 的 description；读取/解析失败按 undefined 降级。 */
-function readSeedPluginDescription(
-  source: OfficialPluginSeedSource,
-  plugin: OfficialPluginSeedPluginSource,
-): string | undefined {
+function readSeedPluginDescription(plugin: OfficialPluginSeedPluginSource): string | undefined {
   const manifestFile = plugin.files.find((file) => file.path === ".zcode-plugin/plugin.json");
   if (!manifestFile) return undefined;
   try {
-    const parsed = JSON.parse(readSeedFileBytes(source, plugin, manifestFile).toString("utf8")) as {
+    const parsed = JSON.parse(readSeedFileBytes(manifestFile).toString("utf8")) as {
       description?: unknown;
     };
     return typeof parsed.description === "string" && parsed.description.trim().length > 0
@@ -675,7 +597,7 @@ function modeForSeedFile(filePath: string, sourceMode?: number): number {
   const normalizedPath = toPosixPath(filePath);
   // official plugin seed 会重写缓存文件权限。部分插件通过 polyglot shell wrapper
   // 直接执行 hook 脚本，若落盘成 0644 会 permission denied。这里保留源码执行位，
-  // 并对 SEA/旧 manifest 缺少 mode 的 hook 脚本兜底。
+  // 并对旧 manifest 缺少 mode 的 hook 脚本兜底。
   if (/(?:^|\/)dist\/mcp\/server\.js$/i.test(normalizedPath)) return 0o755;
   if (/^hooks\//u.test(normalizedPath) && !/\.(json|md|txt)$/iu.test(normalizedPath)) {
     return 0o755;

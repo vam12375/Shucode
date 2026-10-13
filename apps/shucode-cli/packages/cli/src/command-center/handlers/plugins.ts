@@ -1,4 +1,4 @@
-import type { TuiSelection, TuiSubmitPromptResult } from "@shucode/tui";
+import type { Selection, SubmitPromptResult } from "../interaction-types.js";
 import { resolvePluginDisplayName } from "@shucode/shared";
 import type {
   CommandCenterDeps,
@@ -15,7 +15,7 @@ const DISABLED_MARK = "○";
 export async function handlePluginsCommand(
   args: string,
   deps: CommandCenterDeps,
-): Promise<TuiSubmitPromptResult> {
+): Promise<SubmitPromptResult> {
   const app = await deps.getApp();
   const tokens = splitArgs(args);
   const action = tokens[0] ?? "list";
@@ -49,11 +49,7 @@ export async function handlePluginsCommand(
       return {
         mode: deps.getMode?.(),
         response: formatPluginSetResult(result),
-        selection: buildPluginsSelection(
-          outcome,
-          result.plugin.id,
-          deps.getLocale?.() ?? "en-US",
-        ),
+        selection: buildPluginsSelection(outcome, result.plugin.id, deps.getLocale?.() ?? "en-US"),
       };
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
@@ -78,13 +74,11 @@ async function handlePluginsUninstall(
   tokens: string[],
   deps: CommandCenterDeps,
   app: Awaited<ReturnType<CommandCenterDeps["getApp"]>>,
-): Promise<TuiSubmitPromptResult> {
+): Promise<SubmitPromptResult> {
   const rest = tokens.slice(1);
   const force = rest.includes("--force") || rest.includes("-f");
   const plugin = rest.find((token) => token !== "--force" && token !== "-f");
-  const extras = rest.filter(
-    (token) => token !== "--force" && token !== "-f" && token !== plugin,
-  );
+  const extras = rest.filter((token) => token !== "--force" && token !== "-f" && token !== plugin);
   if (!plugin || extras.length > 0) {
     return {
       mode: deps.getMode?.(),
@@ -111,11 +105,7 @@ async function handlePluginsUninstall(
         : `Plugin not installed: ${plugin}`,
       ...(outcome
         ? {
-            selection: buildPluginsSelection(
-              outcome,
-              undefined,
-              deps.getLocale?.() ?? "en-US",
-            ),
+            selection: buildPluginsSelection(outcome, undefined, deps.getLocale?.() ?? "en-US"),
           }
         : {}),
     };
@@ -128,7 +118,7 @@ async function handlePluginsUninstall(
   }
 }
 
-function unavailable(deps: CommandCenterDeps): TuiSubmitPromptResult {
+function unavailable(deps: CommandCenterDeps): SubmitPromptResult {
   return {
     mode: deps.getMode?.(),
     response: "Plugin management is not available in this client.",
@@ -139,7 +129,7 @@ function buildPluginsSelection(
   outcome: CommandCenterPluginListOutcome,
   selectedPluginId?: string,
   locale = "en-US",
-): TuiSelection {
+): Selection {
   const plugins = [...outcome.plugins].sort((left, right) => left.id.localeCompare(right.id));
   return {
     emptyMessage: "No plugins found.",
@@ -176,7 +166,10 @@ function buildPluginsSelection(
     }),
     placement: "composer",
     prompt: "Choose a plugin to toggle.",
-    selectedIndex: Math.max(0, plugins.findIndex((plugin) => plugin.id === selectedPluginId)),
+    selectedIndex: Math.max(
+      0,
+      plugins.findIndex((plugin) => plugin.id === selectedPluginId),
+    ),
     title: "Plugins",
   };
 }

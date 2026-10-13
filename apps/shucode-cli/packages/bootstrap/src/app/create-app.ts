@@ -219,7 +219,7 @@ export async function createShucodeApp(options: ShucodeAppOptions): Promise<Shuc
       workingDirectory,
     });
     // 随 CLI 内置的技能包（dynamic-workflows 等）：不属于任何插件，用户无法停用或卸载。
-    const bundledSkillRoots = await resolveBundledSkillRoots({ cliStorageRoot, logger });
+    const bundledSkillRoots = await resolveBundledSkillRoots({ logger });
     const pluginSubagentProfiles = loadPluginAgentProfiles({
       logger,
       plugins: pluginOutcome.plugins,
@@ -793,7 +793,7 @@ export async function createShucodeApp(options: ShucodeAppOptions): Promise<Shuc
       customCommandPromptResolver: async (text, resolverOptions) => {
         const builtinPrompt = resolveShucodeBuiltinPromptCommand(text, {
           // 动态工作流关闭时内置 `/workflow` 不得展开。目录侧已经把它从 `/` 面板
-          // 剔除，但用户仍可手打命令名，两条路径必须给出同一个结论。TUI 缺席时不设门禁；
+          // 剔除，但用户仍可手打命令名，两条路径必须给出同一个结论。缺席时不设门禁；
           // headless 按 --enable-workflow 显式取值，见 runtimeConfig 字段注释。
           dynamicWorkflowEnabled: runtimeConfig.dynamicWorkflowEnabled,
           workingDirectory,

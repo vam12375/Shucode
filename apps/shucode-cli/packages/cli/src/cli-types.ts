@@ -1,4 +1,3 @@
-import type { TuiReadClipboardImage, TuiWriteClipboardText } from "@shucode/tui";
 import type { UiLocale } from "@shucode/i18n";
 import type { Logger } from "@shucode/contracts";
 import type {
@@ -42,7 +41,6 @@ import type {
 import type { CliEnv, DotenvLoadResult, LoadCliDotenvOptions } from "./env.js";
 import type { PluginsCommandOverrides } from "./plugins-command.js";
 import type { CliShutdownProcess } from "./shutdown.js";
-import type { resolveWorkspaceGitBranch } from "./tui-workspace-git.js";
 
 export type BootstrapModule = typeof import("@shucode/bootstrap");
 
@@ -96,15 +94,11 @@ export interface RunDependencies extends PluginsCommandOverrides {
   isReservedSlashCommandName?: BootstrapModule["isReservedShucodeSlashCommandName"];
   listSkills?: (options: ListShucodeSkillsOptions) => ReturnType<typeof listShucodeSkills>;
   logger?: Logger;
-  readClipboardImage?: TuiReadClipboardImage;
-  writeClipboardText?: TuiWriteClipboardText;
   resolveLatestSession?: (
     options: ResolveLatestSessionOptions,
   ) => ReturnType<typeof resolveLatestSession>;
-  resolveWorkspaceGitBranch?: typeof resolveWorkspaceGitBranch;
   logoutShucodeCli?: (options?: LogoutShucodeCliOptions) => ReturnType<typeof logoutShucodeCli>;
   runShucodeProtocolAgent?: (options?: RunShucodeProtocolAgentOptions) => Promise<void>;
-  runTui?: typeof import("@shucode/tui").runTui;
   skipUserConfig?: boolean;
   userConfigPath?: string;
   exitProcess?: (code: number) => void;

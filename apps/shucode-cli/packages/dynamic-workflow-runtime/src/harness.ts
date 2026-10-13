@@ -109,18 +109,6 @@ export interface RunWorkflowOptions {
   /** 子进程堆上限（MB），映射为 `--max-old-space-size`。缺省 256。 */
   maxOldSpaceSizeMb?: number;
   /**
-   * 子进程 spawn 策略的替代形态：给出时 spawn `process.execPath [...argsPrefix, <entry path>]`，
-   * **不带任何 Node CLI 旗标**。
-   *
-   * 存在理由：SEA 单文件二进制不解释 Node CLI 旗标，缺省路径的 `--max-old-space-size` 会作为
-   * 普通 token 落进 CLI 的严格 parseArgs 而必然报错退出（每个 workflow run 在 SEA 下都失败）。SEA 下
-   * 由 bootstrap 传入隐藏子命令名作为 argsPrefix，子进程自 re-exec 本二进制并在 parseArgs 之前
-   * `import()` 入口文件、调它的 `start`。
-   *
-   * 代价：堆上限只能由入口文件自己 `v8.setFlagsFromString` best-effort。
-   */
-  childSpawn?: { argsPrefix: readonly string[] };
-  /**
    * 非致命状况的上报口（今日只有一种：入口文件写不进项目 `.shucode/`，回落到了 OS 临时目录）。
    * harness 是 app-free 的，没有 logger；bootstrap 把它接到自己的 warn 日志。
    */
@@ -242,9 +230,6 @@ export async function runWorkflowScript(options: RunWorkflowOptions): Promise<Ru
     lowered,
     // 实参只在启动时过界一次（run 生命周期内是常量）。
     ...(options.args === undefined ? {} : { args: options.args }),
-    // 堆上限随 payload 进入口文件，只为 argsPrefix 路径服务：那条路上没有 Node 旗标可传，
-    // 入口文件只能自己 best-effort 设。缺省路径由真旗标生效，入口文件看到旗标就跳过。
-    maxOldSpaceSizeMb,
   };
 
   // payload 不过命令行：Windows 的命令行上限 32,767 字符，整份 lowered 脚本放上去一过约 18 KB
@@ -258,22 +243,15 @@ export async function runWorkflowScript(options: RunWorkflowOptions): Promise<Ru
       source: renderChildEntry(payload, { runId }),
       ...(options.onWarning === undefined ? {} : { onWarning: options.onWarning }),
     });
-    child = spawn(
-      process.execPath,
-      options.childSpawn === undefined
-        ? [`--max-old-space-size=${maxOldSpaceSizeMb}`, entry.path]
-        : [...options.childSpawn.argsPrefix, entry.path],
-      {
-        cwd,
-        stdio: ["pipe", "pipe", "pipe"],
-        // 桌面端 agent 由 Electron Helper 运行（process.execPath 指向 Helper），而 CLI
-        // 启动时会把 ELECTRON_RUN_AS_NODE 从自身 env sanitize 掉。不显式带上它，子进程会按完整
-        // Electron/Chromium 应用启动并卡在 GPU 初始化——永远沉默也不退出，run 卡死在 run-started。
-        // 纯 Node 的 execPath 下该变量无效，无副作用（同 official-plugin-runtime.ts 的处理）。
-        // 两条 spawn 策略都要带：桌面打包态同样可能走 argsPrefix 路径。
-        env: { ...process.env, ELECTRON_RUN_AS_NODE: "1" },
-      },
-    );
+    child = spawn(process.execPath, [`--max-old-space-size=${maxOldSpaceSizeMb}`, entry.path], {
+      cwd,
+      stdio: ["pipe", "pipe", "pipe"],
+      // 桌面端 agent 由 Electron Helper 运行（process.execPath 指向 Helper），而 CLI
+      // 启动时会把 ELECTRON_RUN_AS_NODE 从自身 env sanitize 掉。不显式带上它，子进程会按完整
+      // Electron/Chromium 应用启动并卡在 GPU 初始化——永远沉默也不退出，run 卡死在 run-started。
+      // 纯 Node 的 execPath 下该变量无效，无副作用（同 official-plugin-runtime.ts 的处理）。
+      env: { ...process.env, ELECTRON_RUN_AS_NODE: "1" },
+    });
   } catch (cause) {
     // Node 只把 EACCES/EAGAIN/EMFILE/ENFILE/ENOENT 转成 error
     // 事件，其余 spawn 失败（ENAMETOOLONG、E2BIG…）**同步抛**。此时引擎已构造、journal 行已以

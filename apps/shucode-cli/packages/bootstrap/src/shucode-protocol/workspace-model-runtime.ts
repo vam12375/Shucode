@@ -121,7 +121,7 @@ export async function createWorkspaceShucodeApp(
             },
           }
         : {}),
-      // Electron/Protocol 主会话之前没有像 CLI/TUI 那样显式开启模型流式，
+      // Electron/Protocol 主会话之前没有像 CLI 那样显式开启模型流式，
       // 导致主 turn 退回 generateText 非流式请求，遇到返回 SSE 的兼容端点会按 JSON 解析失败。
       modelStreaming: options.runtimeConfig?.modelStreaming ?? "on",
     },

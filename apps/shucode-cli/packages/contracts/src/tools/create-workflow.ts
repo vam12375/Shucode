@@ -491,7 +491,7 @@ export const CreateWorkflowOutputSchema = z
      * 「这个 run 没有自己的界」。
      *
      * ⚠ 这条事实**不跨 v4**：协议的 `toolOutputSchema` 只带 `text` / `display` / `truncated`，
-     * 所以它服务的是 CLI/TUI、进程内消费方，桌面 UI 读不到它。
+     * 所以它服务的是 CLI、进程内消费方，桌面 UI 读不到它。
      */
     retuned: z
       .object({

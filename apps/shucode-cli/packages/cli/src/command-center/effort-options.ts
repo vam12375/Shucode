@@ -1,10 +1,10 @@
 import { getShucodeCopy, type UiLocale } from "@shucode/i18n";
-import type { TuiEffortOption } from "@shucode/tui";
+import type { EffortOption } from "./interaction-types.js";
 import type { CommandCenterApp } from "./types.js";
 
 export async function listAppEffortOptions(
   app: CommandCenterApp,
-): Promise<TuiEffortOption[] | undefined> {
+): Promise<EffortOption[] | undefined> {
   const levels = app.listThoughtLevels ? await app.listThoughtLevels() : undefined;
   return levels ? thoughtLevelsToEffortOptions(levels, app.getLocale?.()) : undefined;
 }
@@ -12,8 +12,8 @@ export async function listAppEffortOptions(
 export function thoughtLevelsToEffortOptions(
   levels: readonly string[],
   locale?: UiLocale,
-): TuiEffortOption[] {
-  const effortCopy = getShucodeCopy(locale).tui.effort;
+): EffortOption[] {
+  const effortCopy = getShucodeCopy(locale).commandCenter.effort;
   return levels.map((level) => ({
     id: level,
     label: effortLabel(level, effortCopy),

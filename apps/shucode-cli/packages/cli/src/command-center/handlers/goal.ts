@@ -1,22 +1,21 @@
-import type { TuiSubmitPromptResult } from "@shucode/tui";
+import type { SubmitPromptResult } from "../interaction-types.js";
 import { attachCurrentSessionMetadata } from "../metadata.js";
 import { buildTargetReplaceSelection } from "../selections.js";
 import type {
   CommandCenterApp,
   CommandCenterDeps,
   CommandCenterTarget,
-  TuiSubmitOptions,
+  SubmitOptions,
 } from "../types.js";
 import { splitArgs } from "../utils.js";
 
-const PLAN_MODE_GOAL_CONTINUATION_SKIPPED_MESSAGE =
-  "Plan mode 下已记录 goal，但不会自动继续。";
+const PLAN_MODE_GOAL_CONTINUATION_SKIPPED_MESSAGE = "Plan mode 下已记录 goal，但不会自动继续。";
 
 export async function handleTargetCommand(
   args: string,
   deps: CommandCenterDeps,
-  options: TuiSubmitOptions,
-): Promise<TuiSubmitPromptResult> {
+  options: SubmitOptions,
+): Promise<SubmitPromptResult> {
   const app = await deps.getApp();
   const trimmed = args.trim();
 
@@ -91,8 +90,8 @@ async function continueTargetAfterChange(
   target: CommandCenterTarget,
   app: CommandCenterApp,
   deps: CommandCenterDeps,
-  options: TuiSubmitOptions,
-): Promise<TuiSubmitPromptResult> {
+  options: SubmitOptions,
+): Promise<SubmitPromptResult> {
   if (!app.continueActiveTarget) {
     return {
       mode: deps.getMode?.(),
@@ -130,9 +129,10 @@ function formatTargetSummary(target: CommandCenterTarget | null): string {
 function formatTargetChanged(title: string, target: CommandCenterTarget): string {
   const lines = [title, `Objective: ${target.objective}`];
   if (target.tokensUsed !== undefined || target.tokenBudget !== undefined) {
-    const budget = target.tokenBudget === null || target.tokenBudget === undefined
-      ? "none"
-      : target.tokenBudget.toString();
+    const budget =
+      target.tokenBudget === null || target.tokenBudget === undefined
+        ? "none"
+        : target.tokenBudget.toString();
     lines.push(`Usage: ${target.tokensUsed ?? 0} tokens / ${budget}`);
   }
   if (target.timeUsedSeconds !== undefined) {

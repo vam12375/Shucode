@@ -1,14 +1,14 @@
-import type { TuiSubmitPromptResult } from "@shucode/tui";
+import type { SubmitPromptResult } from "../interaction-types.js";
 import { buildCustomCommandPrompt } from "../../command-center-custom.js";
 import { attachCurrentSessionMetadata } from "../metadata.js";
-import type { CommandCenterDeps, TuiSubmitOptions } from "../types.js";
+import type { CommandCenterDeps, SubmitOptions } from "../types.js";
 
 export async function handleCustomCommand(
   name: string,
   args: string,
   deps: CommandCenterDeps,
-  options: TuiSubmitOptions,
-): Promise<TuiSubmitPromptResult | undefined> {
+  options: SubmitOptions,
+): Promise<SubmitPromptResult | undefined> {
   const prompt = await buildCustomCommandPrompt(name, args, deps);
   if (!prompt) return undefined;
   const app = await deps.getApp();

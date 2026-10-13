@@ -7,17 +7,6 @@ import type { ExecutionContext, TraceContext } from "../tracing/tracer.js";
 export const SHUCODE_OFFICIAL_PLUGIN_MARKETPLACE = "zcode-plugins-official";
 export const SHUCODE_INLINE_PLUGIN_MARKETPLACE = "inline";
 export const SHUCODE_PLUGIN_HOST_COMMAND = "__shucode-plugin-host";
-/**
- * 隐藏子命令：dynamic workflow 的沙箱子进程入口（`__shucode-dwf-child <entry path>`；argv 末位是
- * harness 写好的入口文件路径，payload 不过命令行）。
- *
- * 与 {@link SHUCODE_PLUGIN_HOST_COMMAND} 同族、同机制：SEA 单文件二进制不解释 Node CLI 旗标，
- * 于是 harness 默认的 `node --max-old-space-size=… <entry>` spawn 在 SEA 下会把旗标交给严格
- * parseArgs 而必然失败。SEA 下改为自 re-exec 本二进制并由 `run.ts` 在 parseArgs **之前**分派。
- * 常量放在 contracts 而非 dynamic-workflow-runtime：后者刻意不依赖 contracts（app-free 证明），
- * 由 bootstrap 在 SEA 判定后把它作为 argsPrefix 递给 harness。
- */
-export const SHUCODE_DWF_CHILD_COMMAND = "__shucode-dwf-child";
 
 export function isOfficialMarketplaceId(id: string): boolean {
   return id === SHUCODE_OFFICIAL_PLUGIN_MARKETPLACE;
@@ -250,7 +239,7 @@ export interface PluginLoadOutcome {
   diagnostics: PluginDiagnostic[];
   hooks: Partial<Record<HookEventName, HookMatcherConfig[]>>;
   mcpServers: Record<string, McpServerConfig>;
-  /** 商店 listing 按完整 Plugin ID 关联，供 CLI/TUI 展示；不参与运行时身份判断。 */
+  /** 商店 listing 按完整 Plugin ID 关联，供 CLI 展示；不参与运行时身份判断。 */
   pluginListingsById?: Record<string, PluginStoreListing>;
   plugins: PluginMetadata[];
   skillRoots: SkillRoot[];

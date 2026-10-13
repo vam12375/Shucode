@@ -42,7 +42,6 @@ import {
   type WorkflowDriver,
 } from "@shucode/dynamic-workflow";
 import { runWorkflowScript } from "@shucode/dynamic-workflow-runtime";
-import { dynamicWorkflowChildSpawn } from "./dynamic-workflow-run-launch.js";
 import { resolveWorkflowConcurrencyCeiling } from "./workflow-concurrency-ceiling.js";
 import { executeWorldRead, type WorldReadDeps } from "./workflow-world-read.js";
 
@@ -124,12 +123,10 @@ export function createDynamicWorkflowSnippetService(
         declaredRunCommands: new Set(worldRun.commands),
       };
       const runId = `dwfeval-${randomUUID()}`;
-      const childSpawn = dynamicWorkflowChildSpawn();
 
       const settlement = await runWorkflowScript({
         askSpecs,
         caps: caps(),
-        ...(childSpawn === undefined ? {} : { childSpawn }),
         cwd: request.cwd,
         lowered: lowered.code,
         makeDriver: () => createSnippetDriver(worldReadDeps, captureLog),

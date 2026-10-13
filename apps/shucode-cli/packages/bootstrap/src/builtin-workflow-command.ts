@@ -15,7 +15,7 @@ const helpEntry = BUILTIN_SHUCODE_SLASH_COMMAND_HELP_ENTRIES.find(
   (entry) => entry.name === BUILTIN_WORKFLOW_COMMAND_NAME,
 );
 if (!helpEntry) {
-  // 共享 help 表是保留字、TUI 候选与 App 目录的唯一来源；条目缺席时命令根本不可寻址。
+  // 共享 help 表是保留字、命令候选与 App 目录的唯一来源；条目缺席时命令根本不可寻址。
   throw new Error(`Missing builtin slash command help entry: ${BUILTIN_WORKFLOW_COMMAND_NAME}`);
 }
 

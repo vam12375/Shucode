@@ -1,4 +1,4 @@
-import type { TuiSubmitPromptResult } from "@shucode/tui";
+import type { SubmitPromptResult } from "../interaction-types.js";
 import { thoughtLevelsToEffortOptions } from "../effort-options.js";
 import { rememberCurrentModelSelection } from "../model-selection.js";
 import type { CommandCenterDeps } from "../types.js";
@@ -8,7 +8,7 @@ const EFFORT_COMMAND_USAGE = "Use /effort <level>, /variant <level>, or /effort 
 export async function handleEffortCommand(
   args: string,
   deps: CommandCenterDeps,
-): Promise<TuiSubmitPromptResult> {
+): Promise<SubmitPromptResult> {
   const app = await deps.getApp();
   const current = app.getThoughtLevel?.();
   const levels = app.listThoughtLevels ? await app.listThoughtLevels() : undefined;

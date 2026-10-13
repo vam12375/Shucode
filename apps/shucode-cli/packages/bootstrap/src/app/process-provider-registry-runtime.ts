@@ -31,7 +31,7 @@ import {
 } from "./standalone-account-provider-runtime.js";
 
 export interface ProcessProviderRegistryRuntimeOptions {
-  /** Standalone Prompt CLI / TUI 自己拥有账号凭据与旧配置的一次性导入。 */
+  /** Standalone Prompt CLI 自己拥有账号凭据与旧配置的一次性导入。 */
   readonly standalone?: {
     readonly credentialStore?: SharedShucodeCredentialStore;
     readonly legacyCliUserConfigFilePath?: string;
@@ -53,7 +53,8 @@ export async function startProcessProviderRegistryRuntime(
 
   const accountSource = new MutableAccountProviderConfigSource();
   const credentialStore = options.standalone
-    ? (options.standalone.credentialStore ?? createSharedShucodeCredentialStore({ env: { ...env } }))
+    ? (options.standalone.credentialStore ??
+      createSharedShucodeCredentialStore({ env: { ...env } }))
     : undefined;
   let standaloneAccount: AccountProviderService | undefined;
   const bundledFile = options.standalone

@@ -1,42 +1,40 @@
 # shucode-cli
 
-TypeScript + Node.js 24.14.0 CLI starter. The default artifact is a normal Node CLI bundle, and SEA is kept as an optional packaging path.
+Agent 运行时与 CLI 入口（TypeScript + Node.js 24.14.0）。默认产物是普通 Node CLI bundle：`dist/shucode.cjs`，桌面端与网页端通过其 `app-server` 模式经 stdio 驱动。终端形态（TUI、SEA 打包、独立命令行发行包）已随产品决策下线，见 `specs/cli/terminal-surface-removal.md`。
 
 ## Why This Shape
 
 - Runtime code has zero production dependencies.
-- The CLI uses Node built-ins for argument parsing and terminal control.
-- `npm run build` produces `dist/shucode.cjs`, which works anywhere Node.js 24.14.0 is installed.
-- `npm run sea` attempts to turn that same bundle into a single executable.
-- If SEA breaks on a platform, the normal CLI artifact is still the fallback.
+- The CLI uses Node built-ins for argument parsing.
+- `pnpm --filter @shucode/cli build` produces `dist/shucode.cjs`, which works anywhere Node.js 24.14.0 is installed.
 
 ## Commands
 
 ```sh
-npm run bootstrap
-npm run dev -- --help
-npm run build
-npm run start -- doctor --json
-npm test
-npm run sea
-npm run sea -- --target linux-x64 --target win-x64
-npm run sea -- --all
+pnpm --dir apps/shucode-cli typecheck
+pnpm --dir apps/shucode-cli lint
+pnpm --filter @shucode/cli build
 ```
 
 ## Project Layout
 
 ```txt
-src/
-  cli/       command parsing and process wiring
-  core/      reusable runtime logic
-  ui/        terminal UI layer
-scripts/    build and optional SEA packaging scripts
-tests/      subprocess-level CLI tests
+packages/
+  cli/            entry, subcommand dispatch, and app-server wiring
+  bootstrap/      app assembly and protocol entrypoints
+  core/           runtime logic (sessions, tools, prompts)
+  adapters/       storage, MCP, browser, and transport adapters
+  contracts/      shared runtime contracts
+  i18n/           CLI copy and locales
+  dynamic-workflow/, dynamic-workflow-runtime/  workflow engine
+  telemetry/, debug/, node-repl-host/, browser-use-plugin/, bundled-skills/  runtime plugins and helpers
+scripts/          build and packaging helpers
+tools/            prompt trajectory and TypeScript tooling
 ```
 
 ## Bootstrap
 
-Run `npm run bootstrap` after cloning the repository. It checks the local Node.js version, installs dependencies, and runs the full project check.
+从仓库根目录运行 `pnpm install`（根 workspace 已包含本应用及其内部包），然后运行 `pnpm --dir apps/shucode-cli typecheck` 与 `pnpm --dir apps/shucode-cli lint`。
 
 ## Plugin Development
 
@@ -295,9 +293,4 @@ Common stdout examples:
 
 ## Packaging Strategy
 
-1. Start with the normal Node CLI bundle from `npm run build`.
-2. `npm run sea` builds the current host target by default.
-3. Use `npm run sea -- --target <platform-arch>` or `npm run sea -- --all` for cross-target SEA packaging.
-4. SEA target Node.js binaries are downloaded from the official Node.js release for the current `process.versions.node` and verified against `SHASUMS256.txt`.
-5. Keep native addons and runtime dynamic imports out of the core CLI until SEA compatibility is proven.
-6. Add richer TUI libraries later only behind a compatibility spike.
+The default artifact is the normal Node CLI bundle from `pnpm --filter @shucode/cli build` (`dist/shucode.cjs`); 桌面端与远程发行通过 `scripts/build-desktop-agent-cli.mjs` 暂存该产物。SEA 单文件打包已随终端形态下线移除。

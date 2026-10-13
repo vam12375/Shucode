@@ -28,7 +28,7 @@ type ObservationDeps = {
   runtime: AgentRuntime;
 };
 
-/** The app owns storage and lifecycle interpretation; the TUI receives a read model. */
+/** The app owns storage and lifecycle interpretation; the client receives a read model. */
 export function createSubagentObservation(deps: ObservationDeps) {
   return {
     async readSubagents(

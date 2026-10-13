@@ -1,4 +1,4 @@
-import type { TuiSlashCommandSuggestion } from "@shucode/tui";
+import type { SlashCommandSuggestion } from "./command-center/interaction-types.js";
 import { expandCliCustomCommandPrompt } from "./custom-command-expand.js";
 
 const customCommandNotFoundPattern = /not found/i;
@@ -39,7 +39,7 @@ interface CommandCenterCustomCommandDeps {
 
 export function listCustomCommandSuggestions(
   customCommands?: CommandCenterCustomCommandListOutcome,
-): TuiSlashCommandSuggestion[] {
+): SlashCommandSuggestion[] {
   return (customCommands?.commands ?? []).map((command) => ({
     name: command.name,
     summary: `${command.description} (${command.scope}/${command.source})`,

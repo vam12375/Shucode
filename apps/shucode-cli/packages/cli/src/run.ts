@@ -20,11 +20,9 @@ import { resolveCliCwd } from "./cwd.js";
 import { runLoginCommand, runLogoutCommand } from "./login-command.js";
 import { CLI_COMMAND_NAME, CLI_PROCESS_NAME } from "./process-name.js";
 import { isPluginHostInvocation, runPluginHostCommand } from "./plugin-host-command.js";
-import { isDwfChildInvocation, runDwfChildCommand } from "./dwf-child-command.js";
 import { runPrompt } from "./prompt-command.js";
 import { runPluginsCommand, type PluginsCommandFlags } from "./plugins-command.js";
 import { runSkillsCommand } from "./skills-command.js";
-import { runTuiCommand } from "./tui-command.js";
 import type {
   CliPermissionMode,
   CliResumeRequest,
@@ -40,14 +38,14 @@ const version = typeof __CLI_VERSION__ === "string" ? __CLI_VERSION__ : "0.0.0";
 
 const EMPTY_TARGET_ERROR = "--target requires non-empty text.";
 const DEFAULT_HEADLESS_PROMPT_MODE: CliPermissionMode = "yolo";
-const FORCE_MCS_SCOPE_ERROR = "--force-mcs can only be used with --prompt, --target, or tui.";
+const FORCE_MCS_SCOPE_ERROR = "--force-mcs can only be used with --prompt or --target.";
 const TARGET_REPLACE_REQUIRES_TARGET_ERROR = "--target-replace requires --target.";
 const TARGET_CONFLICTS_WITH_PROMPT_ERROR =
   '--target cannot be used with --prompt. Use either --target <objective> or --prompt "/goal <objective>".';
 const BROWSER_EXECUTABLE_REQUIRES_HEADLESS_ERROR =
   "--browser-executable requires --browser-use=headless.";
 const BROWSER_USE_SCOPE_ERROR =
-  "--browser-use=headless can only be used with --prompt, --target, or tui.";
+  "--browser-use=headless can only be used with --prompt or --target.";
 const SURFACE_SCOPE_ERROR =
   "--surface can only be used with --prompt, --target, app-server, or agent-server.";
 const MEMORY_BENCH_SCOPE_ERROR = "--memory-bench can only be used with -p/--prompt.";
@@ -64,16 +62,13 @@ const pluginsCommandFlags = (
   ...(Array.isArray(values.sparse) ? { sparse: values.sparse as string[] } : {}),
 });
 
-const commandName = (positionals: string[]): string => positionals[0] ?? "tui";
+// 终端形态已下线：无子命令不再有默认命令（原默认进入 "tui"）；空命令在分发处单独处理。
+const commandName = (positionals: string[]): string => positionals[0] ?? "";
 
 const isForceMcsSupportedInvocation = (input: {
-  positionals: string[];
   prompt?: string;
   targetRequest?: CliTargetRequest;
-}): boolean =>
-  typeof input.prompt === "string" ||
-  input.targetRequest !== undefined ||
-  commandName(input.positionals) === "tui";
+}): boolean => typeof input.prompt === "string" || input.targetRequest !== undefined;
 
 const isPresentationSurfaceSupportedInvocation = (input: {
   positionals: string[];
@@ -203,11 +198,6 @@ const runDoctor = (ctx: RunContext, options: GlobalOptions, workingDirectory: st
       node: runtime.node,
       platform: runtime.platform,
       processTitle: process.title,
-      sea: runtime.sea,
-    },
-    packaging: {
-      default: "node-bundle",
-      sea: "optional",
     },
   };
 
@@ -222,8 +212,6 @@ const runDoctor = (ctx: RunContext, options: GlobalOptions, workingDirectory: st
   ctx.stdout.write(`process: ${payload.runtime.processTitle}\n`);
   ctx.stdout.write(`node: ${payload.runtime.node}\n`);
   ctx.stdout.write(`platform: ${payload.runtime.platform}/${payload.runtime.arch}\n`);
-  ctx.stdout.write(`sea: ${payload.runtime.sea ? "yes" : "no"} (${payload.packaging.sea})\n`);
-  ctx.stdout.write(`default artifact: ${payload.packaging.default}\n`);
 
   if (options.verbose) {
     ctx.stdout.write(`execPath: ${payload.runtime.execPath}\n`);
@@ -298,12 +286,6 @@ export const run = async (ctx: RunContext, deps: RunDependencies = {}): Promise<
 
   if (isPluginHostInvocation(ctx.argv)) {
     return await runPluginHostCommand(ctx, ctx.argv.slice(1));
-  }
-
-  // 与 plugin host 同理，且必须同样在 parseArgs 之前：SEA 下 dwf 的沙箱子进程是本二进制的
-  // 自 re-exec，argv 末位是入口文件路径——交给严格 parseArgs 只会报未知参数。
-  if (isDwfChildInvocation(ctx.argv)) {
-    return await runDwfChildCommand(ctx, ctx.argv.slice(1));
   }
 
   if (ctx.argv[0] === "hooks") {
@@ -448,7 +430,6 @@ export const run = async (ctx: RunContext, deps: RunDependencies = {}): Promise<
   if (
     browserUse === "headless" &&
     !isForceMcsSupportedInvocation({
-      positionals: parsed.positionals,
       prompt: parsed.values.prompt as string | undefined,
       targetRequest,
     })
@@ -460,7 +441,6 @@ export const run = async (ctx: RunContext, deps: RunDependencies = {}): Promise<
   if (
     forceMcs &&
     !isForceMcsSupportedInvocation({
-      positionals: parsed.positionals,
       prompt: parsed.values.prompt as string | undefined,
       targetRequest,
     })
@@ -527,7 +507,14 @@ export const run = async (ctx: RunContext, deps: RunDependencies = {}): Promise<
     );
   }
 
-  switch (commandName(parsed.positionals)) {
+  const command = commandName(parsed.positionals);
+  if (command === "") {
+    // 终端形态已下线：无子命令不再进入 TUI，仅提示可用命令。
+    writeHelp(ctx.stderr, options.locale, options.detectedLocale);
+    return 1;
+  }
+
+  switch (command) {
     case "help":
       writeHelp(ctx.stdout, options.locale, options.detectedLocale);
       return 0;
@@ -568,19 +555,8 @@ export const run = async (ctx: RunContext, deps: RunDependencies = {}): Promise<
       );
     case "skills":
       return await runSkillsCommand(ctx, options, commandDeps, parsed.positionals.slice(1));
-    case "tui":
-      return await runTuiCommand(
-        ctx,
-        options,
-        commandDeps,
-        version,
-        mode,
-        resumeRequest,
-        toolDisallowlist,
-        forceMcs,
-      );
     default:
-      ctx.stderr.write(`Unknown command: ${commandName(parsed.positionals)}\n\n`);
+      ctx.stderr.write(`Unknown command: ${command}\n\n`);
       writeHelp(ctx.stderr, options.locale, options.detectedLocale);
       return 1;
   }

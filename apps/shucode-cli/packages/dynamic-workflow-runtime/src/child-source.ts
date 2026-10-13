@@ -1,11 +1,8 @@
 /**
- * 沙箱子进程逻辑。**一份实现，一份入口文件，两种启动方式**：
+ * 沙箱子进程逻辑。**一份实现，一份入口文件**：
  *   - {@link renderChildEntry} 把 {@link childMain} 经 `toString()` 与 payload 一起渲染成一份
  *     自包含 ESM，harness 写到 `<cwd>/.shucode/workflow-runs/<runId>.mjs`（child-entry-file.ts）；
- *   - 普通 Node：`node --max-old-space-size=N <entry>`，入口文件发现自己就是进程入口时自启；
- *   - SEA 单文件二进制：CLI 的隐藏子命令 `__shucode-dwf-child <entry>` `import()` 这份文件并调
- *     它导出的 `start(deps)`，注入 CLI 进程的 vm/readline/stdio（SEA 主程序不解释 Node CLI
- *     旗标，`--eval` 路不通）。
+ *   - `node --max-old-space-size=N <entry>` 启动，入口文件发现自己就是进程入口时自启。
  *
  * Windows 的命令行上限是 32,767 字符，
  * `--eval CHILD_SOURCE -- <base64url payload>` 会把整份 lowered 脚本放在命令行上，脚本
@@ -45,8 +42,8 @@ export interface ChildReadlineInterface {
 }
 
 /**
- * 注入给 {@link childMain} 的宿主能力。**两种启动方式各自提供真实实现**：入口文件自启时从
- * `node:vm` / `node:readline` / `process` 现取，SEA 子命令从 CLI 进程现取。
+ * 注入给 {@link childMain} 的宿主能力：入口文件自启时从
+ * `node:vm` / `node:readline` / `process` 现取。
  */
 export interface ChildMainDeps {
   vm: ChildVmModule;
@@ -65,10 +62,8 @@ export interface ChildMainDeps {
 /**
  * 沙箱子进程的**唯一**出口。返回的 promise 在脚本执行终结（complete 已发出、stdin 已关）后兑现。
  *
- * 为什么必须可 await：SEA 子命令跑在 CLI 进程里，而 CLI 入口在 `run()` 返回后会挂一个 1s
- * 退出 watchdog（shutdown.ts 的 `scheduleCliExitWatchdog`）。若子进程逻辑只是"装好 readline
- * 就同步返回"，watchdog 会在 run 刚起步时把整个子进程强退。入口文件自启时不需要这个 promise
- * （事件循环空了自然退出），但两条入口共用一个实现，所以由 childMain 统一给出终结信号。
+ * 自启路径（`node <entry>`）并不依赖这个 promise——事件循环空了自然退出；childMain 仍统一
+ * 兑现终结信号，供调用方 await。
  *
  * ⚠ 自包含约束（载荷性，不是风格）。{@link renderChildEntry} 靠 `childMain.toString()` 把本函数
  * 当**源码**内嵌，所以函数体必须是一段能独立成立的程序，两条规矩：
@@ -323,10 +318,8 @@ function safeRunId(runId: string): string {
  *
  * 内容：payload 作为 JSON 字面量（`JSON.stringify` 的输出就是合法的 JS 表达式）、经 `toString()`
  * 内嵌的 {@link childMain}、导出的 `start(deps)`，以及两段顶层逻辑：
- *   - 堆上限 best-effort：缺省路径由真旗标 `--max-old-space-size` 生效；SEA 自 re-exec 传不了
- *     旗标，`execArgv` 里没有它时才 `v8.setFlagsFromString`（效果不保证，与原子命令侧同款）；
  *   - 自启判定：`realpath(argv[1])` 与本文件同一路径时（`node <entry>`）以 process 的
- *     vm/readline/stdio 自启；被 SEA 子命令 `import()` 时判定为假，由子命令调 `start`。
+ *     vm/readline/stdio 自启。
  *     比较 realpath 而不是裸路径：macOS 的 tmpdir 经 `/var → /private/var` 符号链接，
  *     `import.meta.url` 是解析后的真实路径，裸比较会让子进程静默不启动。
  *
@@ -341,7 +334,6 @@ export function renderChildEntry(payload: ChildPayload, meta: { runId: string })
 import { realpathSync } from "node:fs";
 import { createInterface } from "node:readline";
 import { fileURLToPath } from "node:url";
-import { setFlagsFromString } from "node:v8";
 import vm from "node:vm";
 
 export const payload = ${JSON.stringify(payload)};
@@ -349,19 +341,6 @@ export const payload = ${JSON.stringify(payload)};
 const main = ${childMain.toString()};
 
 export const start = (deps) => main({ ...deps, payload });
-
-if (
-  typeof payload.maxOldSpaceSizeMb === "number" &&
-  Number.isFinite(payload.maxOldSpaceSizeMb) &&
-  payload.maxOldSpaceSizeMb > 0 &&
-  !process.execArgv.some((arg) => arg.startsWith("--max-old-space-size"))
-) {
-  try {
-    setFlagsFromString("--max-old-space-size=" + Math.trunc(payload.maxOldSpaceSizeMb));
-  } catch {
-    // best-effort：V8 对启动期已消费的旗标可能不再理会，失败不得影响 run。
-  }
-}
 
 let isProcessEntry = false;
 try {

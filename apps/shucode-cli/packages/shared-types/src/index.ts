@@ -47,6 +47,5 @@ export type RuntimeInfo = {
   execPath: string;
   node: string;
   platform: NodeJS.Platform;
-  sea: boolean;
   versions: NodeJS.ProcessVersions;
 };

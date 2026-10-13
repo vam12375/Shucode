@@ -49,7 +49,10 @@ import type {
   PluginStoreListing,
 } from "@shucode/contracts";
 import { SHUCODE_OFFICIAL_PLUGIN_MARKETPLACE, isOfficialMarketplaceId } from "@shucode/contracts";
-import { SHUCODE_CUA_OFFICIAL_PLUGIN_ID, isShucodeCuaInternalFeatureEnabled } from "@shucode/shared";
+import {
+  SHUCODE_CUA_OFFICIAL_PLUGIN_ID,
+  isShucodeCuaInternalFeatureEnabled,
+} from "@shucode/shared";
 import { resolveOfficialPluginRoots } from "./app/bundled-plugins.js";
 import {
   DEFAULT_ENABLED_OFFICIAL_PLUGIN_IDS,
@@ -247,7 +250,9 @@ function countVisibleMarketplacePlugins(
   return plugins.filter((entry) => entry.name !== OFFICIAL_NODE_REPL_HOST_PLUGIN_NAME).length;
 }
 
-export function resolveShucodePlugins(options: ResolveShucodePluginsOptions = {}): PluginLoadOutcome {
+export function resolveShucodePlugins(
+  options: ResolveShucodePluginsOptions = {},
+): PluginLoadOutcome {
   const { configResult, pluginStorageRoot, workingDirectory } = resolvePluginContext(options);
 
   return discoverNodePluginsSync({
@@ -343,7 +348,8 @@ export function getShucodePluginsOverview(
     (def) =>
       suppressed.has(`${def.name}@${SHUCODE_OFFICIAL_PLUGIN_MARKETPLACE}`) &&
       // computer-use 的恢复入口需要 internal 特性开启（与 restoreBuiltinPluginCore 同口径）。
-      (def.name !== "computer-use" || isShucodeCuaInternalFeatureEnabled(options.env ?? process.env)),
+      (def.name !== "computer-use" ||
+        isShucodeCuaInternalFeatureEnabled(options.env ?? process.env)),
   ).map((def) => {
     const listing = def.listing
       ? parseEntryStoreListing({ name: def.name, ...def.listing })
@@ -646,7 +652,7 @@ export async function installShucodeMarketplacePlugin(
     configResult.config.plugins.suppressedBuiltins.includes(pluginId) &&
     (bundledEntry?.source === "filesystem" || bundledEntry?.source === "sea");
   if (isSuppressedBundledOfficial) {
-    // 内置插件的 filesystem/SEA entry 只是 Catalog 指针，不是普通 Marketplace source。
+    // 内置插件的 filesystem/sea entry 只是 Catalog 指针（sea 为旧 SEA 构建写入的历史来源值）。
     // 直接安装必须复用 restore，避免把同一份官方 cache 写进 installed_plugins.json，
     // 否则卸载/更新会把内置资产误判成用户安装并破坏恢复语义。
     // 当前调用由协议层的 storage lock 保护；这里必须调用不再加锁的核心，
@@ -915,7 +921,9 @@ export async function restoreBuiltinPlugin(options: RestoreBuiltinPluginOptions)
   await withPluginStorageLock(pluginStorageRoot, () => restoreBuiltinPluginCore(options));
 }
 
-export async function configureShucodePlugin(options: ConfigureShucodePluginOptions): Promise<void> {
+export async function configureShucodePlugin(
+  options: ConfigureShucodePluginOptions,
+): Promise<void> {
   const normalizedOptions = normalizePluginOptions(options.options);
   const clearOptionKeys = normalizePluginOptionKeys(options.clearOptionKeys);
   const { configResult, pluginStorageRoot, workingDirectory } = resolvePluginContext(options);

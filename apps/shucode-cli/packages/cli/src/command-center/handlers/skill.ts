@@ -1,13 +1,11 @@
-import type { TuiSubmitPromptResult } from "@shucode/tui";
+import type { SubmitPromptResult } from "../interaction-types.js";
 import type {
   CommandCenterDeps,
   CommandCenterSkill,
   CommandCenterSkillListOutcome,
 } from "../types.js";
 
-export async function handleSkillListCommand(
-  deps: CommandCenterDeps,
-): Promise<TuiSubmitPromptResult> {
+export async function handleSkillListCommand(deps: CommandCenterDeps): Promise<SubmitPromptResult> {
   if (!deps.listSkills) {
     return {
       mode: deps.getMode?.(),

@@ -84,7 +84,7 @@ export interface DynamicWorkflowRunSubmitRequest {
    * ⚠ 与本文件里产物的 `sourcePath` 无关：那是产物落盘的位置，这里是**脚本**的家。
    *
    * 缺席即这个 run 没有可编辑的脚本文件（草稿写不下去的项目、升级前发起的 run），模型面
-   * 因此退回「改好脚本再内联提交」的老话。纯模型面元数据：桌面与 TUI 一概不显示它。
+   * 因此退回「改好脚本再内联提交」的老话。纯模型面元数据：桌面与 CLI 一概不显示它。
    */
   scriptPath?: string;
   /**

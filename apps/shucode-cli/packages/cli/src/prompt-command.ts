@@ -183,7 +183,8 @@ export const runPrompt = async (
     const prepareTelemetry =
       deps.prepareShucodeTelemetryEnv ?? bootstrapModule?.prepareShucodeTelemetryEnv;
     if (prepareTelemetry) {
-      shutdownTelemetry = deps.shutdownShucodeTelemetry ?? bootstrapModule?.shutdownShucodeTelemetry;
+      shutdownTelemetry =
+        deps.shutdownShucodeTelemetry ?? bootstrapModule?.shutdownShucodeTelemetry;
     }
     const appEnv = prepareTelemetry
       ? await prepareTelemetry(env, {
@@ -229,7 +230,7 @@ export const runPrompt = async (
         ...(mode ? { mode } : {}),
         ...(toolDisallowlist ? { toolDisallowlist } : {}),
         ...(forceMcs ? { midConversationSystem: { mode: "force" as const } } : {}),
-        // headless 按本次调用显式开关；不改 core 缺省值，保持 TUI 与 stdio 的既有策略。
+        // headless 按本次调用显式开关；不改 core 缺省值，保持与既有客户端一致的策略。
         dynamicWorkflowEnabled: options.enableWorkflow === true,
         memory: { extractionEnabled: options.memoryBench === true },
         modelStreaming: "on",

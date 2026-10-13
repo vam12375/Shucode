@@ -1,5 +1,5 @@
-import type { TuiSubmitPromptResult } from "@shucode/tui";
-import type { CommandCenterDeps, TuiSubmitOptions } from "../types.js";
+import type { SubmitPromptResult } from "../interaction-types.js";
+import type { CommandCenterDeps, SubmitOptions } from "../types.js";
 
 type ParsedExpertCommand =
   | {
@@ -14,8 +14,8 @@ type ParsedExpertCommand =
 export async function handleExpertCommand(
   args: string,
   deps: CommandCenterDeps,
-  options: TuiSubmitOptions,
-): Promise<TuiSubmitPromptResult> {
+  options: SubmitOptions,
+): Promise<SubmitPromptResult> {
   const app = await deps.getApp();
   const parsed = parseExpertCommandArgs(args);
 

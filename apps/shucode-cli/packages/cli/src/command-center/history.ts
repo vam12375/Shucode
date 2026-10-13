@@ -1,4 +1,4 @@
-import type { TuiPromptInput } from "@shucode/tui";
+import type { PromptInput } from "./interaction-types.js";
 import type { SlashCommand } from "./slash-command-types.js";
 import type { CommandCenterDeps } from "./types.js";
 
@@ -6,7 +6,7 @@ const API_KEY_LOGIN_PATTERN = /(?:^|\s)(?:bigmodel|zai)-coding-plan-api-key(?:\s
 
 export async function recordSlashCommandInHistory(
   deps: CommandCenterDeps,
-  input: TuiPromptInput,
+  input: PromptInput,
   command: SlashCommand,
 ): Promise<void> {
   if (!deps.recordInputHistory || !shouldRecordSlashCommand(command)) return;

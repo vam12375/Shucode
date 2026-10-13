@@ -189,11 +189,4 @@ export interface ChildPayload {
    * 行都走这条路，脚本里的 `args.x` 因此永远是一次合法的属性读而不是一次崩溃。
    */
   args?: Record<string, unknown>;
-  /**
-   * 堆上限（MB）。**只在 argsPrefix（SEA 自 re-exec）路径生效**：那条路上传不了
-   * `--max-old-space-size`，入口文件在 `execArgv` 里看不到旗标时自己 `v8.setFlagsFromString`
-   * best-effort。缺省路径由真正的 Node 旗标生效，入口文件看到旗标就跳过本字段。
-   * 效果不保证（V8 对已在启动期消费的旗标可能不再理会），记为 SEA 限制。
-   */
-  maxOldSpaceSizeMb?: number;
 }

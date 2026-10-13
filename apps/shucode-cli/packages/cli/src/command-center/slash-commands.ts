@@ -1,4 +1,4 @@
-import type { TuiSlashCommandSuggestion } from "@shucode/tui";
+import type { SlashCommandSuggestion } from "./interaction-types.js";
 import {
   findCustomCommandHelpEntry,
   formatAvailableCommandNames,
@@ -248,7 +248,7 @@ export function manualSkillCommandUsage(): string {
 
 export function listSlashCommandSuggestions(
   customCommands?: CommandCenterCustomCommandListOutcome,
-): TuiSlashCommandSuggestion[] {
+): SlashCommandSuggestion[] {
   return [
     ...SLASH_COMMAND_HELP_ENTRIES.map((entry) => ({
       ...(entry.aliases ? { aliases: entry.aliases } : {}),

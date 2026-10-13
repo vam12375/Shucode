@@ -16,7 +16,7 @@ interface PermissionResponderRaceInput {
    */
   runHooks: (signal: AbortSignal) => Promise<PermissionBrokerResult | undefined>;
   /**
-   * broker 应答方。应答通道（v4 interaction deferred / TUI 审批队列）必须在本函数
+   * broker 应答方。应答通道（v4 interaction deferred / 交互审批队列）必须在本函数
    * 调用内同步建立——这是确认窗「可见即可答」的前提，由既有 broker 契约保证。
    * 拒绝（超时、取消、fail-closed）在 hook 未胜出时原样上抛，错误形态与旧串行路径一致。
    */

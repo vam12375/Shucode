@@ -3123,7 +3123,7 @@ async function createRecord(
       // 动态工作流灰度门：与 offPeakPort
       // 同一套读法——本次 create/resume 参数优先，缺席时读 Host 同步到进程的 workspace 级
       // 结论；两者都没有就是 false（fail-closed）。这里**必须写出显式布尔**，不能省成
-      // undefined：core 把「缺席」定义为「不参与灰度、保留全部工具」（TUI / headless /
+      // undefined：core 把「缺席」定义为「不参与灰度、保留全部工具」（headless /
       // workflow_child 的语义），受信 Host 创建的会话不能落进那条豁免。
       dynamicWorkflowEnabled:
         ("dynamicWorkflowEnabled" in params && params.dynamicWorkflowEnabled === true) ||
@@ -3142,7 +3142,7 @@ async function createRecord(
       // params.mcpServers 注入 runtimeConfig，导致日志里 runtimeHasMcpConfig=false，工具永远不启动。
       // MCP 是 runtime 启动期配置，因此必须在 session 创建/恢复边界一次性写入 runtimeConfig.mcp。
       ...(runtimeMcp ? { mcp: runtimeMcp } : {}),
-      // 之前只有 TUI 路径（tui-prompt-handler）注入 titleGeneration，
+      // 之前只有 CLI 交互路径注入 titleGeneration，
       // Shucode Protocol app-server 创建的 session（desktop/web/mobile）没有传，导致
       // shouldAttemptSessionTitleGeneration 的 `if (!config.titleGeneration) return false`
       // 永远命中，模型生成 title 的请求从不触发，侧边栏标题一直停在 first_input 的用户 query。

@@ -14,7 +14,6 @@ import { randomUUID } from "node:crypto";
 import {
   boundDynamicWorkflowRunEventPayload,
   CoreErrorType,
-  SHUCODE_DWF_CHILD_COMMAND,
   type CreateSessionTaskLinkInput,
   type DynamicWorkflowRunEvent,
   type DynamicWorkflowRunProgressPayload,
@@ -156,7 +155,6 @@ export function launchDynamicWorkflowRun(
     signal,
     toolCallId,
   } = input;
-  const childSpawn = dynamicWorkflowChildSpawn();
   // 本 run 自己上界的**第二个**执行点：调度器管「还能不能再派一个 ask」，闸门管「已经在跑的那些下一次请求能不能发出去」。
   // 起点就是这次启动的 caps（submit 是钳过的请求值，resume 是 journal 行里的那一份），所以一个
   // 从未被 retune 过的 run 永远走闸门的快路径——不发事件、不持票、与从前逐字相同。
@@ -325,8 +323,6 @@ export function launchDynamicWorkflowRun(
   return runWorkflowScript({
     askSpecs: compiled.askSpecs,
     caps,
-    // SEA 下必须换 spawn 策略，非 SEA 一律不传。
-    ...(childSpawn === undefined ? {} : { childSpawn }),
     cwd,
     lowered: compiled.lowered,
     makeDriver,
@@ -366,38 +362,6 @@ export function launchDynamicWorkflowRun(
     ...(control === undefined ? {} : { control }),
     validate: validateFn,
   });
-}
-
-/**
- * 沙箱子进程的 spawn 策略：SEA 下走隐藏子命令自 re-exec，否则不表态（harness 缺省
- * `node --max-old-space-size=… <entry>`）。
- *
- * SEA 单文件二进制不解释 Node CLI 旗标，harness 缺省 argv 里的
- * `--max-old-space-size` 会原样落进 CLI 的严格 parseArgs，子进程立即报错退出——**SEA 下每一个
- * workflow run 必然失败**。修法与 official plugin host 同款
- * （official-plugin-runtime.ts 的 `officialPluginHostPrefixArgs`）。
- *
- * SEA 判定留在 bootstrap 而不下沉到 harness：harness 是 app-free 的（只依赖
- * `@shucode/dynamic-workflow` 与 node 内建），既拿不到 contracts 的子命令常量，也不该知道
- * 自己被哪种宿主打包。`isSea` 可注入只为可测——默认探针在测试进程里必然返回 false，
- * 于是「非 SEA 不得带 argsPrefix」也是一条可断言的事实。
- */
-export function dynamicWorkflowChildSpawn(
-  isSea: boolean = isSeaRuntime(),
-): { argsPrefix: readonly string[] } | undefined {
-  return isSea ? { argsPrefix: [SHUCODE_DWF_CHILD_COMMAND] } : undefined;
-}
-
-/** SEA 运行时探针（official-plugin-runtime.ts 私有同名 helper 的本地镜像，刻意不跨文件复用）。 */
-function isSeaRuntime(): boolean {
-  const getBuiltinModule = process.getBuiltinModule as
-    | ((id: "node:sea") => { isSea(): boolean })
-    | undefined;
-  try {
-    return getBuiltinModule?.("node:sea").isSea() === true;
-  } catch {
-    return false;
-  }
 }
 
 /**

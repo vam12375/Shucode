@@ -1,9 +1,8 @@
 import { resolve } from "node:path";
-import { createConfig, resolvePath } from "@shucode/adapters/config";
+import { createConfig } from "@shucode/adapters/config";
 import { createNodeSkillAdapter } from "@shucode/adapters/skills";
 import type { Logger, SkillContent, SkillDiagnostic, SkillLoadOutcome } from "@shucode/contracts";
 import { resolveBundledSkillRoots } from "./app/bundled-skills.js";
-import { getCliStorageRoot } from "./app/paths.js";
 import { resolveShucodePlugins } from "./plugins.js";
 import { collectDisabledPaths } from "./skill-command-overrides.js";
 
@@ -110,7 +109,6 @@ async function createSkillDiscovery(options: ListShucodeSkillsOptions): Promise<
 
   // 内置技能包与插件技能根并列注入：`shucode skills list`、引用目录与 runtime 看到同一份发现结果。
   const bundledSkillRoots = await resolveBundledSkillRoots({
-    cliStorageRoot: getCliStorageRoot(resolvePath(configResult.config.storage.dir)),
     logger: options.logger,
   });
 

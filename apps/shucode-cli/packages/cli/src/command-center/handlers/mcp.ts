@@ -1,4 +1,4 @@
-import type { TuiSubmitPromptResult } from "@shucode/tui";
+import type { SubmitPromptResult } from "../interaction-types.js";
 import type { CommandCenterDeps, CommandCenterMcpStatus } from "../types.js";
 import { splitArgs } from "../utils.js";
 
@@ -7,7 +7,7 @@ const MCP_COMMAND_USAGE = "Usage: /mcp [list|status|connect <server>|disconnect 
 export async function handleMcpCommand(
   args: string,
   deps: CommandCenterDeps,
-): Promise<TuiSubmitPromptResult> {
+): Promise<SubmitPromptResult> {
   const app = await deps.getApp();
   const [action = "list", serverName] = splitArgs(args);
 

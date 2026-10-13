@@ -417,7 +417,7 @@ export async function resumeDynamicWorkflowRun(
 
   // 老 run 的 journal 原文是按**当时**的 facade 写的，重构后
   // 可能不再通过类型检查。compileOnce 对脏脚本是硬失败（那是接线错误的通道），resume 撞上它却是
-  // 一条用户可预期的业务分支——结构化拒绝 + 有界诊断，UI / TUI / 工具面据此指向 AmendWorkflow，
+  // 一条用户可预期的业务分支——结构化拒绝 + 有界诊断，UI / 工具面据此指向 AmendWorkflow，
   // 而不是一条泛化的「执行失败」。诊断与随后的编译共用同一个 Program，仍是「编译一次」。
   const workflow = createWorkflowProgram(record.scriptText);
   const diagnostics = collectDiagnostics(workflow.program);

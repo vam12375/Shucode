@@ -63,7 +63,7 @@ export function resolveRuntimeDisallowedTools(
 
 /**
  * 动态工作流开关在 registerBuiltInTools 上的取值。
- * **缺席即开启**：TUI 保留默认工具面；headless 根据 --enable-workflow 显式写 true/false，
+ * **缺席即开启**：交互客户端保留默认工具面；headless 根据 --enable-workflow 显式写 true/false，
  * protocol session 由受信 Host 控制，workflow_child 继承父配置。fail-closed 的缺省值在
  * headless 入口和协议服务端的 appRuntimePreferences，不在这一层。
  *

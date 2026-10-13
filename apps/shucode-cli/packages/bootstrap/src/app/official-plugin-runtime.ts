@@ -12,8 +12,6 @@ import {
   writeTextFileAtomicallyWithRetry,
 } from "./official-plugin-cache-fs.js";
 
-type SeaModule = typeof import("node:sea");
-
 const MCP_SERVER_RELATIVE_PATH = ["dist", "mcp", "server.js"] as const;
 
 export function createBundledMcpRuntimeConfig(input: {
@@ -93,21 +91,10 @@ export function writeOfficialPluginRuntimeManifest(input: OfficialRuntimeManifes
 }
 
 export function officialPluginHostPrefixArgs(): string[] | undefined {
-  if (isSeaRuntime()) return [SHUCODE_PLUGIN_HOST_COMMAND];
-
   const entrypoint = process.argv[1];
   if (!entrypoint) return undefined;
 
   return [...process.execArgv, resolve(entrypoint), SHUCODE_PLUGIN_HOST_COMMAND];
-}
-
-function isSeaRuntime(): boolean {
-  const getBuiltinModule = process.getBuiltinModule as ((id: "node:sea") => SeaModule) | undefined;
-  try {
-    return getBuiltinModule?.("node:sea").isSea() === true;
-  } catch {
-    return false;
-  }
 }
 
 function asRecord(value: unknown): Record<string, unknown> {

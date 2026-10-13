@@ -1,10 +1,10 @@
 import {
   createManagedCdpBrowserRuntime,
   type ManagedCdpBrowserRuntime,
+  type PlaywrightChromiumModule,
 } from "@shucode/adapters/browser";
 import type { GlobalOptions } from "@shucode/shared-types";
 import type { RunDependencies } from "./cli-types.js";
-import { loadCliPlaywrightChromium } from "./sea-playwright-runtime.js";
 
 export function createCliHeadlessBrowserRuntime(
   options: Pick<GlobalOptions, "browserExecutable" | "browserUse">,
@@ -15,6 +15,7 @@ export function createCliHeadlessBrowserRuntime(
   return factory({
     env: deps.env,
     executablePath: options.browserExecutable,
-    loadPlaywright: loadCliPlaywrightChromium,
+    // managed headless adapter 只在显式 --browser-use=headless 时延迟加载 playwright-core。
+    loadPlaywright: async () => (await import("playwright-core")) as PlaywrightChromiumModule,
   });
 }

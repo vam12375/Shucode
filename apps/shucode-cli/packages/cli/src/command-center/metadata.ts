@@ -1,16 +1,16 @@
-import type { TuiPromptInput, TuiSubmitPromptResult } from "@shucode/tui";
+import type { PromptInput, SubmitPromptResult } from "./interaction-types.js";
 import type { CommandCenterApp, CommandCenterDeps } from "./types.js";
 
-export function normalizeTuiPromptInput(input: TuiPromptInput): Exclude<TuiPromptInput, string> {
+export function normalizePromptInput(input: PromptInput): Exclude<PromptInput, string> {
   if (typeof input === "string") return { text: input };
   return input;
 }
 
 export function attachCurrentSessionMetadata(
-  result: TuiSubmitPromptResult,
+  result: SubmitPromptResult,
   deps: CommandCenterDeps,
   app?: CommandCenterApp,
-): TuiSubmitPromptResult {
+): SubmitPromptResult {
   return {
     ...result,
     locale: result.locale ?? app?.getLocale?.(),

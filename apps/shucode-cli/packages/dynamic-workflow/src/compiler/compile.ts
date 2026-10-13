@@ -129,7 +129,7 @@ export function compileWorkflowScript(scriptText: string): CompileResult {
 
 // Fully virtual compiler host: every file the program can see — the wrapped
 // script, the facade, and the embedded TS stdlib closure (TS_LIBS) — is served
-// from an in-memory Map. Nothing touches disk, so the bundled/SEA CLI (no
+// from an in-memory Map. Nothing touches disk, so the bundled CLI (no
 // node_modules) behaves identically to dev: a missing lib fails package tests
 // too, instead of only breaking in the bundle.
 function createVirtualHost(wrappedScript: string, facadeDts: string): ts.CompilerHost {

@@ -46,7 +46,7 @@ export interface OfficialPluginDefinition {
    */
   hostMcpServerNames?: readonly string[];
   name: string;
-  /** filesystem/SEA seed 缺少任一项时拒绝生成残缺的官方插件缓存。 */
+  /** filesystem seed 缺少任一项时拒绝生成残缺的官方插件缓存。 */
   requiredSeedPaths?: readonly string[];
   rootCandidates: readonly string[];
   /** Extra top-level paths intentionally staged as plugin runtime assets. */

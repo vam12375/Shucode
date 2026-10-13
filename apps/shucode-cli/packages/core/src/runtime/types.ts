@@ -206,7 +206,7 @@ export interface AgentRuntimeConfig {
   taskType?: SessionTaskType;
   /**
    * 动态工作流开关：Host 判定后经
-   * Shucode Protocol 下发，runtime 只消费。**缺席即开启**，保留 TUI 默认值；
+   * Shucode Protocol 下发，runtime 只消费。**缺席即开启**，保留交互客户端默认值；
    * headless 按 --enable-workflow 显式传 true/false（默认 false），workflow_child 继承父配置。
    * false 会关闭十个工作流工具，不改变其他工具的注册策略。
    */

@@ -176,7 +176,7 @@ interface RegisterBuiltInToolsOptions {
   includeOffPeak?: boolean;
   /**
    * 动态工作流灰度门。**只有显式 false
-   * 才下架** DYNAMIC_WORKFLOW_TOOL_NAMES：缺席代表调用方不参与灰度（TUI、headless、
+   * 才下架** DYNAMIC_WORKFLOW_TOOL_NAMES：缺席代表调用方不参与灰度（headless、
    * workflow_child），它们必须保留全部工具面；fail-closed 的缺省值落在协议服务端的
    * appRuntimePreferences，不在这一层。
    */

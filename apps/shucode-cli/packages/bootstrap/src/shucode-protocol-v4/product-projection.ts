@@ -4319,7 +4319,7 @@ export class ProductProjection {
   // 一条引擎 RunEvent 一条会话事件，归约成键级整体替换的权威态。走 reducer 而不是侧通道，
   // 所以持久、可回放、冷恢复免费（先例：subagents 键）。
   //
-  // 归约本体在 @shucode/shared 的 workflow-runs-reducer（与状态 schema 同居）：TUI 镜像要用
+  // 归约本体在 @shucode/shared 的 workflow-runs-reducer（与状态 schema 同居）：客户端镜像要用
   // 同一份归约，两处各写一份就是两个时钟。
   // 留在这里的只有投影的非纯部分——从事件信封取载荷、把新旧状态之差发成键级增量。
   private onDynamicWorkflowRunProgress(event: SessionEvent): ConversationDelta[] {

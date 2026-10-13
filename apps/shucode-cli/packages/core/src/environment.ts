@@ -1,4 +1,3 @@
-import { isSea } from "node:sea";
 import type { RuntimeInfo } from "@shucode/shared-types";
 
 export { type RuntimeInfo };
@@ -9,6 +8,5 @@ export const getRuntimeInfo = (): RuntimeInfo => ({
   execPath: process.execPath,
   node: process.version,
   platform: process.platform,
-  sea: isSea(),
   versions: process.versions,
 });

@@ -1,4 +1,4 @@
-import type { TuiSubmitPromptResult } from "@shucode/tui";
+import type { SubmitPromptResult } from "../interaction-types.js";
 import type {
   DynamicWorkflowRunResumeErrorReason,
   DynamicWorkflowRunSessionSummary,
@@ -24,7 +24,7 @@ const IN_FLIGHT_STATUSES: readonly DynamicWorkflowRunSessionSummary["status"][] 
 export async function handleDwfCommand(
   args: string,
   deps: CommandCenterDeps,
-): Promise<TuiSubmitPromptResult> {
+): Promise<SubmitPromptResult> {
   const app = await deps.getApp();
   const [action = "list", runId] = splitArgs(args);
 
@@ -57,7 +57,7 @@ async function handleCancel(
   runId: string | undefined,
   app: Awaited<ReturnType<CommandCenterDeps["getApp"]>>,
   deps: CommandCenterDeps,
-): Promise<TuiSubmitPromptResult> {
+): Promise<SubmitPromptResult> {
   if (!app.cancelBackgroundTask) return unavailable(deps);
 
   let targetRunId = runId;
@@ -161,11 +161,11 @@ function describeResumeRejection(reason: DynamicWorkflowRunResumeErrorReason): s
   }
 }
 
-function unavailable(deps: CommandCenterDeps): TuiSubmitPromptResult {
+function unavailable(deps: CommandCenterDeps): SubmitPromptResult {
   return respond(deps, "Dynamic workflow runs are not available in this client.");
 }
 
-function respond(deps: CommandCenterDeps, response: string): TuiSubmitPromptResult {
+function respond(deps: CommandCenterDeps, response: string): SubmitPromptResult {
   return {
     mode: deps.getMode?.(),
     response,

@@ -20,7 +20,13 @@ export {
   resolveLocale,
 };
 export type { LocaleDetectionInput } from "./locale.js";
-export type { CliCopy, TuiCopy, UiLocale, SupportedLocale, ShucodeCopy } from "./types.js";
+export type {
+  CliCopy,
+  CommandCenterCopy,
+  UiLocale,
+  SupportedLocale,
+  ShucodeCopy,
+} from "./types.js";
 
 const CATALOGS: Record<SupportedLocale, ShucodeCopy> = {
   "en-US": enUS,

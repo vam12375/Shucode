@@ -1,14 +1,11 @@
-import type { TuiSubmitPromptResult } from "@shucode/tui";
-import {
-  formatAvailableCommandCenterModes,
-  isSwitchableCommandCenterMode,
-} from "../modes.js";
+import type { SubmitPromptResult } from "../interaction-types.js";
+import { formatAvailableCommandCenterModes, isSwitchableCommandCenterMode } from "../modes.js";
 import type { CommandCenterDeps } from "../types.js";
 
 export async function handleModeCommand(
   args: string,
   deps: CommandCenterDeps,
-): Promise<TuiSubmitPromptResult> {
+): Promise<SubmitPromptResult> {
   const current = deps.getMode?.() ?? "build";
   if (args.length === 0) {
     return {

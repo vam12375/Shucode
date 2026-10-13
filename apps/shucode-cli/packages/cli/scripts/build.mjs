@@ -1,5 +1,8 @@
 import { chmod, readFile, rm } from "node:fs/promises";
-import { readThirdPartyNotices, stageThirdPartyNotices } from "../../../../../scripts/third-party-notices.mjs";
+import {
+  readThirdPartyNotices,
+  stageThirdPartyNotices,
+} from "../../../../../scripts/third-party-notices.mjs";
 import { basename, dirname, relative, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import { build } from "esbuild";
@@ -11,7 +14,7 @@ const executableFileMode = 0o755;
 const packageJsonFile = "package.json";
 const rootPackageVersionError = "Root package.json must define a non-empty string version.";
 const desktopAgentBuildFlag = "--desktop-agent";
-export const resolveBuildExternal = () => ["@shucode/tui", "playwright-core", "koffi"];
+export const resolveBuildExternal = () => ["playwright-core", "koffi"];
 
 export const readZodBuildVersion = async () => {
   const sharedPackage = JSON.parse(
@@ -158,7 +161,10 @@ export const resolveBuildAliases = ({
     "../../packages/shared/src/model-selection.ts",
   ),
   // 共享 Model Schema 新增的子路径不能被通用 alias 拼到 index.ts 后面。
-  "@shucode/shared/model-config": resolve(rootDirectory, "../../packages/shared/src/model-config.ts"),
+  "@shucode/shared/model-config": resolve(
+    rootDirectory,
+    "../../packages/shared/src/model-config.ts",
+  ),
   // 进程异常边界在 bootstrap 之前使用该轻量契约，不能落入 shared 的通用前缀 alias。
   "@shucode/shared/process-diagnostic": resolve(
     rootDirectory,
@@ -224,8 +230,8 @@ export const buildCli = async ({
 
   await build({
     banner: {
-      // SEA 与普通 CLI 共用入口；声明必须在 Agent 初始化和原生资源解压前可独立读取。
-      js: `#!/usr/bin/env node\n"use strict";\nif (process.argv.length === 3 && process.argv[2] === "--licenses") { const sea = require("node:sea"); const nodeNotice = sea.isSea() ? "\\n\\n## Bundled Node.js runtime\\n\\n" + sea.getAsset("shucode-node-license", "utf8") : ""; process.stdout.write(${JSON.stringify(notices.toString("utf8"))} + nodeNotice, () => process.exit(0)); } else {`,
+      // --licenses 声明必须在 Agent 初始化前可独立读取。
+      js: `#!/usr/bin/env node\n"use strict";\nif (process.argv.length === 3 && process.argv[2] === "--licenses") { process.stdout.write(${JSON.stringify(notices.toString("utf8"))}, () => process.exit(0)); } else {`,
     },
     footer: { js: "}" },
     bundle: true,
@@ -233,13 +239,10 @@ export const buildCli = async ({
       __CLI_VERSION__: JSON.stringify(cliVersion),
     },
     entryPoints: [resolve(cliDirectory, "src/main.ts")],
-    // Ink 7 and yoga-layout use top-level await, so the CJS CLI bundle loads the TUI
-    // through Node's native dynamic import path instead of forcing esbuild to lower it.
     // playwright-core 依赖运行时 package assets 与 require.resolve，相比内联 bundle 必须保持外置。
-    // managed headless adapter 只在显式 --browser-use=headless 时延迟加载，不影响 app-server/普通 CLI。
+    // managed headless adapter 只在显式 --browser-use=headless 时延迟加载，不影响 app-server。
     // koffi 会按当前平台动态 require 原生 `.node` 文件；内联会让 esbuild 遍历所有
-    // 平台产物并直接报 "No loader is configured for .node"。运行时仍从依赖包加载，
-    // SEA 资源由 build-sea 的 native asset 收集阶段单独处理。
+    // 平台产物并直接报 "No loader is configured for .node"。运行时仍从依赖包加载。
     external: resolveBuildExternal(),
     format: "cjs",
     // 桌面 app 集成只内置 shucode.cjs，旧 desktop-agent 构建复用 CLI 调试产物，
