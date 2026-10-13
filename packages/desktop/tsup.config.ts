@@ -198,7 +198,15 @@ export default defineConfig([
     platform: "node",
     target: "node22",
     external: ["electron"],
-    noExternal: ["@shucode/shared"],
+    // preload 在 sandbox:true 的渲染进程里执行，只有 Electron 的 sandbox bundle 能解析
+    // require("electron") 与少数 node 内建模块，其余裸 require 会在加载期直接抛
+    // "module not found" 并让整份 preload 失效。tsup 会把本包 package.json 的
+    // dependencies 全部视为 external；desktop 补齐 unlisted 依赖时加入 zod 之后，
+    // @shucode/shared 连带的 require("zod") 就变成了裸引用，preload 加载失败，
+    // renderer 读不到 window.shucode，入口在 React 渲染前抛错只剩空白窗口。
+    // zod 与 electron 不同，不在 sandbox 白名单里，必须内联进 bundle。
+    // 回归依据：7270a19 起 zod 进入 desktop dependencies；此前打包产物内联 zod（可用）。
+    noExternal: ["@shucode/shared", "zod"],
     outExtension: () => ({ js: ".cjs" }),
     define: createSharedDefines(),
     esbuildOptions(options) {
