@@ -1,8 +1,8 @@
 /* eslint-disable max-lines -- CLI 入口集中编排子命令分发与进程管理，oxfmt 换行后略超 400 行，拆分会割裂编排流程。 */
 import { fork } from "node:child_process";
-import { access, mkdir, readdir, rm, writeFile } from "node:fs/promises";
+import { mkdir, readdir, rm, writeFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
-import { dirname, isAbsolute, join } from "node:path";
+import { isAbsolute, join } from "node:path";
 import { SHUCODE_VERSION } from "@shucode/shared";
 import {
   controlRequestSchema,
@@ -39,7 +39,6 @@ export interface CliIO {
   stdout?: { write(value: string): void };
   stderr?: { write(value: string): void };
   confirm?: (prompt: string) => Promise<string>;
-  legacyDelegate?: (argv: readonly string[]) => Promise<number>;
 }
 
 export interface ServerCliRuntimeOptions {
@@ -65,6 +64,18 @@ export function isRegisteredServiceEntry(args: readonly string[]): boolean {
 
 export const SERVER_SERVICE_ARGS = ["serve", "--supervisor"] as const;
 
+const SERVER_CLI_USAGE = [
+  "Usage: shucode <command> [options]",
+  "  serve       Start the Shucode Server (--daemon to register/background it)",
+  "  status      Show server status",
+  "  stop        Stop the server",
+  "  restart     Restart the server",
+  "  update      Update to the latest release",
+  "  uninstall   Uninstall the server",
+  "",
+  "Options: --server-root <path>, --json, --force (update only)",
+].join("\n");
+
 export function shouldRegisterService(
   daemonRequested: boolean,
   supervisorProcess: boolean,
@@ -81,8 +92,18 @@ export async function runServerCli(
   try {
     const parsed = parseServerCliArguments(argv);
     const command = parsed.argv[0];
+    // 终端形态下线后不再向 Agent bundle 委托未识别参数：本 CLI 只承载服务管理命令。
     if (!command) {
-      return await (io.legacyDelegate?.(parsed.argv) ?? delegateLegacyCli(parsed.argv, io));
+      stderr(io, SERVER_CLI_USAGE);
+      return 1;
+    }
+    if (command === "--help" || command === "-h") {
+      stdout(io, SERVER_CLI_USAGE);
+      return 0;
+    }
+    if (command === "--version" || command === "-v") {
+      stdout(io, SHUCODE_VERSION);
+      return 0;
     }
     // 同一物理 data-root 的符号链接别名会派生不同 control endpoint 和 OS service
     // identity。生命周期命令统一在 IO 前收敛 root，避免第二个 Supervisor 绕过探测重复注册。
@@ -103,7 +124,8 @@ export async function runServerCli(
       case "uninstall":
         return await runUninstall(io, json, layout);
       default:
-        return await (io.legacyDelegate?.(parsed.argv) ?? delegateLegacyCli(parsed.argv, io));
+        stderr(io, `Unknown command: ${command}\n${SERVER_CLI_USAGE}`);
+        return 1;
     }
   } catch (error: unknown) {
     if (json)
@@ -501,18 +523,4 @@ async function readControlStatus(
   } catch {
     return null;
   }
-}
-
-async function delegateLegacyCli(argv: readonly string[], io: CliIO): Promise<number> {
-  const candidate =
-    process.env.SHUCODE_LEGACY_CLI_ENTRY?.trim() ||
-    join(dirname(fileURLToPath(import.meta.url)), "shucode.cjs");
-  try {
-    await access(candidate);
-  } catch {
-    stdout(io, argv.length ? `Unknown command: ${argv[0]}` : "Shucode TUI");
-    return argv.length ? 1 : 0;
-  }
-  const child = fork(candidate, [...argv], { stdio: "inherit" });
-  return await new Promise<number>((resolve) => child.once("exit", (code) => resolve(code ?? 1)));
 }

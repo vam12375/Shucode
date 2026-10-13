@@ -142,11 +142,6 @@ function isNodePtyRuntimePath(relativePath: string, target: ServerTarget): boole
   return false;
 }
 
-function isTargetSpecificPackage(packageName: string, target: ServerTarget): boolean {
-  if (!packageName.startsWith("@mbears/opentui-core-")) return true;
-  return packageName === `@mbears/opentui-core-${target}`;
-}
-
 interface StageOptions {
   target: ServerTarget;
   appVersion: string;
@@ -160,8 +155,6 @@ interface StageOptions {
   notices: { thirdParty: string; node: string; nodeSource: string };
   /** 依赖闭包解析与复制的来源 node_modules */
   workspaceNodeModulesDir: string;
-  /** 未被 pnpm 链接到 node_modules 的 workspace 包（例如 @shucode/tui）。 */
-  workspacePackageDirs?: ReadonlyMap<string, string>;
   /** 发行目录的输出父目录 */
   outputDir: string;
   /** 已准备好的 native search tools 根目录（tools/<id>/<binary>）。 */
@@ -416,7 +409,7 @@ export async function stageRelease(options: StageOptions): Promise<StagedRelease
     "utf8",
   );
   await cp(options.agentBundlePath, join(runtimeDir, "shucode.cjs"), { dereference: true });
-  // Agent bundle 是第三个实际运行入口；只扫描 Server bundle 会漏掉外置的 TUI/Playwright。
+  // Agent bundle 是第三个实际运行入口；只扫描 Server bundle 会漏掉 Agent 的外置依赖（Playwright/koffi）。
   bundleSources.push(await readFile(options.agentBundlePath, "utf8"));
 
   const nodeTargetPath = join(
@@ -432,13 +425,9 @@ export async function stageRelease(options: StageOptions): Promise<StagedRelease
   for (const source of bundleSources) {
     for (const name of collectBareModuleSpecifiers(source)) referencedPackages.add(name);
   }
-  const rawClosure = await resolveProductionPackageClosure(
+  const closure = await resolveProductionPackageClosure(
     [...referencedPackages],
     options.workspaceNodeModulesDir,
-    options.workspacePackageDirs,
-  );
-  const closure = new Map(
-    [...rawClosure].filter(([packageName]) => isTargetSpecificPackage(packageName, options.target)),
   );
   const nodeModulesTargetDir = join(runtimeDir, "node_modules");
   for (const [packageName, packageDir] of closure) {

@@ -179,27 +179,6 @@ export async function resolveNativeToolsDir(
   return cacheDir;
 }
 
-async function resolveWorkspacePackageDirs(repoRoot: string): Promise<Map<string, string>> {
-  const map = new Map<string, string>();
-  for (const root of [join(repoRoot, "apps/shucode-cli/packages"), join(repoRoot, "packages")]) {
-    if (!(await pathExists(root))) continue;
-    for (const entry of await readdir(root, { withFileTypes: true })) {
-      if (!entry.isDirectory()) continue;
-      const packageJsonPath = join(root, entry.name, "package.json");
-      if (!(await pathExists(packageJsonPath))) continue;
-      try {
-        const packageJson = JSON.parse(await readFile(packageJsonPath, "utf8")) as {
-          name?: string;
-        };
-        if (packageJson.name) map.set(packageJson.name, join(root, entry.name));
-      } catch {
-        // 非 package 目录不影响其它 workspace 包 staging。
-      }
-    }
-  }
-  return map;
-}
-
 function parseTarget(argv: readonly string[]): ServerTarget {
   const index = argv.indexOf("--target");
   if (index < 0) return currentServerTarget();
@@ -240,10 +219,9 @@ async function main(): Promise<void> {
     ensureAgentBundle(repoRoot, argv.includes("--skip-agent-build")),
     ensureNodeBinary(repoRoot, target),
   ]);
-  const [nativeToolsDir, officialPluginsDir, workspacePackageDirs] = await Promise.all([
+  const [nativeToolsDir, officialPluginsDir] = await Promise.all([
     resolveNativeToolsDir(repoRoot, target),
     Promise.resolve(join(repoRoot, "apps/shucode-cli/packages")),
-    resolveWorkspacePackageDirs(repoRoot),
   ]);
 
   const staged = await stageRelease({
@@ -258,7 +236,6 @@ async function main(): Promise<void> {
       nodeSource: JSON.stringify(nodeNotice.source, null, 2) + "\n",
     },
     workspaceNodeModulesDir: join(repoRoot, "node_modules"),
-    workspacePackageDirs,
     nativeToolsDir,
     officialPluginsDir,
     outputDir: join(packageRoot, "dist-release"),
