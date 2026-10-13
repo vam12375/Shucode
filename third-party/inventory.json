@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "inputHashEncoding": "UTF-8 with CRLF normalized to LF; notice and source snapshot hashes remain byte-exact",
   "scope": "Production dependency union across current workspace projects, copied source/assets and native tools; not a per-installer SBOM or a certification of all licensing obligations.",
-  "noticesSha256": "8e9c82f71689f902385f84594ee6f0b49059f6ac481c41423517b4ae5e33f841",
+  "noticesSha256": "850d882e2b29bc26b447e5fab84ec5a1985582ea5c6707738f1c0d132abe1ed9",
   "inputs": {
     ".agents/skills/agent-browser/references/authentication.md": "b1b921a9be608b1843cf88b5831689e287a3b92fc27b09583c73e477c7c368fd",
     ".agents/skills/agent-browser/references/commands.md": "1db5ff2a837ee9fc335a29f387aeb4621b969fed23b861deb336e6148798432b",
@@ -224,11 +224,11 @@
     ".agents/skills/react-best-practices/rules/server-parallel-nested-fetching.md": "4d9c44e579e1286013acf5cb5f65b04297d2b68909f44f8163804656514a78ff",
     ".agents/skills/react-best-practices/rules/server-serialization.md": "4d025c42043c56e6355196a2e885d168cdb15248d0797146c9db838a57b34946",
     ".agents/skills/react-best-practices/SKILL.md": "b7d246acb440bee224ab33614979a5b8debe5fdb13d0304967aa19358eb69d9f",
-    "apps/shucode-cli/package.json": "4c555104253052d2aee449e5f130afadab61c50cf1419d5a3d42105a3486aab2",
+    "apps/shucode-cli/package.json": "bbc854b7e60428d0f60cf14e0e5a6424f8cac3ebfe336c3fbb8dfc3d9cc9d339",
     "apps/shucode-cli/packages/adapters/package.json": "a57cc3dec7b08c35f3a4be43081a6d1b46a3df6b832e41c76d24676255338cc0",
     "apps/shucode-cli/packages/bootstrap/package.json": "6596b710871ed303798153472b262293916f8828213104c88f471ef4f821ce39",
     "apps/shucode-cli/packages/browser-use-plugin/package.json": "816320f6f995ab798a6388236dda1a2c38f19c4c308630b52231d48070abd95b",
-    "apps/shucode-cli/packages/cli/package.json": "a6964966b9a707289c527f139f0a68e89b890435773a62dacfe9bcccf4c8f810",
+    "apps/shucode-cli/packages/cli/package.json": "fa47163e8ffd69b043efa5583ea14032bff86358b18e5c7270c95704ff9b2d8d",
     "apps/shucode-cli/packages/contracts/package.json": "594ce0ee521261a0acc92263bd182a86717e1d3552884fb06b664ca3f29d60fc",
     "apps/shucode-cli/packages/core/package.json": "962dfbaf4409aaee7373102e3fae1c7540293a30ace2d69e5edeede7944535a1",
     "apps/shucode-cli/packages/core/src/tool/handlers/generated/bash-command-registry.ts": "60fa5acd9f5c357f4e51b1d1e944ee39da92680e4bc5e98dd708f1457fcf612b",
@@ -236,17 +236,16 @@
     "apps/shucode-cli/packages/dynamic-workflow-runtime/package.json": "f7436af1001edb53ee9a1a0390bd6d96b948875ead59b522eb923da136fb0195",
     "apps/shucode-cli/packages/dynamic-workflow/package.json": "c569bf2c309619309f19ecec81cdb52ee208be029cfe75c0739de6a27a9f5d6f",
     "apps/shucode-cli/packages/i18n/package.json": "3dc8d9795b718a06db4e963ef68a9395f13ee06039cb076e4744d34ac1b43314",
-    "apps/shucode-cli/packages/node-repl-host/package.json": "d8e6453ccbe4654a1d9723b53890ca3e5ad97e34135640b5ea3bd65bb2908695",
+    "apps/shucode-cli/packages/node-repl-host/package.json": "dc60d5234d4e70d2db1001c236ce73640e114f9bf0324c6dde1b3fbd84dfcd11",
     "apps/shucode-cli/packages/shared-types/package.json": "702367f6939c6646dc92228855592cd6357594ebd52747581b481e1a23527d50",
     "apps/shucode-cli/packages/superpowers-plugin/LICENSE": "a37e0e9697144819e1d965176ac4ae5bc3fa02d11e7812036bbcadf6dafe2400",
     "apps/shucode-cli/packages/swift-bridge/package.json": "190fe68baa68a069330c624f5e8aea2d476b615356b7c112573aded548ea6ee9",
     "apps/shucode-cli/packages/telemetry/package.json": "d903e2df322096be32929ea87522b0371d2d995980d0de2c4f041338bc5dfd7f",
-    "apps/shucode-cli/packages/tui/package.json": "4c17b34b69bb4b39ba83e1ff80e56059f590635d4aa13a2b208c1032b222f806",
     "apps/shucode-cli/tools/prompt-trajectory/package.json": "83ed6432015ff45f60fe4441d6af15be8763884f44d289e0bf2545d202411687",
     "apps/shucode-cli/tools/typescript/package.json": "d0577269267629f68c42d6c01ac299d56a3e7c80d7ac17c7860e3cd6b2d09a56",
-    "package.json": "15bcb934ba5d0e27a1df67cc50aa880ba10466c27015e63480fa12bd06389928",
+    "package.json": "1772befbdd5197edf85b249ed4bcc2092003fe7b3edafe9ae8ed3b709d24f4a6",
     "packages/client/package.json": "9eab039cb67225e7a1337d270c0aa82b9db7e54f2b5033af0d8b5488aac9fc0f",
-    "packages/desktop/package.json": "71a86bae319cd3195fb1042e3d8d8408c3911712e56161cbd56fc403788b54d0",
+    "packages/desktop/package.json": "ba3d36b6ff5e7b582b110fbd14c8fd5f360e56d6f94a5d7ebffae06cf92e13c0",
     "packages/desktop/src/renderer/public/material-icons/3d.svg": "9527b849f0fba57ca7640e2717b3a19cb5f5e046712cbbd8b75d73af338c68fb",
     "packages/desktop/src/renderer/public/material-icons/abap.svg": "1335bd7eb9a0ed49deb622330d680c2e97731726a7a5eee8e4f46dc1e5db4de4",
     "packages/desktop/src/renderer/public/material-icons/abc.svg": "d1a68020e8f020ef29dca5f94dc8613b7ae8fb5b212d8b1cc23b0f975ac7acda",
@@ -1400,7 +1399,7 @@
     "packages/rpc/examples/01-basic-ipc.ts": "bb4423c1642918846010f9307262c379536ca9541d79df6ebba120b5cf792f3e",
     "packages/rpc/examples/02-proxy-channel.ts": "66dda9aec12cd46da8a56560cb765a3de590917bbc40f329185e6fd05a388fff",
     "packages/rpc/examples/03-ipc-server-client.ts": "9b873f565b4a3426ee3a5338a975cb6ab76e29af094cf6bbee4f7030f872f758",
-    "packages/rpc/examples/04-remote-connection.ts": "fe43a2d631ba54a1cf63a86e344b6e2e58d83c2e8c95f2f8b7371f63e6442541",
+    "packages/rpc/examples/04-remote-connection.ts": "db268ab9e21a6e20eff2a16ce7c88de571d6688a6f46aa9eb0508ca734bcdc1c",
     "packages/rpc/package.json": "f6292d2c6db9ae4a75df2a9a2ae6cde557a78a609f68a1d00bd424b5f9884d17",
     "packages/rpc/src/buffer.ts": "6bc6a44e6abd088f72d57616d9556d78ce078b6f3813bf75402dde386781492c",
     "packages/rpc/src/channelClient.ts": "d2504929253ebb18f020e6f35e51a3741190558875d18a47192f9af78ca3f8ac",
@@ -1408,14 +1407,14 @@
     "packages/rpc/src/channels.ts": "afaba1724055a3d2e6b8b379553569489b71ac6eb252f636ab91649657485209",
     "packages/rpc/src/channelServer.ts": "b9c61bd3881fff11b38a93853c60fa5c2bc871bcbea5dad0e9be0a4674f6c9da",
     "packages/rpc/src/delayedChannel.ts": "e7607b7fe9f35c742db206df90852e2ccafb75abc088606cf1ddbae801574ecf",
-    "packages/rpc/src/foundation.ts": "b4874401965e7bad7e84245a2fc5960657a349b146f355ac7343562fa724da9f",
+    "packages/rpc/src/foundation.ts": "0003ee30a2760c8b3aff32b40fe78e4bac7c68d2fa8009f787c2efe7369b82f4",
     "packages/rpc/src/index.ts": "6a5adcfb0e6c7a7d385e10fede09c3e9c808e3555c27b938091868cdf0c3fbef",
-    "packages/rpc/src/ipc.ts": "2ec3dfe0654a68300dbed7afd5ac436b563abf983d6e0f59a2b028469fdf71ef",
+    "packages/rpc/src/ipc.ts": "3a3942ec35f40ecf296f3b648daee46b5260f66b2038b4dad1e8813590f8b331",
     "packages/rpc/src/logging-middleware.ts": "20edfd8e5d054097186f2498ec4e9c08c61740ed003fc69eecea8176a15fe025",
     "packages/rpc/src/network-telemetry-middleware.ts": "18a7cde46e6c65e0138af0623d07bf883ce278acf44654bc5144ecaadd36a536",
     "packages/rpc/src/persistent-protocol.ts": "80609595b89188272d743e557502c6cad3858f828acae31c2ef64206bb3c8978",
     "packages/rpc/src/protocol.ts": "e967f4f957c6fe8fc084834e47c9aede3e5530ad61f5ee719259c98c783d86db",
-    "packages/rpc/src/proxy-channel.ts": "ec5b43e6a3a622a88a8aaa6af9cb37dbfe517932ee7f4a337019ec138bb2d513",
+    "packages/rpc/src/proxy-channel.ts": "1f81da70701f1ae95856c3a94abca456fd8352e7860013609d19f567bfdc94fb",
     "packages/rpc/src/remote.ts": "a11e072d5df7e1c1ce64814a68f72afc081246b364f0da409b5c9d22bc815957",
     "packages/rpc/src/serialization.ts": "04c0d167d0bdcee38c34be796d0a9ce4a1920d3fe6f32338145b16dec7b0ecab",
     "packages/server/package.json": "759e80d2c21d9606c74ba5b89c64a4c76724fcd629494a3c257d38d396c4c9eb",
@@ -1424,7 +1423,7 @@
     "packages/shared/src/shucode-protocol-v4/wire-codec.ts": "fb19762ed71de17d1ca9a946942d87224537aaede3fb892acfea0e23646aef63",
     "packages/shucode-cua/package.json": "3207cac71cb29bdfe16b541d83dd7e2aefdfa8694e053ffe35afe54ca2004224",
     "packages/shucode-server-cli/package.json": "bba5d3eeee6753dbc6f7ebea96d8970e45243a3730086ad51f35116883893956",
-    "packages/ui/package.json": "ef401dafbfd7d80d2629b2532503a7b616a827d9a8fa75a6679f6f649beb2adb",
+    "packages/ui/package.json": "3324dbb08b120f4a2145877bb1a7efb0af5ac3b3df0bed7933387d8bbd4f8e65",
     "packages/ui/src/components/ai-elements/agent.tsx": "3b31d0a167bfa9b6456e4a37fded6cf6ebb5edad4d546a0e4565d124619e1b58",
     "packages/ui/src/components/ai-elements/artifact.tsx": "683739757135ec3d22787dff0882732dc05bdae76ab40301bbdc485bd24a00b4",
     "packages/ui/src/components/ai-elements/attachments.tsx": "2e7a64c8bedc9d39a54607f2f3cbe15293b09b64eeaa46c659fa9ac5ce9f0b5a",
@@ -1513,12 +1512,12 @@
     "packages/ui/src/components/ui/switch.tsx": "1a6490eb3c47b3a86b76c8469e5702608ea57da7853df5de00fffa9a4a472adf",
     "packages/ui/src/components/ui/tabs.tsx": "adc59a0469c80118e9d60c08bf0222d55664ef95e6c522496b5c201011b347f0",
     "packages/ui/src/components/ui/textarea.tsx": "a839574ce1301fbaa9ba917fdb980900eb9118bffa7c6c4e469f3293b122ed30",
-    "packages/ui/src/components/ui/toast.tsx": "25572cca9208ec439d40551e7c26dc58d5292421e034551ff218bd336e513146",
+    "packages/ui/src/components/ui/toast.tsx": "04001aad66d039915e3cef0ff7424b3f5e19c75bc11d328826abdfea8eb641ad",
     "packages/ui/src/components/ui/tooltip.tsx": "301dbf3a6f8b1bc496f9bdc6fbc5fe6202ed373182897f39cd1ecd19b00fdfbe",
     "packages/ui/src/components/ui/usePdfZoomOverlay.ts": "c8c91b003ce2fded32c7a2369dc6eac43aa4b9dc9c830a0f5ceccb21d366b610",
     "packages/ui/src/lib/builtinSkillI18n.ts": "59b610e9f3796b8082e1f30684c5f743827f75e9ddc1972aab51b3caa2e8cedf",
-    "packages/ui/src/styles.css": "f101929b31212b0d8eed67ba68e678c794ab60ce6a4d09a12c3b6e92e7484dad",
-    "packages/web/package.json": "ce8fd52fa47c9a3a04cc8c2310749ffb2d62546299138e709762d30df13fbf72",
+    "packages/ui/src/styles.css": "0b834c5b29c72b7596ad4df924ce8c66c0d0e97dda8221f835625d288155654a",
+    "packages/web/package.json": "b252d267ce8712efecaa9f4264b4b25770cfa080c95203a11c623977c04154c0",
     "packages/web/public/material-icons/3d.svg": "9527b849f0fba57ca7640e2717b3a19cb5f5e046712cbbd8b75d73af338c68fb",
     "packages/web/public/material-icons/abap.svg": "1335bd7eb9a0ed49deb622330d680c2e97731726a7a5eee8e4f46dc1e5db4de4",
     "packages/web/public/material-icons/abc.svg": "d1a68020e8f020ef29dca5f94dc8613b7ae8fb5b212d8b1cc23b0f975ac7acda",
@@ -2668,7 +2667,7 @@
     "patches/@ai-sdk__anthropic@3.0.81.patch": "01ede7f5fd369e7f9aab2966a4087c706ed0a6b3d8e6c04f7720672ae253e3c6",
     "patches/@ai-sdk__openai-compatible@2.0.60.patch": "94344ed3ce96db42490df9647220467829341a28ce3cc0301cc7b07dd2f94a64",
     "patches/@arms__rum-electron@0.0.3.patch": "d41bf9a2232871f935af6006995880b33577606ce8ca65827c5077ea5741d6c6",
-    "pnpm-lock.yaml": "166993326e3f5af6f95d7342e3df1fc9f3c18e53af96e3c654aaa2ed1bab1e88",
+    "pnpm-lock.yaml": "fa5c0338b779946c68e451ddb8fd5ceae1fe6fe2ff4d65b5df5dce339badf586",
     "pnpm-workspace.yaml": "a770713295a6daf9b04bec2282e0739a8b866f9b9a749a1bab2c381c532b31cd",
     "scripts/license-texts/Apache-2.0.txt": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
     "scripts/native-search-tools-config.mjs": "872fd9e250758af502bfc7a629ffffd35b25c06d92c5fe3dd2573bb4b495376a",
@@ -2790,14 +2789,13 @@
     "third-party/native-search/licenses/f9bc4423732350eb0b3f7ed7e91d530298476f8fec0c6c427a1c04ade22655af.txt": "f9bc4423732350eb0b3f7ed7e91d530298476f8fec0c6c427a1c04ade22655af",
     "third-party/native-search/licenses/f9c375a1be4a41f7b70301dd83c91cb89e41567478859b77eef375a52d782505.txt": "f9c375a1be4a41f7b70301dd83c91cb89e41567478859b77eef375a52d782505",
     "third-party/native-search/sources.json": "054f2f183e580151c0f65f3564429f1a3e426c36419d6ae5045b3b7d38fdaff3",
-    "third-party/npm-overrides.json": "08e2b41ea681c0058e7430f8d285e0693433af2ead0b0bc96d80aecbe7ecad19",
+    "third-party/npm-overrides.json": "4dceb02c95f8a60c87d73ae9964028dcf5bd28b2fc5092b09234bd0fbda30441",
     "third-party/runtime/node-22.16.0-LICENSE.txt": "1ae62e2015784ba438db7b04ebd33f3c4ff3efdb824c111c4ececd99945fd52d",
     "third-party/runtime/node-24.14.0-LICENSE.txt": "4573185d56580da2b890ba34a85a409257640f1c5632eade4300137266194d18",
     "third-party/runtime/sources.json": "b27bc8d81aeb71108e523602364ffbb6a1b19c2d5d47733fd43094b769006741",
     "third-party/upstream/000ffa2d773c511f4459fb31d89f841806f93bf5caf2050468ab2097c081b443.txt": "000ffa2d773c511f4459fb31d89f841806f93bf5caf2050468ab2097c081b443",
     "third-party/upstream/014bb31e83d5c2e76aea1cc6e82217346ab41362f32cb355ad0f5c10aa0aeaff.txt": "014bb31e83d5c2e76aea1cc6e82217346ab41362f32cb355ad0f5c10aa0aeaff",
     "third-party/upstream/0a7cda7d15aca7baaa3035e1f90466dde9ecc980c103cd230382d6675714bf2a.txt": "0a7cda7d15aca7baaa3035e1f90466dde9ecc980c103cd230382d6675714bf2a",
-    "third-party/upstream/0ab717053f3e24736cd404a0801407fb305db75d1b58f7e6487d14feee30d28a.txt": "0ab717053f3e24736cd404a0801407fb305db75d1b58f7e6487d14feee30d28a",
     "third-party/upstream/0c74e86d37d6fc7e8f22b4b8e3b801f6737c263c27a71d81c86cd8de0b6a84e5.txt": "0c74e86d37d6fc7e8f22b4b8e3b801f6737c263c27a71d81c86cd8de0b6a84e5",
     "third-party/upstream/0e80a2d229d2fd4fc7e8636142ec5d0ff0bc031f14c15b682e2ac01dfd5b5138.txt": "0e80a2d229d2fd4fc7e8636142ec5d0ff0bc031f14c15b682e2ac01dfd5b5138",
     "third-party/upstream/1564074e13439397221ffd522e2e504d56561994a23d371aa5e3ad43e4f5423f.txt": "1564074e13439397221ffd522e2e504d56561994a23d371aa5e3ad43e4f5423f",
@@ -2822,7 +2820,6 @@
     "third-party/upstream/4a1d35b6325ede5ff9fc338fe7e6fdcaa9fe770767a0114242b817dcba28253f.txt": "4a1d35b6325ede5ff9fc338fe7e6fdcaa9fe770767a0114242b817dcba28253f",
     "third-party/upstream/508d4676d4083e874df706f302d9d42e5e7f9aed3f5a7ea614dc6d2b2252a22f.txt": "508d4676d4083e874df706f302d9d42e5e7f9aed3f5a7ea614dc6d2b2252a22f",
     "third-party/upstream/5129f8779dca579cfcb235570688a2f15822b270575e04f27ef906aabbcc0355.txt": "5129f8779dca579cfcb235570688a2f15822b270575e04f27ef906aabbcc0355",
-    "third-party/upstream/52412d7bc7ce4157ea628bbaacb8829e0a9cb3c58f57f99176126bc8cf2bfc85.txt": "52412d7bc7ce4157ea628bbaacb8829e0a9cb3c58f57f99176126bc8cf2bfc85",
     "third-party/upstream/52c49219748499a9a56e0d8d10a73a2d7741f5ecf5c88bdff30593599d6dfbb6.txt": "52c49219748499a9a56e0d8d10a73a2d7741f5ecf5c88bdff30593599d6dfbb6",
     "third-party/upstream/539dd7aed86e8a4f12cbdd0e6c50c189c7d74847e4fecc64ce2c6ee3a01da38b.txt": "539dd7aed86e8a4f12cbdd0e6c50c189c7d74847e4fecc64ce2c6ee3a01da38b",
     "third-party/upstream/58d1e17ffe5109a7ae296caafcadfdbe6a7d176f0bc4ab01e12a689b0499d8bd.txt": "58d1e17ffe5109a7ae296caafcadfdbe6a7d176f0bc4ab01e12a689b0499d8bd",
@@ -2843,7 +2840,6 @@
     "third-party/upstream/9480271317925265e806a9a196aaa33410a962fa9d4d1e248a4a5187bc8c9df9.txt": "9480271317925265e806a9a196aaa33410a962fa9d4d1e248a4a5187bc8c9df9",
     "third-party/upstream/96f5b328adbb78eeaaec6980d73fd558cb1e4d62560ed615646bc3cf5e532430.txt": "96f5b328adbb78eeaaec6980d73fd558cb1e4d62560ed615646bc3cf5e532430",
     "third-party/upstream/96f73f9d2a16c21a36b418f06073be26e7d6d5e7c1bc99756b21a4f2c74ef171.txt": "96f73f9d2a16c21a36b418f06073be26e7d6d5e7c1bc99756b21a4f2c74ef171",
-    "third-party/upstream/992490064b90ec94c302fe5f29dcc14cb44145857064e46f9ffe6c8f511c1093.txt": "992490064b90ec94c302fe5f29dcc14cb44145857064e46f9ffe6c8f511c1093",
     "third-party/upstream/9b405ef4c89342f5eae1dd828882f931747f71001cfba7d114801039b52ad09b.txt": "9b405ef4c89342f5eae1dd828882f931747f71001cfba7d114801039b52ad09b",
     "third-party/upstream/9b7a157a0079ef346f3215b964071fa460d0dd251ca93cbf581bcc91595066ca.txt": "9b7a157a0079ef346f3215b964071fa460d0dd251ca93cbf581bcc91595066ca",
     "third-party/upstream/a37e0e9697144819e1d965176ac4ae5bc3fa02d11e7812036bbcadf6dafe2400.txt": "a37e0e9697144819e1d965176ac4ae5bc3fa02d11e7812036bbcadf6dafe2400",
@@ -2862,7 +2858,6 @@
     "third-party/upstream/cf81859d85e99ff2fad83d51d9dfd85ca5189b23c4442aacf1890c54665d92f4.txt": "cf81859d85e99ff2fad83d51d9dfd85ca5189b23c4442aacf1890c54665d92f4",
     "third-party/upstream/cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30.txt": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
     "third-party/upstream/d65ff929f8a373ea16b21d45d5489557d51389ba6583a5c9959d5487c02ce965.txt": "d65ff929f8a373ea16b21d45d5489557d51389ba6583a5c9959d5487c02ce965",
-    "third-party/upstream/da6d3703ed11cbe42bd212c725957c98da23cbff1998c05fa4b3d976d1a58e93.txt": "da6d3703ed11cbe42bd212c725957c98da23cbff1998c05fa4b3d976d1a58e93",
     "third-party/upstream/e1cfcc55c325b3f78cf55df9664abaa066e2271dffe8213347d9fccdfbac8f2c.txt": "e1cfcc55c325b3f78cf55df9664abaa066e2271dffe8213347d9fccdfbac8f2c",
     "third-party/upstream/e2b35be49f7284a45b7baca8fc7b3ab7440e7902392b2528a457816b5bb2a15c.txt": "e2b35be49f7284a45b7baca8fc7b3ab7440e7902392b2528a457816b5bb2a15c",
     "third-party/upstream/e49e62397b603438476e0d6b5ca3b6e6d4f23a80594e596aff29ac04fa3e1b1c.txt": "e49e62397b603438476e0d6b5ca3b6e6d4f23a80594e596aff29ac04fa3e1b1c",
@@ -3528,38 +3523,10 @@
       ]
     },
     {
-      "name": "@dnd-kit/abstract",
-      "version": "0.4.0",
-      "license": "MIT",
-      "repository": "https://github.com/clauderic/dnd-kit",
-      "notices": [
-        {
-          "member": "LICENSE",
-          "sha256": "537607e3f1533ad2c5b12978967f5ab27f34ffb7e626e321017a7ccca6cc24ff"
-        },
-        {
-          "member": "README.md (license section)",
-          "sha256": "24ca8559d731b38606649310786324e0b4e060d929e21597dbcb7e88449e22bb"
-        }
-      ]
-    },
-    {
       "name": "@dnd-kit/accessibility",
       "version": "3.1.1",
       "license": "MIT",
       "repository": "git+https://github.com/clauderic/dnd-kit.git",
-      "notices": [
-        {
-          "member": "LICENSE",
-          "sha256": "537607e3f1533ad2c5b12978967f5ab27f34ffb7e626e321017a7ccca6cc24ff"
-        }
-      ]
-    },
-    {
-      "name": "@dnd-kit/collision",
-      "version": "0.4.0",
-      "license": "MIT",
-      "repository": "https://github.com/clauderic/dnd-kit",
       "notices": [
         {
           "member": "LICENSE",
@@ -3580,70 +3547,10 @@
       ]
     },
     {
-      "name": "@dnd-kit/dom",
-      "version": "0.4.0",
-      "license": "MIT",
-      "repository": "https://github.com/clauderic/dnd-kit",
-      "notices": [
-        {
-          "member": "LICENSE",
-          "sha256": "537607e3f1533ad2c5b12978967f5ab27f34ffb7e626e321017a7ccca6cc24ff"
-        }
-      ]
-    },
-    {
-      "name": "@dnd-kit/geometry",
-      "version": "0.4.0",
-      "license": "MIT",
-      "repository": "https://github.com/clauderic/dnd-kit",
-      "notices": [
-        {
-          "member": "LICENSE",
-          "sha256": "537607e3f1533ad2c5b12978967f5ab27f34ffb7e626e321017a7ccca6cc24ff"
-        }
-      ]
-    },
-    {
-      "name": "@dnd-kit/helpers",
-      "version": "0.4.0",
-      "license": "MIT",
-      "repository": "https://github.com/clauderic/dnd-kit",
-      "notices": [
-        {
-          "member": "LICENSE",
-          "sha256": "537607e3f1533ad2c5b12978967f5ab27f34ffb7e626e321017a7ccca6cc24ff"
-        }
-      ]
-    },
-    {
-      "name": "@dnd-kit/react",
-      "version": "0.4.0",
-      "license": "MIT",
-      "repository": "https://github.com/clauderic/dnd-kit",
-      "notices": [
-        {
-          "member": "LICENSE",
-          "sha256": "537607e3f1533ad2c5b12978967f5ab27f34ffb7e626e321017a7ccca6cc24ff"
-        }
-      ]
-    },
-    {
       "name": "@dnd-kit/sortable",
       "version": "10.0.0",
       "license": "MIT",
       "repository": "git+https://github.com/clauderic/dnd-kit.git",
-      "notices": [
-        {
-          "member": "LICENSE",
-          "sha256": "537607e3f1533ad2c5b12978967f5ab27f34ffb7e626e321017a7ccca6cc24ff"
-        }
-      ]
-    },
-    {
-      "name": "@dnd-kit/state",
-      "version": "0.4.0",
-      "license": "MIT",
-      "repository": "https://github.com/clauderic/dnd-kit",
       "notices": [
         {
           "member": "LICENSE",
@@ -4726,102 +4633,6 @@
         {
           "member": "LICENSE",
           "sha256": "a3d60eaf32d2fb09c9d82ef39f14bd6e2c0f3ca7de30daa827486c0d6f8b6e9f"
-        }
-      ]
-    },
-    {
-      "name": "@mbears/opentui-core-darwin-arm64",
-      "version": "0.2.15",
-      "license": "MIT",
-      "repository": "https://github.com/anomalyco/opentui",
-      "notices": [
-        {
-          "member": "LICENSE",
-          "sha256": "d9c397a5dc5ac77a2a08fc967ea06a65317a4b5b8de48f6f732ffcb21737e3d2"
-        }
-      ]
-    },
-    {
-      "name": "@mbears/opentui-core-darwin-x64",
-      "version": "0.2.15",
-      "license": "MIT",
-      "repository": "https://github.com/anomalyco/opentui",
-      "notices": [
-        {
-          "member": "LICENSE",
-          "sha256": "d9c397a5dc5ac77a2a08fc967ea06a65317a4b5b8de48f6f732ffcb21737e3d2"
-        }
-      ]
-    },
-    {
-      "name": "@mbears/opentui-core-linux-arm64",
-      "version": "0.2.15",
-      "license": "MIT",
-      "repository": "https://github.com/anomalyco/opentui",
-      "notices": [
-        {
-          "member": "LICENSE",
-          "sha256": "d9c397a5dc5ac77a2a08fc967ea06a65317a4b5b8de48f6f732ffcb21737e3d2"
-        }
-      ]
-    },
-    {
-      "name": "@mbears/opentui-core-linux-x64",
-      "version": "0.2.15",
-      "license": "MIT",
-      "repository": "https://github.com/anomalyco/opentui",
-      "notices": [
-        {
-          "member": "LICENSE",
-          "sha256": "d9c397a5dc5ac77a2a08fc967ea06a65317a4b5b8de48f6f732ffcb21737e3d2"
-        }
-      ]
-    },
-    {
-      "name": "@mbears/opentui-core-win32-arm64",
-      "version": "0.2.15",
-      "license": "MIT",
-      "repository": "https://github.com/anomalyco/opentui",
-      "notices": [
-        {
-          "member": "LICENSE",
-          "sha256": "d9c397a5dc5ac77a2a08fc967ea06a65317a4b5b8de48f6f732ffcb21737e3d2"
-        }
-      ]
-    },
-    {
-      "name": "@mbears/opentui-core-win32-x64",
-      "version": "0.2.15",
-      "license": "MIT",
-      "repository": "https://github.com/anomalyco/opentui",
-      "notices": [
-        {
-          "member": "LICENSE",
-          "sha256": "d9c397a5dc5ac77a2a08fc967ea06a65317a4b5b8de48f6f732ffcb21737e3d2"
-        }
-      ]
-    },
-    {
-      "name": "@mbears/opentui-core",
-      "version": "0.2.15",
-      "license": "MIT",
-      "repository": "https://github.com/anomalyco/opentui",
-      "notices": [
-        {
-          "member": "LICENSE",
-          "sha256": "d9c397a5dc5ac77a2a08fc967ea06a65317a4b5b8de48f6f732ffcb21737e3d2"
-        }
-      ]
-    },
-    {
-      "name": "@mbears/opentui-react",
-      "version": "0.2.15",
-      "license": "MIT",
-      "repository": "https://github.com/anomalyco/opentui",
-      "notices": [
-        {
-          "member": "LICENSE",
-          "sha256": "d9c397a5dc5ac77a2a08fc967ea06a65317a4b5b8de48f6f732ffcb21737e3d2"
         }
       ]
     },
@@ -6385,18 +6196,6 @@
       ]
     },
     {
-      "name": "@shikijs/core",
-      "version": "4.1.0",
-      "license": "MIT",
-      "repository": "git+https://github.com/shikijs/shiki.git",
-      "notices": [
-        {
-          "member": "LICENSE",
-          "sha256": "7a9d8d01038aeacf9e5bcdabbddf2a7815200dce9fc1118468cc553e00ae3eee"
-        }
-      ]
-    },
-    {
       "name": "@shikijs/engine-javascript",
       "version": "3.23.0",
       "license": "MIT",
@@ -6415,22 +6214,6 @@
     {
       "name": "@shikijs/engine-javascript",
       "version": "4.0.2",
-      "license": "MIT",
-      "repository": "git+https://github.com/shikijs/shiki.git",
-      "notices": [
-        {
-          "member": "LICENSE",
-          "sha256": "7a9d8d01038aeacf9e5bcdabbddf2a7815200dce9fc1118468cc553e00ae3eee"
-        },
-        {
-          "member": "README.md (license section)",
-          "sha256": "daf005969aac8cb4283b3777361f0244f4cce898b9a983a60b7f0d9e96f559bf"
-        }
-      ]
-    },
-    {
-      "name": "@shikijs/engine-javascript",
-      "version": "4.1.0",
       "license": "MIT",
       "repository": "git+https://github.com/shikijs/shiki.git",
       "notices": [
@@ -6477,22 +6260,6 @@
       ]
     },
     {
-      "name": "@shikijs/engine-oniguruma",
-      "version": "4.1.0",
-      "license": "MIT",
-      "repository": "git+https://github.com/shikijs/shiki.git",
-      "notices": [
-        {
-          "member": "LICENSE",
-          "sha256": "7a9d8d01038aeacf9e5bcdabbddf2a7815200dce9fc1118468cc553e00ae3eee"
-        },
-        {
-          "member": "README.md (license section)",
-          "sha256": "daf005969aac8cb4283b3777361f0244f4cce898b9a983a60b7f0d9e96f559bf"
-        }
-      ]
-    },
-    {
       "name": "@shikijs/langs",
       "version": "3.23.0",
       "license": "MIT",
@@ -6511,22 +6278,6 @@
     {
       "name": "@shikijs/langs",
       "version": "4.0.2",
-      "license": "MIT",
-      "repository": "git+https://github.com/shikijs/shiki.git",
-      "notices": [
-        {
-          "member": "LICENSE",
-          "sha256": "7a9d8d01038aeacf9e5bcdabbddf2a7815200dce9fc1118468cc553e00ae3eee"
-        },
-        {
-          "member": "README.md (license section)",
-          "sha256": "daf005969aac8cb4283b3777361f0244f4cce898b9a983a60b7f0d9e96f559bf"
-        }
-      ]
-    },
-    {
-      "name": "@shikijs/langs",
-      "version": "4.1.0",
       "license": "MIT",
       "repository": "git+https://github.com/shikijs/shiki.git",
       "notices": [
@@ -6553,18 +6304,6 @@
       ]
     },
     {
-      "name": "@shikijs/primitive",
-      "version": "4.1.0",
-      "license": "MIT",
-      "repository": "git+https://github.com/shikijs/shiki.git",
-      "notices": [
-        {
-          "member": "LICENSE",
-          "sha256": "7a9d8d01038aeacf9e5bcdabbddf2a7815200dce9fc1118468cc553e00ae3eee"
-        }
-      ]
-    },
-    {
       "name": "@shikijs/themes",
       "version": "3.23.0",
       "license": "MIT",
@@ -6583,22 +6322,6 @@
     {
       "name": "@shikijs/themes",
       "version": "4.0.2",
-      "license": "MIT",
-      "repository": "git+https://github.com/shikijs/shiki.git",
-      "notices": [
-        {
-          "member": "LICENSE",
-          "sha256": "7a9d8d01038aeacf9e5bcdabbddf2a7815200dce9fc1118468cc553e00ae3eee"
-        },
-        {
-          "member": "README.md (license section)",
-          "sha256": "daf005969aac8cb4283b3777361f0244f4cce898b9a983a60b7f0d9e96f559bf"
-        }
-      ]
-    },
-    {
-      "name": "@shikijs/themes",
-      "version": "4.1.0",
       "license": "MIT",
       "repository": "git+https://github.com/shikijs/shiki.git",
       "notices": [
@@ -6647,22 +6370,6 @@
     {
       "name": "@shikijs/types",
       "version": "4.0.2",
-      "license": "MIT",
-      "repository": "git+https://github.com/shikijs/shiki.git",
-      "notices": [
-        {
-          "member": "LICENSE",
-          "sha256": "7a9d8d01038aeacf9e5bcdabbddf2a7815200dce9fc1118468cc553e00ae3eee"
-        },
-        {
-          "member": "README.md (license section)",
-          "sha256": "daf005969aac8cb4283b3777361f0244f4cce898b9a983a60b7f0d9e96f559bf"
-        }
-      ]
-    },
-    {
-      "name": "@shikijs/types",
-      "version": "4.1.0",
       "license": "MIT",
       "repository": "git+https://github.com/shikijs/shiki.git",
       "notices": [
@@ -6781,30 +6488,6 @@
         {
           "member": "LICENSE",
           "sha256": "b4f9adb7c568904834d0dd6cc98d16c390d21ca32fc17ae7a267715269bd5529"
-        }
-      ]
-    },
-    {
-      "name": "@stripe/react-stripe-js",
-      "version": "6.4.0",
-      "license": "MIT",
-      "repository": "https://github.com/stripe/react-stripe-js.git",
-      "notices": [
-        {
-          "member": "LICENSE",
-          "sha256": "f5ecc63f26b1bf790f68fd8e4a84376385b19b9246100dc93a5b6ba9bf17f964"
-        }
-      ]
-    },
-    {
-      "name": "@stripe/stripe-js",
-      "version": "9.6.0",
-      "license": "MIT",
-      "repository": "github:stripe/stripe-js",
-      "notices": [
-        {
-          "member": "LICENSE",
-          "sha256": "f5ecc63f26b1bf790f68fd8e4a84376385b19b9246100dc93a5b6ba9bf17f964"
         }
       ]
     },
@@ -7505,44 +7188,8 @@
       ]
     },
     {
-      "name": "@types/prop-types",
-      "version": "15.7.15",
-      "license": "MIT",
-      "repository": "https://github.com/DefinitelyTyped/DefinitelyTyped.git",
-      "notices": [
-        {
-          "member": "LICENSE",
-          "sha256": "c2cfccb812fe482101a8f04597dfc5a9991a6b2748266c47ac91b6a5aae15383"
-        }
-      ]
-    },
-    {
-      "name": "@types/react-dom",
-      "version": "18.3.7",
-      "license": "MIT",
-      "repository": "https://github.com/DefinitelyTyped/DefinitelyTyped.git",
-      "notices": [
-        {
-          "member": "LICENSE",
-          "sha256": "c2cfccb812fe482101a8f04597dfc5a9991a6b2748266c47ac91b6a5aae15383"
-        }
-      ]
-    },
-    {
       "name": "@types/react-dom",
       "version": "19.2.3",
-      "license": "MIT",
-      "repository": "https://github.com/DefinitelyTyped/DefinitelyTyped.git",
-      "notices": [
-        {
-          "member": "LICENSE",
-          "sha256": "c2cfccb812fe482101a8f04597dfc5a9991a6b2748266c47ac91b6a5aae15383"
-        }
-      ]
-    },
-    {
-      "name": "@types/react",
-      "version": "18.3.28",
       "license": "MIT",
       "repository": "https://github.com/DefinitelyTyped/DefinitelyTyped.git",
       "notices": [
@@ -7805,22 +7452,6 @@
         {
           "member": "README.md (license section)",
           "sha256": "8680b8612ab6b67e95d54bc30d5bd33abc9a6f91f11bff0007eb000a563cf728"
-        }
-      ]
-    },
-    {
-      "name": "acorn-jsx",
-      "version": "5.3.2",
-      "license": "MIT",
-      "repository": "https://github.com/acornjs/acorn-jsx",
-      "notices": [
-        {
-          "member": "LICENSE",
-          "sha256": "cfa72b62b9ae173078823a3796b25c027a9071046a263beddf966df67018ce06"
-        },
-        {
-          "member": "README.md (license section)",
-          "sha256": "0fcfb65cfdc25b72b2c6fcd64828f786710359adcc3e9397252fd5f5e900ff09"
         }
       ]
     },
@@ -8369,18 +8000,6 @@
       ]
     },
     {
-      "name": "bun-ffi-structs",
-      "version": "0.2.2",
-      "license": "MIT",
-      "repository": "https://github.com/sst/bun-ffi-structs.git",
-      "notices": [
-        {
-          "member": "LICENSE",
-          "sha256": "f2046b2f212d286d06a53214867136c8152a481737e62fcda49c1412488c3a74"
-        }
-      ]
-    },
-    {
       "name": "bundle-name",
       "version": "4.1.0",
       "license": "MIT",
@@ -8521,18 +8140,6 @@
         {
           "member": "readme.md (license section)",
           "sha256": "f61b55f45906274c0d834ddf2e318c56c001fba66062ae8a22d45f15945cd7f0"
-        }
-      ]
-    },
-    {
-      "name": "ce-la-react",
-      "version": "0.3.2",
-      "license": "BSD-3-Clause",
-      "repository": "git+https://github.com/muxinc/ce-la-react.git",
-      "notices": [
-        {
-          "member": "LICENSE",
-          "sha256": "45d31799d0db956cc3eb5469346abbd9b7025babc5ff29fab10d7095da992ef1"
         }
       ]
     },
@@ -10285,42 +9892,6 @@
       ]
     },
     {
-      "name": "embla-carousel-react",
-      "version": "8.6.0",
-      "license": "MIT",
-      "repository": "git+https://github.com/davidjerleke/embla-carousel",
-      "notices": [
-        {
-          "member": "https://raw.githubusercontent.com/davidjerleke/embla-carousel/0fe65834136f1aa35e4c1a4a477e5ccb4bb5ee54/LICENSE",
-          "sha256": "992490064b90ec94c302fe5f29dcc14cb44145857064e46f9ffe6c8f511c1093"
-        }
-      ]
-    },
-    {
-      "name": "embla-carousel-reactive-utils",
-      "version": "8.6.0",
-      "license": "MIT",
-      "repository": "git+https://github.com/davidjerleke/embla-carousel",
-      "notices": [
-        {
-          "member": "https://raw.githubusercontent.com/davidjerleke/embla-carousel/0fe65834136f1aa35e4c1a4a477e5ccb4bb5ee54/LICENSE",
-          "sha256": "992490064b90ec94c302fe5f29dcc14cb44145857064e46f9ffe6c8f511c1093"
-        }
-      ]
-    },
-    {
-      "name": "embla-carousel",
-      "version": "8.6.0",
-      "license": "MIT",
-      "repository": "git+https://github.com/davidjerleke/embla-carousel",
-      "notices": [
-        {
-          "member": "https://raw.githubusercontent.com/davidjerleke/embla-carousel/0fe65834136f1aa35e4c1a4a477e5ccb4bb5ee54/LICENSE",
-          "sha256": "992490064b90ec94c302fe5f29dcc14cb44145857064e46f9ffe6c8f511c1093"
-        }
-      ]
-    },
-    {
       "name": "emoji-regex",
       "version": "10.6.0",
       "license": "MIT",
@@ -11745,22 +11316,6 @@
         {
           "member": "LICENSE",
           "sha256": "b7e6f39fae834b72ef575518b0d88d5200e04b65cba72c12ab67b2a449170999"
-        }
-      ]
-    },
-    {
-      "name": "highlight.js",
-      "version": "11.11.1",
-      "license": "BSD-3-Clause",
-      "repository": "git://github.com/highlightjs/highlight.js.git",
-      "notices": [
-        {
-          "member": "LICENSE",
-          "sha256": "6c081431591d9df696c82dc598fe1423765b8a299b200ed00b281afd0f64c490"
-        },
-        {
-          "member": "README.md (license section)",
-          "sha256": "45bc54e7b76222d27e604d66646aa4a51b3c9f49509865c8b0b6a3039885c206"
         }
       ]
     },
@@ -13310,22 +12865,6 @@
     },
     {
       "name": "marked",
-      "version": "17.0.1",
-      "license": "MIT",
-      "repository": "git://github.com/markedjs/marked.git",
-      "notices": [
-        {
-          "member": "LICENSE.md",
-          "sha256": "8e3a3f82f59a60958f56ca08f445647c32a4733dc7ca6c2c46f6eb898471ab9c"
-        },
-        {
-          "member": "README.md (license section)",
-          "sha256": "9432aa108cccae3962e4d284c49478ba528fb74e0fb68c4af719e8a338bb15da"
-        }
-      ]
-    },
-    {
-      "name": "marked",
       "version": "17.0.6",
       "license": "MIT",
       "repository": "git://github.com/markedjs/marked.git",
@@ -13617,18 +13156,6 @@
         {
           "member": "readme.md (license section)",
           "sha256": "075cb62faa39cc8f9b00d6712f525596c2ae82fbe3d1fb70aae64ff6c3e63ec4"
-        }
-      ]
-    },
-    {
-      "name": "media-chrome",
-      "version": "4.19.0",
-      "license": "MIT",
-      "repository": "git+https://github.com/muxinc/media-chrome.git",
-      "notices": [
-        {
-          "member": "LICENSE",
-          "sha256": "13faec6cc4820429b213665a1fff88e1bcfad5a3aff10956f90dea08bf45e808"
         }
       ]
     },
@@ -14677,22 +14204,6 @@
       ]
     },
     {
-      "name": "node-gyp-build",
-      "version": "4.8.4",
-      "license": "MIT",
-      "repository": "https://github.com/prebuild/node-gyp-build.git",
-      "notices": [
-        {
-          "member": "LICENSE",
-          "sha256": "7b3638496004b2daed183a91c4ba45d3ef6331db6c9d0eb1dd882a505630c172"
-        },
-        {
-          "member": "README.md (license section)",
-          "sha256": "19a2bbc1fb89abc59f36e8f2426d065bb9795d344e3165f2e83b110474115a9d"
-        }
-      ]
-    },
-    {
       "name": "node-pty",
       "version": "1.1.0",
       "license": "MIT",
@@ -14905,32 +14416,8 @@
       ]
     },
     {
-      "name": "oniguruma-parser",
-      "version": "0.12.2",
-      "license": "MIT",
-      "repository": "git+https://github.com/slevithan/oniguruma-parser.git",
-      "notices": [
-        {
-          "member": "LICENSE",
-          "sha256": "5fe78c91b36c6147ed0b6ab1631ce731165b7dd5e00482be1f027d46d12a8082"
-        }
-      ]
-    },
-    {
       "name": "oniguruma-to-es",
       "version": "4.3.5",
-      "license": "MIT",
-      "repository": "git+https://github.com/slevithan/oniguruma-to-es.git",
-      "notices": [
-        {
-          "member": "LICENSE",
-          "sha256": "c1a5a1ebc88f3e0f3caa04c0af52bf8f3a5405a467337a09594ae1ad149cec83"
-        }
-      ]
-    },
-    {
-      "name": "oniguruma-to-es",
-      "version": "4.3.6",
       "license": "MIT",
       "repository": "git+https://github.com/slevithan/oniguruma-to-es.git",
       "notices": [
@@ -15701,22 +15188,6 @@
       ]
     },
     {
-      "name": "prop-types",
-      "version": "15.8.1",
-      "license": "MIT",
-      "repository": "facebook/prop-types",
-      "notices": [
-        {
-          "member": "LICENSE",
-          "sha256": "f657f99d3fb9647db92628e96007aabb46e5f04f33e49999075aab8e250ca7ce"
-        },
-        {
-          "member": "README.md (license section)",
-          "sha256": "ca980af9aad75880631440fc14082e1a217b1ea3e615cf715469468bee6a8ef4"
-        }
-      ]
-    },
-    {
       "name": "propagating-hammerjs",
       "version": "3.0.0",
       "license": "MIT",
@@ -15949,18 +15420,6 @@
       ]
     },
     {
-      "name": "react-devtools-core",
-      "version": "7.0.1",
-      "license": "MIT",
-      "repository": "https://github.com/facebook/react.git",
-      "notices": [
-        {
-          "member": "https://raw.githubusercontent.com/facebook/react/3cde211b0cb1c707114c27d7fd23683d02086e31/LICENSE",
-          "sha256": "da6d3703ed11cbe42bd212c725957c98da23cbff1998c05fa4b3d976d1a58e93"
-        }
-      ]
-    },
-    {
       "name": "react-dom",
       "version": "19.2.7",
       "license": "MIT",
@@ -15986,18 +15445,6 @@
     },
     {
       "name": "react-is",
-      "version": "16.13.1",
-      "license": "MIT",
-      "repository": "https://github.com/facebook/react.git",
-      "notices": [
-        {
-          "member": "LICENSE",
-          "sha256": "52412d7bc7ce4157ea628bbaacb8829e0a9cb3c58f57f99176126bc8cf2bfc85"
-        }
-      ]
-    },
-    {
-      "name": "react-is",
       "version": "18.3.1",
       "license": "MIT",
       "repository": "https://github.com/facebook/react.git",
@@ -16005,18 +15452,6 @@
         {
           "member": "LICENSE",
           "sha256": "52412d7bc7ce4157ea628bbaacb8829e0a9cb3c58f57f99176126bc8cf2bfc85"
-        }
-      ]
-    },
-    {
-      "name": "react-jsx-parser",
-      "version": "2.4.1",
-      "license": "MIT",
-      "repository": "TroyAlford/react-jsx-parser",
-      "notices": [
-        {
-          "member": "LICENSE",
-          "sha256": "c5a0e348be3cd999ae55e7054079ddd3cd704137e90bbcb084cf8d1127035f20"
         }
       ]
     },
@@ -16033,18 +15468,6 @@
         {
           "member": "README.md (license section)",
           "sha256": "27490088c473281a75d95935a8d5d0791ed9e3ac0b6eb38e5f0852ee4b6d9aa3"
-        }
-      ]
-    },
-    {
-      "name": "react-reconciler",
-      "version": "0.33.0",
-      "license": "MIT",
-      "repository": "https://github.com/facebook/react.git",
-      "notices": [
-        {
-          "member": "LICENSE",
-          "sha256": "da6d3703ed11cbe42bd212c725957c98da23cbff1998c05fa4b3d976d1a58e93"
         }
       ]
     },
@@ -16981,22 +16404,6 @@
       ]
     },
     {
-      "name": "shell-quote",
-      "version": "1.8.3",
-      "license": "MIT",
-      "repository": "http://github.com/ljharb/shell-quote.git",
-      "notices": [
-        {
-          "member": "LICENSE",
-          "sha256": "8bb16db1b047019e4395965f2cf3611b06c34bf86dc2d0210b3c3f91b53c21fe"
-        },
-        {
-          "member": "README.md (license section)",
-          "sha256": "04014660b7a26fb2d0ea658f99485c05085e0afd0cd629317b0fd7d940a4b4be"
-        }
-      ]
-    },
-    {
       "name": "shiki",
       "version": "3.23.0",
       "license": "MIT",
@@ -17015,22 +16422,6 @@
     {
       "name": "shiki",
       "version": "4.0.2",
-      "license": "MIT",
-      "repository": "git+https://github.com/shikijs/shiki.git",
-      "notices": [
-        {
-          "member": "LICENSE",
-          "sha256": "7a9d8d01038aeacf9e5bcdabbddf2a7815200dce9fc1118468cc553e00ae3eee"
-        },
-        {
-          "member": "README.md (license section)",
-          "sha256": "5664c680d8430d77e20c55742343ded09ac1f50d72f24eb5bd5e37ce95af1ae0"
-        }
-      ]
-    },
-    {
-      "name": "shiki",
-      "version": "4.1.0",
       "license": "MIT",
       "repository": "git+https://github.com/shikijs/shiki.git",
       "notices": [
@@ -17397,18 +16788,6 @@
         {
           "member": "license",
           "sha256": "48da2f39e100d4085767e94966b43f4fa95ff6a0698fba57ed460914e35f94a0"
-        }
-      ]
-    },
-    {
-      "name": "strip-ansi",
-      "version": "7.1.2",
-      "license": "MIT",
-      "repository": "chalk/strip-ansi",
-      "notices": [
-        {
-          "member": "license",
-          "sha256": "5c932d88256b4ab958f64a856fa48e8bd1f55bc1d96b8149c65689e0c61789d3"
         }
       ]
     },
@@ -18293,18 +17672,6 @@
       ]
     },
     {
-      "name": "unsafe-pointer",
-      "version": "0.2.0",
-      "license": "MIT",
-      "repository": "https://github.com/justjake/node-unsafe-pointer",
-      "notices": [
-        {
-          "member": "https://registry.npmjs.org/unsafe-pointer/0.2.0",
-          "sha256": "0ab717053f3e24736cd404a0801407fb305db75d1b58f7e6487d14feee30d28a"
-        }
-      ]
-    },
-    {
       "name": "until-async",
       "version": "3.0.2",
       "license": "MIT",
@@ -18801,18 +18168,6 @@
       ]
     },
     {
-      "name": "web-tree-sitter",
-      "version": "0.25.10",
-      "license": "MIT",
-      "repository": "git+https://github.com/tree-sitter/tree-sitter.git",
-      "notices": [
-        {
-          "member": "LICENSE",
-          "sha256": "5f9cf9fb6acb1972b35ae29119ce563bb60ec097656bc4b69b9bac2d04c7a147"
-        }
-      ]
-    },
-    {
       "name": "web-vitals",
       "version": "3.5.2",
       "license": "Apache-2.0",
@@ -18937,38 +18292,6 @@
         {
           "member": "LICENSE",
           "sha256": "4ec3d4c66cd87f5c8d8ad911b10f99bf27cb00cdfcff82621956e379186b016b"
-        }
-      ]
-    },
-    {
-      "name": "ws",
-      "version": "7.5.11",
-      "license": "MIT",
-      "repository": "websockets/ws",
-      "notices": [
-        {
-          "member": "LICENSE",
-          "sha256": "3de284c8e6fa7e8437eff6f53695471e0332129a5b42a79361e17b7637de94b3"
-        },
-        {
-          "member": "README.md (license section)",
-          "sha256": "316046a02abc690ab53714a66fd3481033f37ee23e54a293b5093342e59d43d8"
-        }
-      ]
-    },
-    {
-      "name": "ws",
-      "version": "8.18.0",
-      "license": "MIT",
-      "repository": "git+https://github.com/websockets/ws.git",
-      "notices": [
-        {
-          "member": "LICENSE",
-          "sha256": "2b29dcfe0d6471f7e8c92c5fb38c9f93edee10330937055440192f1832b1ecef"
-        },
-        {
-          "member": "README.md (license section)",
-          "sha256": "c63ef91c14f147f837c11850187ac35794e22e192ee846ad0daffb55e13a86cd"
         }
       ]
     },
@@ -19253,18 +18576,6 @@
         {
           "member": "license",
           "sha256": "5c932d88256b4ab958f64a856fa48e8bd1f55bc1d96b8149c65689e0c61789d3"
-        }
-      ]
-    },
-    {
-      "name": "yoga-layout",
-      "version": "3.2.1",
-      "license": "MIT",
-      "repository": "git@github.com:facebook/yoga.git",
-      "notices": [
-        {
-          "member": "https://raw.githubusercontent.com/facebook/yoga/v3.2.1/LICENSE",
-          "sha256": "52412d7bc7ce4157ea628bbaacb8829e0a9cb3c58f57f99176126bc8cf2bfc85"
         }
       ]
     },
@@ -19561,7 +18872,7 @@
         },
         {
           "file": "packages/ui/src/components/ui/toast.tsx",
-          "sha256": "25572cca9208ec439d40551e7c26dc58d5292421e034551ff218bd336e513146"
+          "sha256": "04001aad66d039915e3cef0ff7424b3f5e19c75bc11d328826abdfea8eb641ad"
         },
         {
           "file": "packages/ui/src/components/ui/tooltip.tsx",
@@ -19573,7 +18884,7 @@
         },
         {
           "file": "packages/ui/src/styles.css",
-          "sha256": "f101929b31212b0d8eed67ba68e678c794ab60ce6a4d09a12c3b6e92e7484dad"
+          "sha256": "0b834c5b29c72b7596ad4df924ce8c66c0d0e97dda8221f835625d288155654a"
         }
       ]
     },
@@ -29767,7 +29078,7 @@
         },
         {
           "file": "packages/rpc/src/foundation.ts",
-          "sha256": "b4874401965e7bad7e84245a2fc5960657a349b146f355ac7343562fa724da9f"
+          "sha256": "0003ee30a2760c8b3aff32b40fe78e4bac7c68d2fa8009f787c2efe7369b82f4"
         },
         {
           "file": "packages/rpc/src/index.ts",
@@ -29775,7 +29086,7 @@
         },
         {
           "file": "packages/rpc/src/ipc.ts",
-          "sha256": "2ec3dfe0654a68300dbed7afd5ac436b563abf983d6e0f59a2b028469fdf71ef"
+          "sha256": "3a3942ec35f40ecf296f3b648daee46b5260f66b2038b4dad1e8813590f8b331"
         },
         {
           "file": "packages/rpc/src/logging-middleware.ts",
@@ -29795,7 +29106,7 @@
         },
         {
           "file": "packages/rpc/src/proxy-channel.ts",
-          "sha256": "ec5b43e6a3a622a88a8aaa6af9cb37dbfe517932ee7f4a337019ec138bb2d513"
+          "sha256": "1f81da70701f1ae95856c3a94abca456fd8352e7860013609d19f567bfdc94fb"
         },
         {
           "file": "packages/rpc/src/remote.ts",
@@ -29819,7 +29130,7 @@
         },
         {
           "file": "packages/rpc/examples/04-remote-connection.ts",
-          "sha256": "fe43a2d631ba54a1cf63a86e344b6e2e58d83c2e8c95f2f8b7371f63e6442541"
+          "sha256": "db268ab9e21a6e20eff2a16ce7c88de571d6688a6f46aa9eb0508ca734bcdc1c"
         },
         {
           "file": "packages/shared/src/shucode-protocol-v4/wire-codec.ts",
@@ -30189,28 +29500,6 @@
     }
   ],
   "exceptions": [
-    {
-      "package": "unsafe-pointer@0.2.0",
-      "repo": "justjake/node-unsafe-pointer",
-      "refs": [
-        "v0.2.0",
-        "unsafe-pointer@0.2.0",
-        "0.2.0"
-      ],
-      "file": "third-party/upstream/0ab717053f3e24736cd404a0801407fb305db75d1b58f7e6487d14feee30d28a.txt",
-      "sha256": "0ab717053f3e24736cd404a0801407fb305db75d1b58f7e6487d14feee30d28a",
-      "source": "https://registry.npmjs.org/unsafe-pointer/0.2.0",
-      "evidenceKind": "publisher-license-identifier-and-standard-terms",
-      "license": "MIT",
-      "reviewEvidence": {
-        "checkedOn": "2026-09-21",
-        "result": "The versioned npm archive contains no standalone complete LICENSE; existing publisher declaration and original README license sections remain preserved. Upstream authorization/copyright material is still required to close this review.",
-        "npmArchiveSha256": "9c9795688a9e224759468aeee2ff88d917fadc65f7b3480e62571f0853eaa446",
-        "sourceRevision": "f9771c0c21e863e4938a7aed0af89575f9673152",
-        "sourceTreeUrl": "https://api.github.com/repos/justjake/node-unsafe-pointer/git/trees/f9771c0c21e863e4938a7aed0af89575f9673152?recursive=1",
-        "upstreamLicenseFiles": []
-      }
-    },
     {
       "package": "react-remove-scroll-bar@2.3.8",
       "repo": "theKashey/react-remove-scroll-bar",
@@ -30712,10 +30001,6 @@
     {
       "id": "React Best Practices skill",
       "reason": "Pinned upstream README and skill declare MIT, but a complete original copyright/license notice has not been obtained."
-    },
-    {
-      "id": "unsafe-pointer@0.2.0",
-      "reason": "Original version-specific publisher copyright/license material remains incomplete."
     },
     {
       "id": "react-remove-scroll-bar@2.3.8",
