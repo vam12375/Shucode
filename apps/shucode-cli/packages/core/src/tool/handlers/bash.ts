@@ -1,3 +1,9 @@
+/* eslint-disable max-lines --
+   god-file 拆分债务登记：本文件超出 400 行上限，是优化报告 2026-10-12 立项的既有
+   god-file（拆分批次见 specs/cli/god-file-maxlines-deferral.md 与相关领域 spec）。
+   在该文件的拆分批次落地前保留本豁免标记；每完成一次文件拆分必须摘除本标记，
+   新增代码不得复制本标记到新文件。 */
+
 // ============================================================
 // Bash Tool Handler
 // ============================================================
@@ -43,6 +49,7 @@ import { supportsBashBackgroundLifecycle } from "./bash-background-lifecycle.js"
 import { isBashAutoBackgroundEligible } from "./bash-background-policy.js";
 import { resolveBashPermissionRulePolicy } from "./bash-command-permission-policy.js";
 import { decideBashCwdPolicy } from "./bash-cwd-policy.js";
+import { clearGitRuntimeSafetyCache } from "./bash-git-runtime-safety.js";
 import { readStringProperty } from "./bash-metadata.js";
 import { formatBashModelContent, formatPersistedBashModelContent } from "./bash-model-content.js";
 import {
@@ -197,6 +204,11 @@ async function executeBashHandler(
         return observed;
       })
     : await runCommand();
+
+  // 命令可能改动 .git 结构（git init/clone/worktree、rm -rf .git 等），执行或
+  // 后台派发完成后必须丢弃只读准入的 git 分类缓存，下一条命令重新分类；
+  // 见 specs/cli/bash-readonly-git-runtime-classification.md。
+  clearGitRuntimeSafetyCache();
 
   if (runResult.kind === "backgrounded") {
     return toBackgroundedBashOutput(runResult.task, parsed);

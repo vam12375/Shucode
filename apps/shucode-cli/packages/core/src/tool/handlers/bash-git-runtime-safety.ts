@@ -66,6 +66,21 @@ function normalizedSimpleCommandName(argv: readonly string[]): string | undefine
 
 type GitDirectoryState = "none" | "trusted" | "unsafe";
 
+// 分类要对 cwd 做 realpath 并逐级向上 lstat/readlink 读 .git，全部是同步 IO；
+// 含 git 的命令在只读准入（capability 与权限规则两处）会反复触发。按
+// workingDirectory 记忆最终结论，重复准入不再重走全链。
+// 失效语义见 specs/cli/bash-readonly-git-runtime-classification.md：
+// - TTL 兜底进程外改动（并发外部篡改不在工具沙箱威胁模型内）；
+// - 本进程每条 Bash 命令执行/派发后由 bash.ts 调 clearGitRuntimeSafetyCache，
+//   避免 `git init && git status` 这类序列沿用旧结论放行后续 git 只读命令。
+const GIT_RUNTIME_SAFETY_CACHE_TTL_MS = 5_000;
+const GIT_RUNTIME_SAFETY_CACHE_MAX_ENTRIES = 64;
+const gitRuntimeSafetyCache = new Map<string, { unsafe: boolean; at: number }>();
+
+export function clearGitRuntimeSafetyCache(): void {
+  gitRuntimeSafetyCache.clear();
+}
+
 const MAX_GITDIR_FILE_BYTES = 32 * 1024;
 
 export function isGitRuntimeContextUnsafe(
@@ -74,6 +89,20 @@ export function isGitRuntimeContextUnsafe(
   const cwd = context?.workingDirectory;
   if (!cwd) return false;
 
+  const cached = gitRuntimeSafetyCache.get(cwd);
+  if (cached && Date.now() - cached.at < GIT_RUNTIME_SAFETY_CACHE_TTL_MS) {
+    return cached.unsafe;
+  }
+
+  const unsafe = computeGitRuntimeContextUnsafe(cwd);
+  if (gitRuntimeSafetyCache.size >= GIT_RUNTIME_SAFETY_CACHE_MAX_ENTRIES) {
+    gitRuntimeSafetyCache.clear();
+  }
+  gitRuntimeSafetyCache.set(cwd, { unsafe, at: Date.now() });
+  return unsafe;
+}
+
+function computeGitRuntimeContextUnsafe(cwd: string): boolean {
   const cwdCanonical = canonicalPath(cwd);
   if (!cwdCanonical) return true;
 
