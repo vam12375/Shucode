@@ -11,7 +11,7 @@
   <a href="README.md">简体中文</a> | English
 </p>
 
-Shucode is an AI coding workspace with desktop, browser, and terminal interfaces. This repository contains the clients, backend services, shared UI, and Agent CLI and runtime source code.
+Shucode is an AI coding workspace with desktop and browser interfaces. This repository contains the clients, backend services, shared UI, and Agent runtime source code.
 
 ## Updates
 
@@ -29,7 +29,7 @@ pnpm bootstrap
 
 `pnpm bootstrap` installs workspace dependencies, prepares local desktop runtime assets, and runs `build:bootstrap`.
 
-The Agent CLI and runtime source code lives in [apps/shucode-cli/](apps/shucode-cli/) as a regular directory included when you clone this repository. No separate checkout or Git submodule initialization is required.
+The Agent runtime source code lives in [apps/shucode-cli/](apps/shucode-cli/) as a regular directory included when you clone this repository. No separate checkout or Git submodule initialization is required.
 
 Additional setup and build commands:
 
@@ -75,47 +75,20 @@ SHUCODE_SERVER_WORKSPACE=/path/to/project pnpm dev:web
 
 This starts both the Web development server (default: `http://localhost:5173`) and the backend (default: `http://localhost:3030`). Open the Web development server in your browser. `/ws` and general `/api` requests are proxied to the local backend; `/api/v1/oauth/token` is proxied separately to the configured product service.
 
-After changing Agent source code, run `pnpm --filter @shucode/cli... build` and restart the service. To validate the complete distribution, extract and run it as described under Packaging → Shucode CLI distribution below.
-
-### Shucode CLI distribution
-
-The command-line distribution includes the TUI, Web client, and Agent behind one `shucode` command. With no arguments it starts the TUI; a leading `--web` starts Web mode; all other arguments go to the existing Agent CLI. Both modes run locally without Electron.
-
-```bash
-# Start the terminal UI by default
-shucode
-
-# Start the Web interface
-shucode --web
-
-# Set the project and port without opening a browser automatically
-shucode --web --workspace /path/to/project --port 3030 --no-open
-
-# Show CLI or Web options
-shucode --help
-shucode --web --help
-```
-
-In Web mode, it uses the current directory as the workspace, listens on `127.0.0.1` without token authentication by default, selects an available port, and opens a browser. Use the URL printed in the terminal and press `Ctrl+C` to stop the service. For LAN access, use `--host 0.0.0.0`; listening on a non-local address generates an access token by default. Use the token-bearing URL printed in the terminal. Set a token with `--token`, or disable token authentication with `--no-token`.
-
 When starting the general Web service's HTTP entry directly, configure API/WebSocket authentication with `SHUCODE_SERVER_AUTH_TOKEN`. When creating the service programmatically, use the `authToken` option.
 
-See Packaging below for build instructions. `pnpm build:shucode` only creates the distribution; it does not replace an existing `shucode` on `PATH`. If the command still points to an older installation or another checkout, check it with `command -v shucode` on macOS / Linux or `where.exe shucode` on Windows.
+After changing Agent source code, run `pnpm --filter @shucode/cli... build` and restart the service.
 
-### CLI Source Development
+### Agent Runtime Source Development
 
-Use the source entry when developing the TUI or Agent:
+After changing the Agent runtime, build the CLI and its workspace dependencies:
 
 ```bash
-pnpm --filter @shucode/cli dev --help
-pnpm --filter @shucode/cli dev
-
-# Build the CLI and its workspace dependencies
 pnpm --filter @shucode/cli... build
 node apps/shucode-cli/packages/cli/dist/shucode.cjs --help
 ```
 
-This entry runs the Agent CLI directly and does not handle the distribution's `--web` switch. Use `pnpm dev:web` for Web development, or the extracted `bin/shucode.mjs` shown below to test the unified command.
+Desktop and Web both launch this artifact over stdio (`app-server` mode); restart the corresponding service after rebuilding. The terminal surface (TUI, SEA packaging, and the standalone `shucode` command-line distribution) was removed by product decision; see `specs/cli/terminal-surface-removal.md`.
 
 ## Configuration
 
@@ -126,7 +99,6 @@ The root [.env.example](.env.example) provides sample service URLs and build con
 | `SHUCODE_DATA_BASE_DIR`                | Base directory for application data, stored under its `.shucode/` subdirectory          |
 | `SHUCODE_SERVER_WORKSPACE`             | Workspace path for the Web backend                                                      |
 | `SHUCODE_BUILTIN_PROVIDER_CONFIG_FILE` | Path to a local provider configuration file; uses the built-in configuration when unset |
-| `SHUCODE_DIST_BASE_URL`                | Download base URL used by the CLI distribution installer                                |
 
 Runtime variables can be set explicitly in the environment of the startup command. See [config/README.md](config/README.md) for the default configuration shipped with the client.
 
@@ -147,51 +119,13 @@ pnpm bundle:desktop -- --help
 
 The default target is macOS arm64, and the default output directory is `packages/desktop/dist/`. `--os` accepts `mac`, `win`, or `linux`; `--arch` accepts `x64` or `arm64`. Packaging and signing require the tools and configuration for the target platform.
 
-### Shucode CLI distribution
+### Remote server (shucode-server)
 
-Run `pnpm build:shucode` to build the CLI/TUI, backend, and Web client, collect the TUI native libraries, workers, and runtime dependencies, then assemble the distribution. Running the distribution still requires Node.js; use the version specified in `mise.toml`.
-
-Before packaging, set the download base URL with `SHUCODE_DIST_BASE_URL` in `.env`, `.env.local`, or the process environment, or pass it through `--base-url`. The URL below is a placeholder; replace it with your hosting URL when publishing:
+Remote workspaces connected from the desktop app are served by `packages/shucode-server-cli` (`shucode serve|status|stop|restart|update|uninstall`). Its staging entry is:
 
 ```bash
-pnpm build:shucode --base-url https://downloads.example.com/zcode/
-
-# When SHUCODE_DIST_BASE_URL is already configured
-pnpm build:shucode
-
-# Repackage existing Agent, backend, and Web build outputs
-pnpm build:shucode --skip-build
-
-# Show options for the version, output directory, and more
-pnpm build:shucode --help
+pnpm --filter @shucode/server-cli stage
 ```
-
-The version defaults to the root `package.json` version. Output is written to `dist/shucode/`:
-
-- `releases/<version>/shucode-<version>.tar.gz`: runtime package.
-- `releases/<version>/sha256.txt`: checksum file.
-- `latest.json` and `install.sh`: version index and installer.
-
-Upload the entire directory to the configured download base URL. The installer downloads the runtime package from that URL, installs it to `~/.shucode/runtime` by default, and creates the `shucode` command in `~/.local/bin`. Override these directories with `SHUCODE_DIST_HOME` and `SHUCODE_DIST_BIN_DIR`, respectively.
-
-Existing Lite users should switch to the new build command, environment variables, and installer. Installation does not remove old Lite directories or migrate/delete session data.
-
-To test a packaged build locally, extract and run it directly without uploading or installing it:
-
-```bash
-shucode_version=$(node -p "require('./dist/shucode/latest.json').version")
-mkdir -p dist/shucode/debug
-tar -xzf "dist/shucode/releases/$shucode_version/shucode-$shucode_version.tar.gz" \
-  -C dist/shucode/debug
-# Start the TUI by default
-node dist/shucode/debug/shucode/bin/shucode.mjs
-
-# Start Web mode
-node dist/shucode/debug/shucode/bin/shucode.mjs --web \
-  --workspace "$PWD" --port 3030 --no-open
-```
-
-Open `http://127.0.0.1:3030` to validate the complete flow, with one backend serving the Web pages and running the Agent. The port must be available; if `pnpm dev:web` is already running, choose another `--port`.
 
 ## Repository Structure
 
@@ -205,7 +139,7 @@ Open `http://127.0.0.1:3030` to validate the complete flow, with one backend ser
 | `packages/services`                                  | Business services and persistence                                                       |
 | `packages/shared`, `packages/rpc`, `packages/client` | Shared protocols and types, RPC framework, and Agent client SDK                         |
 | `packages/provider`, `packages/provider-node`        | Common provider capabilities and Node implementations                                   |
-| `apps/shucode-cli`                                   | Agent CLI, TUI, runtime, and tools                                                      |
+| `apps/shucode-cli`                                   | Agent runtime and CLI entry                                                             |
 | `scripts`, `config`, `third-party`                   | Build and maintenance scripts, built-in configuration, and third-party notice materials |
 
 ## Project Notice
