@@ -1,3 +1,9 @@
+/* eslint-disable max-lines --
+   god-file 拆分债务登记：本文件超出 400 行上限，是优化报告 2026-10-12 立项的既有
+   god-file（拆分批次见 specs/cli/god-file-maxlines-deferral.md 与相关领域 spec）。
+   在该文件的拆分批次落地前保留本豁免标记；每完成一次文件拆分必须摘除本标记，
+   新增代码不得复制本标记到新文件。 */
+
 import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { mkdir, mkdtemp, readFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
@@ -267,8 +273,61 @@ export async function parseMarketplaceSourceInput(input: string): Promise<Market
   throw new Error(`Unsupported marketplace source: ${input}`);
 }
 
+// 概览轮询与单次 install 流程会反复同步读同一批存储文件：依赖闭包逐节点
+// 重读同一份 manifest、ensureMarketplaceManifestAvailable 连读三次 known 列表。
+// 这里缓存原始文件文本，命中后重新 JSON.parse，每次返回全新对象——调用方
+// 会就地修改拿到的记录，缓存不得共享已解析实例。失效契约见
+// specs/cli/marketplace-file-read-cache.md：本模块所有写入口在写完或目录
+// rename（activation finalize/rollback）后立即失效；TTL 只兜底其他进程的
+// 并发写入，跨进程一致性本身仍由原子事务文件协调。
+const MARKETPLACE_FILE_CACHE_TTL_MS = 2_000;
+const MARKETPLACE_FILE_CACHE_MAX_ENTRIES = 128;
+const marketplaceFileCache = new Map<string, { raw: string | undefined; at: number }>();
+
+export function invalidateMarketplaceReadCache(): void {
+  marketplaceFileCache.clear();
+}
+
+function readMarketplaceFileTextCached(
+  cacheKey: string,
+  readText: () => string | undefined,
+): string | undefined {
+  const cached = marketplaceFileCache.get(cacheKey);
+  const at = Date.now();
+  if (cached && at - cached.at < MARKETPLACE_FILE_CACHE_TTL_MS) {
+    return cached.raw;
+  }
+  if (marketplaceFileCache.size >= MARKETPLACE_FILE_CACHE_MAX_ENTRIES) {
+    marketplaceFileCache.clear();
+  }
+  const raw = readText();
+  marketplaceFileCache.set(cacheKey, { raw, at });
+  return raw;
+}
+
+function parseStoredText(text: string | undefined): unknown {
+  if (text === undefined) return undefined;
+  try {
+    return JSON.parse(text) as unknown;
+  } catch {
+    return undefined;
+  }
+}
+
+function marketplaceJsonCacheKey(
+  scope: "known" | "installed" | "manifest",
+  storageRoot: string,
+  marketplace = "",
+): string {
+  return `${scope}\u0000${storageRoot}\u0000${marketplace}`;
+}
+
 export function loadKnownMarketplacesSync(storageRoot: string): KnownMarketplaceRecord[] {
-  const parsed = readJsonFileSync(join(storageRoot, KNOWN_MARKETPLACES_FILE));
+  const parsed = parseStoredText(
+    readMarketplaceFileTextCached(marketplaceJsonCacheKey("known", storageRoot), () =>
+      readJsonFileText(join(storageRoot, KNOWN_MARKETPLACES_FILE)),
+    ),
+  );
   if (!isRecord(parsed)) return [];
   const value = parsed.marketplaces;
   if (Array.isArray(value)) return value.filter(isKnownMarketplaceRecord);
@@ -551,15 +610,28 @@ export function loadMarketplaceManifestSync(
   marketplace: string,
 ): PluginMarketplaceManifest | null {
   const manifestPath = getMarketplaceManifestPath(storageRoot, marketplace);
-  // 崩溃残留先恢复；若 writer 仍活跃，则在权威 known state 落盘前读 backup，
-  // 落盘后读新 target，避免 overview 看见跨代 manifest/summary。
-  const readableDirectory = recoverAtomicTargetSync(dirname(manifestPath));
-  const parsed = readJsonFileSync(join(readableDirectory, basename(manifestPath)));
+  // 冷路径保持原有的两层 recover：目录级恢复崩溃残留，readJsonFileText 内再做
+  // 文件级恢复；缓存命中窗口内跳过 recover（失效后会重新完整执行）。
+  const parsed = parseStoredText(
+    readMarketplaceFileTextCached(
+      marketplaceJsonCacheKey("manifest", storageRoot, marketplace),
+      () => {
+        // 崩溃残留先恢复；若 writer 仍活跃，则在权威 known state 落盘前读 backup，
+        // 落盘后读新 target，避免 overview 看见跨代 manifest/summary。
+        const readableDirectory = recoverAtomicTargetSync(dirname(manifestPath));
+        return readJsonFileText(join(readableDirectory, basename(manifestPath)));
+      },
+    ),
+  );
   return parseMarketplaceManifest(parsed);
 }
 
 function loadInstalledPluginsSync(storageRoot: string): InstalledPluginsState {
-  const parsed = readJsonFileSync(join(storageRoot, INSTALLED_PLUGINS_FILE));
+  const parsed = parseStoredText(
+    readMarketplaceFileTextCached(marketplaceJsonCacheKey("installed", storageRoot), () =>
+      readJsonFileText(join(storageRoot, INSTALLED_PLUGINS_FILE)),
+    ),
+  );
   return normalizeInstalledPluginsState(parsed);
 }
 
@@ -568,6 +640,7 @@ async function saveInstalledPlugins(
   state: InstalledPluginsState,
 ): Promise<void> {
   await writeJsonFile(join(storageRoot, INSTALLED_PLUGINS_FILE), state);
+  invalidateMarketplaceReadCache();
 }
 
 export function listInstalledPluginRecords(storageRoot: string): InstalledPluginRecord[] {
@@ -1757,6 +1830,25 @@ function delay(ms: number, signal?: AbortSignal): Promise<void> {
   });
 }
 
+// directory rename 生效或回滚的瞬间必须让读缓存立刻失效，否则同流程里
+// finalize 之后下一次 manifest 读会命中旧一代内容；读缓存的失效点集中
+// 在 stage 函数返回的 activation 包装上（见 specs/cli/marketplace-file-read-cache.md）。
+function wrapActivationWithReadCacheInvalidation(
+  activation: AtomicDirectoryActivation,
+): AtomicDirectoryActivation {
+  return {
+    transactionId: activation.transactionId,
+    finalize: async () => {
+      await activation.finalize();
+      invalidateMarketplaceReadCache();
+    },
+    rollback: async () => {
+      await activation.rollback();
+      invalidateMarketplaceReadCache();
+    },
+  };
+}
+
 async function stageMarketplaceDirectoryPlugins(
   sourceDir: string,
   storageRoot: string,
@@ -1766,15 +1858,17 @@ async function stageMarketplaceDirectoryPlugins(
 ): Promise<AtomicDirectoryActivation> {
   throwIfPluginOperationAborted(signal);
   const targetDir = dirname(getMarketplaceManifestPath(storageRoot, marketplace));
-  return activateDirectoryAtomically({
-    authorityPath: join(storageRoot, KNOWN_MARKETPLACES_FILE),
-    prepare: async (stagedPath) => {
-      await writeJsonFile(join(stagedPath, MARKETPLACE_FILE), manifest);
-    },
-    signal,
-    sourcePath: sourceDir,
-    targetPath: targetDir,
-  });
+  return wrapActivationWithReadCacheInvalidation(
+    await activateDirectoryAtomically({
+      authorityPath: join(storageRoot, KNOWN_MARKETPLACES_FILE),
+      prepare: async (stagedPath) => {
+        await writeJsonFile(join(stagedPath, MARKETPLACE_FILE), manifest);
+      },
+      signal,
+      sourcePath: sourceDir,
+      targetPath: targetDir,
+    }),
+  );
 }
 
 async function stageMarketplaceManifest(
@@ -1787,14 +1881,16 @@ async function stageMarketplaceManifest(
   // URL/settings source 没有 sourceRoot；直接覆盖 manifest 时若写入期间
   // deadline 到达或 known state 落盘失败就无法回滚。prepare-only activation 让 manifest
   // 与 known_marketplaces.json 使用同一个 transactionId 提交，失败时继续读取上一代快照。
-  return activateDirectoryAtomically({
-    authorityPath: join(storageRoot, KNOWN_MARKETPLACES_FILE),
-    prepare: async (stagedPath) => {
-      await writeJsonFile(join(stagedPath, MARKETPLACE_FILE), manifest);
-    },
-    signal,
-    targetPath: targetDir,
-  });
+  return wrapActivationWithReadCacheInvalidation(
+    await activateDirectoryAtomically({
+      authorityPath: join(storageRoot, KNOWN_MARKETPLACES_FILE),
+      prepare: async (stagedPath) => {
+        await writeJsonFile(join(stagedPath, MARKETPLACE_FILE), manifest);
+      },
+      signal,
+      targetPath: targetDir,
+    }),
+  );
 }
 
 async function upsertKnownMarketplace(
@@ -1869,6 +1965,7 @@ async function writeKnownMarketplaces(
     version: 1,
     marketplaces,
   });
+  invalidateMarketplaceReadCache();
 }
 
 function writeKnownMarketplacesSync(
@@ -1889,6 +1986,7 @@ function writeKnownMarketplacesSync(
     )}\n`,
     "utf8",
   );
+  invalidateMarketplaceReadCache();
 }
 
 function defaultMarketplaceSourceFromString(source: string): MarketplaceSource {
@@ -2613,10 +2711,10 @@ function isPluginMarketplaceManifest(value: unknown): value is PluginMarketplace
   );
 }
 
-function readJsonFileSync(path: string): unknown {
+function readJsonFileText(path: string): string | undefined {
   const readablePath = recoverAtomicTargetSync(path);
   try {
-    return JSON.parse(readFileSync(readablePath, "utf8")) as unknown;
+    return readFileSync(readablePath, "utf8");
   } catch {
     return undefined;
   }
