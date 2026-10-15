@@ -2,7 +2,7 @@
 // Node.js service implementations — NOT safe to import in browser code
 import { randomBytes } from "node:crypto";
 import { readFileSync } from "node:fs";
-import { homedir } from "node:os";
+import { homedir, hostname } from "node:os";
 import { join } from "node:path";
 import {
   createNodeProviderRuntimePathEnv,
@@ -10,9 +10,12 @@ import {
   PERSONAL_PROVIDER_CONFIG_FILE_NAME,
 } from "@shucode/provider-node";
 import { getAppConfigDir as resolveAppConfigDir } from "./paths.js";
+import { completeNewModelSelection } from "@shucode/provider";
 import {
   buildLocalMediaPreviewUrl,
   isProviderProvisioningAccountCredentialKey,
+  PLATFORM_GATEWAY_PROVIDER_ID,
+  PLATFORM_SESSION_CHANGED_BROADCAST_CHANNEL,
   type ProviderProvisioningTrigger,
 } from "@shucode/shared";
 
@@ -124,6 +127,8 @@ export type {
 export { createBotsService } from "./bots/botsService.js";
 export { createFileWatcherService } from "./fileWatcher/fileWatcherService.js";
 export { createOAuthService } from "./oauth/oauthService.js";
+export { createPlatformAuthService } from "./platform/platformAuthService.js";
+export { createPlatformUserConfigService } from "./platform/platformUserConfigService.js";
 export { createOAuthProviderLogoutHandler } from "./oauth/oauthProviderLogout.js";
 export { OAuthCredentialRepo } from "./oauth/repo/oauthCredentialRepo.js";
 export { ensureDeviceMid } from "./device/deviceMid.js";
@@ -307,6 +312,8 @@ import { ConversationShareHttpClient } from "./conversation-share/conversationSh
 import { IBotsService } from "./bots/bots.js";
 import { IFileWatcherService } from "./fileWatcher/fileWatcher.js";
 import { IOAuthService } from "./oauth/oauth.js";
+import { IPlatformAuthService } from "./platform/platformAuth.js";
+import { IPlatformUserConfigService } from "./platform/platformUserConfig.js";
 import { IUsageStatsService } from "./usage-stats/usageStats.js";
 import { ICodingPlanSubscriptionService } from "./coding-plan-subscription/codingPlanSubscription.js";
 import { IClientScenesService } from "./client-scenes/clientScenes.js";
@@ -350,6 +357,15 @@ import { createBotRemoteWorkspaceService } from "./bots/botRemoteWorkspaceBridge
 import type { SessionMessageSendRequested } from "#src/session/sessionMailbox.js";
 import { createFileWatcherService } from "./fileWatcher/fileWatcherService.js";
 import { createOAuthService } from "./oauth/oauthService.js";
+import {
+  createPlatformAuthService,
+  type PlatformAuthService,
+} from "./platform/platformAuthService.js";
+import {
+  createPlatformUserConfigService,
+  type PlatformUserConfigService,
+} from "./platform/platformUserConfigService.js";
+import { createPlatformUserConfigApplier } from "./platform/platformUserConfigApply.js";
 import { isCurrentOAuthCredentialRequest } from "#src/oauth/oauthUnauthorizedRequest.js";
 import { createOAuthProviderLogoutHandler } from "./oauth/oauthProviderLogout.js";
 import { OAuthCredentialRepo } from "./oauth/repo/oauthCredentialRepo.js";
@@ -637,6 +653,8 @@ interface ManagedCuaHelperHostDispose {
 // 的 WeakMap 侧表登记，dispose 时统一终止（best-effort，不阻断其它资源回收）。
 const managedCuaHelperHosts = new WeakMap<ServiceCollection, ManagedCuaHelperHostDispose>();
 const providerRuntimes = new WeakMap<ServiceCollection, ProviderRuntime>();
+const platformAuthServices = new WeakMap<ServiceCollection, PlatformAuthService>();
+const platformUserConfigServices = new WeakMap<ServiceCollection, PlatformUserConfigService>();
 const providerProvisioningSources = new WeakMap<ServiceCollection, ProviderProvisioningSource>();
 const providerProvisioningTriggerDisposers = new WeakMap<
   ServiceCollection,
@@ -2332,6 +2350,34 @@ export function createLocalServices(options: {
     apiClient,
     onProviderLogout: handleOAuthProviderLogout,
   });
+  // 平台 provider 的唯一移除路径（登出与"信封空模型"共用）：删除 provider 及其模型与
+  // 顺序项，并在默认模型指向它时清空选择——否则会留下悬空默认选择（界面显示"没有可用模型"）。
+  const removePlatformGatewayProvider = async (): Promise<void> => {
+    const selection = await modelSelectionConfiguredDefaultSource.read();
+    if (selection?.providerId === PLATFORM_GATEWAY_PROVIDER_ID) {
+      await modelSelectionConfiguredDefaultSource.saveConfiguredDefault(undefined);
+    }
+    await providerRuntime.providerSettings.deletePersonalProvider(PLATFORM_GATEWAY_PROVIDER_ID);
+  };
+  // 平台账号（多租户 SaaS）登录：流程所有者是 Host 服务（init/轮询/凭据落盘），
+  // renderer 只打开浏览器并 awaitLogin()；登出时移除已应用的网关 provider。
+  const platformAuthService = createPlatformAuthService(credentialService, {
+    apiClient,
+    resolveEndpointOrigin: resolveCurrentShucodeEndpointOrigin,
+    removeAppliedGatewayProvider: removePlatformGatewayProvider,
+    resolveDeviceInfo: () => ({
+      deviceName: hostname() || "Shucode Desktop",
+      platform: `${process.platform}-${process.arch}`,
+    }),
+    // 登录态变化广播给所有窗口的 Renderer（侧栏账号区等）刷新展示；
+    // 单一所有者仍是本服务，UI 只做读取投影。
+    onSessionChanged: () => {
+      void broadcastService.send({
+        channel: PLATFORM_SESSION_CHANGED_BROADCAST_CHANNEL,
+        payload: {},
+      });
+    },
+  });
   const shucodeJwtLogoutLogger = createServiceLogger("shucode-jwt-logout");
   shucodeJwtLogoutHandlerRef.current = (input, headers) => {
     // 条件退出本身已串行去重；不能丢弃等待旧候选期间到来的新凭据 401。
@@ -2452,6 +2498,7 @@ export function createLocalServices(options: {
     )
     .register(IFileWatcherService, createFileWatcherService())
     .register(IOAuthService, oauthService)
+    .register(IPlatformAuthService, platformAuthService)
     .register(
       IUsageStatsService,
       createUsageStatsService({ shucodeAgentService, settingService, apiClient }),
@@ -2597,27 +2644,59 @@ export function createLocalServices(options: {
   offPeakRequestAuthBuilders.set(services, buildOffPeakRequestAuthForTicket);
 
   providerRuntimes.set(services, providerRuntime);
+  platformAuthServices.set(services, platformAuthService);
   providerProvisioningSources.set(services, providerProvisioningSource);
   providerProvisioningTriggerDisposers.set(services, providerProvisioningDisposers);
   services
     .register(IProviderSettingsService, providerRuntime.providerSettings)
     .register(IModelSelectionService, providerRuntime.modelSelection);
+  const providerProvisioningTarget = createProviderProvisioningTarget({
+    providerRuntime,
+    personalRepository: providerConfigRuntime.personalRepository,
+    accountProviderSource: accountProviderConfigSource,
+    credentialService,
+    settingService,
+    personalConfigFilePath: join(resolveAppConfigDir(), PERSONAL_PROVIDER_CONFIG_FILE_NAME),
+    stateFilePath: join(resolveAppConfigDir(), "runtime", "provider", "provisioning.json"),
+    listProvisioningCredentialKeys: () =>
+      listProviderProvisioningCredentialKeys(resolveCredentialFilePath(resolveAppConfigDir())),
+  });
   if (isDesktopAttachedRemote || options.providerProvisioningTargetEnabled === true) {
-    services.register(
-      IProviderProvisioningTargetService,
-      createProviderProvisioningTarget({
-        providerRuntime,
-        personalRepository: providerConfigRuntime.personalRepository,
-        accountProviderSource: accountProviderConfigSource,
-        credentialService,
-        settingService,
-        personalConfigFilePath: join(resolveAppConfigDir(), PERSONAL_PROVIDER_CONFIG_FILE_NAME),
-        stateFilePath: join(resolveAppConfigDir(), "runtime", "provider", "provisioning.json"),
-        listProvisioningCredentialKeys: () =>
-          listProviderProvisioningCredentialKeys(resolveCredentialFilePath(resolveAppConfigDir())),
-      }),
-    );
+    services.register(IProviderProvisioningTargetService, providerProvisioningTarget);
   }
+
+  // 平台用户级配置同步：登录后（及约 1h 周期）拉取网关 provider/团队模型。
+  // 应用语义是"合并"而非整份替换——平台只拥有 platform:gateway，本地自建供应商与模型
+  // 无论登录与否都必须保留（见 platformUserConfigApply 注释）。
+  // 云端信封的 access.apiKey（设备凭据）与偏好默认模型在这里落地：默认选择由客户端
+  // 依据 Registry 档位事实补全后写入（云端信封只给偏好，见 platformUserConfigService 注释）。
+  const applyPlatformUserConfigEnvelope = createPlatformUserConfigApplier({
+    personalRepository: providerConfigRuntime.personalRepository,
+    deletePlatformProvider: removePlatformGatewayProvider,
+    refreshRegistry: () => providerRuntime.registryService.refresh("platform-user-config"),
+  });
+  const platformUserConfigService = createPlatformUserConfigService(credentialService, {
+    apiClient,
+    resolveEndpointOrigin: resolveCurrentShucodeEndpointOrigin,
+    applyEnvelope: applyPlatformUserConfigEnvelope,
+    getCurrentAccountSettings: async () => {
+      const settings = await settingService.get();
+      return {
+        providerFamilyDomain: settings.providerFamilyDomain,
+        providerFamilyConnectionSelections: settings.providerFamilyConnectionSelections,
+      };
+    },
+    resolveCompletedDefaultSelection: (selection) => {
+      const snapshot = providerRuntime.registryService.getSnapshot();
+      return snapshot ? completeNewModelSelection(snapshot.registry, selection) : undefined;
+    },
+    saveConfiguredDefault: async (selection) => {
+      // 丢弃仓库返回值：本依赖只表达"写入完成"，返回值不是调用方的契约。
+      await modelSelectionConfiguredDefaultSource.saveConfiguredDefault(selection);
+    },
+  });
+  platformUserConfigServices.set(services, platformUserConfigService);
+  services.register(IPlatformUserConfigService, platformUserConfigService);
   const log = createServiceLogger("provider-runtime");
   void providerRuntime.start().then(
     () => {
@@ -2626,6 +2705,7 @@ export function createLocalServices(options: {
         configRevision: snapshot.sourceRevisions.config,
         providerCount: snapshot.registry.providers.length,
       });
+      platformUserConfigService.start();
     },
     (error: unknown) => {
       log.error("Provider 配置事实初始化失败", error);
@@ -2746,6 +2826,10 @@ export function disposeServiceResources(services: ServiceCollection): void {
   for (const repo of sharedSqliteRepos.get(services) ?? []) repo.close();
   sharedSqliteRepos.delete(services);
   providerRuntimes.get(services)?.dispose();
+  platformAuthServices.get(services)?.dispose();
+  platformAuthServices.delete(services);
+  platformUserConfigServices.get(services)?.dispose();
+  platformUserConfigServices.delete(services);
   for (const dispose of providerProvisioningTriggerDisposers.get(services) ?? []) dispose();
   providerProvisioningTriggerDisposers.delete(services);
   providerProvisioningSources.delete(services);
@@ -2784,6 +2868,10 @@ export async function disposeServiceResourcesAndWait(services: ServiceCollection
   for (const repo of sharedSqliteRepos.get(services) ?? []) repo.close();
   sharedSqliteRepos.delete(services);
   providerRuntimes.get(services)?.dispose();
+  platformAuthServices.get(services)?.dispose();
+  platformAuthServices.delete(services);
+  platformUserConfigServices.get(services)?.dispose();
+  platformUserConfigServices.delete(services);
   for (const dispose of providerProvisioningTriggerDisposers.get(services) ?? []) dispose();
   providerProvisioningTriggerDisposers.delete(services);
   providerProvisioningSources.delete(services);

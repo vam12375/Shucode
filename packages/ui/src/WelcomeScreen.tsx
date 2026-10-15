@@ -28,6 +28,7 @@ import { ShucodeAboutLogo } from "@/components/ui/ShucodeAboutLogo.js";
 import { useOAuth } from "./hooks/useOAuth.js";
 import { useShucodeIntl } from "./i18n/IntlProvider.js";
 import { LoginApiKeyForm } from "./login/LoginApiKeyForm.js";
+import { PlatformLoginEntry } from "./login/PlatformLoginEntry.js";
 import { ThemeHeroVisual } from "./openWorkspacePageThemeHero.js";
 import { useShucodeStore } from "./store/StoreProvider.js";
 
@@ -36,7 +37,7 @@ interface WelcomeScreenProps {
   isDesktop?: boolean;
 }
 
-export type LoginCompleteReason = "oauth" | "apiKey" | "skip";
+export type LoginCompleteReason = "oauth" | "apiKey" | "skip" | "platform";
 
 export function WelcomeScreen({ onComplete, isDesktop = false }: WelcomeScreenProps) {
   return (
@@ -304,6 +305,17 @@ function LoginPanel({ active, onComplete, isDesktop }: LoginPanelProps) {
         onFocusCapture={() => setHasInteractedWithActions(true)}
         onPointerDownCapture={() => setHasInteractedWithActions(true)}
       >
+        {/* 平台账号登录是主入口（多租户 SaaS）：位于 API Key / 跳过等自助入口之上。
+            Host 未提供 PlatformAuthService 时该组件自行隐藏，旧 wire 行为不变。 */}
+        {status === "idle" && !oauthError && loginMode === "entry" && (
+          <PlatformLoginEntry
+            onCompleted={() => {
+              // 登录成功后立即关闭欢迎页；配置同步在 Host 服务内异步进行。
+              void onComplete("platform");
+            }}
+          />
+        )}
+
         {/* Root 层写入 oauthError（轮询/回调失败）后 effect 会把 useOAuth reset 回 idle，
             若只判断 status==="idle" 会让失败块和登录入口按钮同屏、状态纠缠。
             失败期间统一由下方失败块接管（重新登录/取消），入口按钮等错误清掉后再回来。 */}

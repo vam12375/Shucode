@@ -104,6 +104,10 @@ export const ServiceChannels = {
   FileWatcher: "file-watcher",
   /** OAuth 认证服务 */
   OAuth: "oauth",
+  /** 平台账号（多租户 SaaS）登录、session 与登出 */
+  PlatformAuth: "platform-auth",
+  /** 平台用户级配置（网关 provider/模型）拉取与应用 */
+  PlatformUserConfig: "platform-user-config",
   /** 新 Provider Config 的设置读写 Facade */
   ProviderSettings: "provider-settings",
   /** 新 Provider Registry 的模型选择 Facade */

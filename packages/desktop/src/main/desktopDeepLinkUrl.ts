@@ -4,6 +4,7 @@ const OAUTH_CALLBACK_HOSTS = new Set(["oauth"]);
 const PAYMENT_CALLBACK_HOST = "payment";
 const WORKSPACE_OPEN_HOST = "workspace";
 const SHARE_IMPORT_HOST = "share";
+const PLATFORM_CALLBACK_HOST = "platform";
 const DEEP_LINK_ADDITIONAL_DATA_KEY = "deepLinkUrl";
 const OPEN_WORKSPACE_ADDITIONAL_DATA_KEY = "openWorkspacePath";
 const OPEN_WORKSPACE_ARG = "--open-workspace";
@@ -93,6 +94,31 @@ export function extractShareImportCode(parsedUrl: URL): string | null {
   return code && /^[A-Za-z0-9._~-]{1,512}$/u.test(code) ? code : null;
 }
 
+/**
+ * 平台账号登录回跳（zcode://platform/callback?flow_id=…）。
+ * 凭据领取由 Host 服务的轮询完成，深链只负责唤醒/聚焦窗口；
+ * flow_id 仅用于日志与完整性校验，不作为路由 key。
+ */
+export function isPlatformCallbackUrl(parsedUrl: URL): boolean {
+  if (parsedUrl.protocol !== `${DEEP_LINK_SCHEME}:`) {
+    return false;
+  }
+
+  const normalizedPath = normalizeOAuthCallbackPath(parsedUrl.pathname);
+  if (parsedUrl.hostname) {
+    return parsedUrl.hostname === PLATFORM_CALLBACK_HOST && normalizedPath === "/callback";
+  }
+
+  const [, host, ...pathParts] = normalizedPath.split("/");
+  return Boolean(host === PLATFORM_CALLBACK_HOST && `/${pathParts.join("/")}` === "/callback");
+}
+
+export function extractPlatformCallbackFlowId(parsedUrl: URL): string | null {
+  if (!isPlatformCallbackUrl(parsedUrl)) return null;
+  const flowId = parsedUrl.searchParams.get("flow_id")?.trim();
+  return flowId && flowId.length > 0 ? flowId : null;
+}
+
 function decodeDeepLinkCandidate(value: string): string | null {
   try {
     const decoded = decodeURIComponent(value);
@@ -178,6 +204,10 @@ function isCompleteDeepLinkUrl(value: string): boolean {
 
   if (isShareImportUrl(parsedUrl)) {
     return extractShareImportCode(parsedUrl) !== null;
+  }
+
+  if (isPlatformCallbackUrl(parsedUrl)) {
+    return extractPlatformCallbackFlowId(parsedUrl) !== null;
   }
 
   return true;

@@ -15,6 +15,8 @@ import type { ICuaPermissionService } from "./cua-permission-broker/cuaPermissio
 import type { IBotsService } from "./bots/bots.js";
 import type { IFileWatcherService } from "./fileWatcher/fileWatcher.js";
 import type { IOAuthService } from "./oauth/oauth.js";
+import type { IPlatformAuthService } from "./platform/platformAuth.js";
+import type { IPlatformUserConfigService } from "./platform/platformUserConfig.js";
 import type {
   IModelSelectionService,
   IProviderSettingsService,
@@ -64,6 +66,10 @@ export interface IServiceAccessor {
   readonly botsService: IBotsService;
   readonly fileWatcherService: IFileWatcherService;
   readonly oauthService: IOAuthService;
+  /** 平台账号（多租户 SaaS）登录；旧 server wire 与测试 double 可暂不提供。 */
+  readonly platformAuthService?: IPlatformAuthService;
+  /** 平台用户级配置同步；旧 server wire 与测试 double 可暂不提供。 */
+  readonly platformUserConfigService?: IPlatformUserConfigService;
   /** 当前 Environment 的 Provider 配置与设置视图。 */
   readonly providerSettingsService: IProviderSettingsService;
   /** 当前 Environment Registry 发布的唯一模型选择 View。 */

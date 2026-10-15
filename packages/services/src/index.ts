@@ -225,6 +225,14 @@ export { IFileWatcherService } from "./fileWatcher/fileWatcher.js";
 // OAuth service — IOAuthService is both a type (interface) and value (descriptor)
 export { IOAuthService } from "./oauth/oauth.js";
 
+// 平台账号（多租户 SaaS）登录与用户级配置同步服务
+export { IPlatformAuthService } from "./platform/platformAuth.js";
+export {
+  IPlatformUserConfigService,
+  type PlatformUserConfigSyncResult,
+  type PlatformUserConfigSyncStatus,
+} from "./platform/platformUserConfig.js";
+
 // UsageStats service — IUsageStatsService is both a type (interface) and value (descriptor)
 export { IUsageStatsService } from "./usage-stats/usageStats.js";
 

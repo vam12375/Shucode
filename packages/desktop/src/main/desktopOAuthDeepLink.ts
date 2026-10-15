@@ -12,8 +12,10 @@ import {
 import {
   extractWorkspaceOpenPath,
   extractShareImportCode,
+  extractPlatformCallbackFlowId,
   isOAuthCallbackUrl,
   isPaymentCallbackUrl,
+  isPlatformCallbackUrl,
   isWorkspaceOpenUrl,
   isShareImportUrl,
 } from "./desktopDeepLinkUrl.js";
@@ -350,6 +352,22 @@ export function handleDeepLink(
     enqueuePendingShareImport(payload);
     logger.info("[deep-link] share import 等待主窗口");
     return false;
+  }
+
+  if (isPlatformCallbackUrl(parsedUrl)) {
+    const flowId = extractPlatformCallbackFlowId(parsedUrl);
+    const targetWindow = options.resolveApplicationWindow
+      ? options.resolveApplicationWindow()
+      : (BrowserWindow.getFocusedWindow() ?? BrowserWindow.getAllWindows()[0] ?? null);
+    if (targetWindow) {
+      focusDeepLinkTargetWindow(targetWindow);
+      logger.info("[deep-link] 平台登录回调已唤醒窗口", { flowId });
+      return true;
+    }
+    // 凭据领取由 Host 服务的轮询完成，窗口缺失时无需缓存投递内容；
+    // 登录完成与否以 Host 侧轮询结果为准。
+    logger.warn("[deep-link] 平台登录回调未命中窗口，等待 Host 轮询完成", { flowId });
+    return true;
   }
 
   if (!isOAuthCallbackUrl(parsedUrl)) {

@@ -34,6 +34,16 @@ export const TID_OAUTH_LOGIN_BUTTON = "oauth-login-button";
 export const TID_OAUTH_CANCEL = "oauth-cancel";
 /** OAuth 错误提示文本 */
 export const TID_OAUTH_ERROR = "oauth-error";
+/** 欢迎页平台账号登录按钮（多租户 SaaS 平台登录主入口） */
+export const TID_LOGIN_PLATFORM_BUTTON = "login-platform-button";
+/** 平台登录等待中提示块 */
+export const TID_LOGIN_PLATFORM_WAITING = "login-platform-waiting";
+/** 平台登录失败提示块 */
+export const TID_LOGIN_PLATFORM_ERROR = "login-platform-error";
+/** 平台登录取消按钮 */
+export const TID_LOGIN_PLATFORM_CANCEL = "login-platform-cancel";
+/** 侧栏账号菜单中的平台退出登录项 */
+export const TID_PLATFORM_LOGOUT_BUTTON = "platform-logout-button";
 
 // App
 /** 顶部导航栏 */

@@ -6,6 +6,7 @@ import {
   TID_LOGIN_MENU_ITEM,
   TID_LOGIN_TRIGGER,
   TID_LOGOUT_BUTTON,
+  TID_PLATFORM_LOGOUT_BUTTON,
   TID_TASK_SETTINGS_BUTTON,
 } from "@shucode/shared";
 import { ControlHintTooltip } from "@/ControlHintTooltip.js";
@@ -39,6 +40,7 @@ import {
   ZoomOut,
 } from "lucide-react";
 import { usePlatform } from "@/hooks/usePlatform.js";
+import { usePlatformSession } from "@/hooks/usePlatformSession.js";
 import { useShucodeIntl } from "@/i18n/IntlProvider.js";
 import { useShortcutCommandLabel } from "@/shortcuts/useShortcutBindings.js";
 import { useShucodeStore } from "@/store/StoreProvider.js";
@@ -114,22 +116,33 @@ export const WorkspaceSidebarFooter = memo(function WorkspaceSidebarFooterCompon
 }) {
   const { intl } = useShucodeIntl();
   const platform = usePlatform();
+  // 平台账号（多租户 SaaS）登录态投影：旧 OAuth user 之外的第二个账号展示来源。
+  const platformSession = usePlatformSession();
   const interfaceMode = useShucodeStore((state) => state.interfaceMode);
   const setInterfaceMode = useShucodeStore((state) => state.setInterfaceMode);
   const zoomInShortcutLabel = useShortcutCommandLabel("zoomIn");
   const zoomOutShortcutLabel = useShortcutCommandLabel("zoomOut");
   const resetZoomShortcutLabel = useShortcutCommandLabel("resetZoom");
   const isRestoringOAuthSession = useShucodeStore((state) => state.isRestoringOAuthSession);
-  const profileBadge = getSidebarProfileBadge(user, intl.formatMessage);
-  const avatarFallbackText = getAvatarFallbackText(user);
-  const avatarKey = user?.avatarUrl ?? user?.id ?? "guest";
-  const showAuthRestoreLoading = !user && isRestoringOAuthSession;
+  // 展示优先级：旧 OAuth user 按现状；否则平台会话（displayName 回退 email）。
+  const platformProfileName = platformSession.session
+    ? platformSession.session.displayName?.trim() || platformSession.session.email
+    : null;
+  const profileBadge = user
+    ? getSidebarProfileBadge(user, intl.formatMessage)
+    : (platformProfileName ?? intl.formatMessage({ id: "sidebar.profile.notLoggedIn" }));
+  const avatarFallbackText = user
+    ? getAvatarFallbackText(user)
+    : (platformProfileName?.[0]?.toUpperCase() ?? "Z");
+  const avatarKey = user?.avatarUrl ?? user?.id ?? platformSession.session?.userId ?? "guest";
+  const showAuthRestoreLoading = !user && !platformProfileName && isRestoringOAuthSession;
+  const showPlatformAccount = !user && platformSession.available && platformProfileName !== null;
   const profileContent = (
     <>
       <Avatar key={avatarKey} size="default">
         {user?.avatarUrl ? <AvatarImage src={user.avatarUrl} alt={profileBadge} /> : null}
         <AvatarFallback className="bg-background text-foreground">
-          {user ? (
+          {user || showPlatformAccount ? (
             avatarFallbackText
           ) : showAuthRestoreLoading ? (
             <>
@@ -328,7 +341,7 @@ export const WorkspaceSidebarFooter = memo(function WorkspaceSidebarFooterCompon
               </DropdownMenuSub>
             ) : null}
             {/* 二开定制：官方套餐「剩余额度 / 升级 / 续期」菜单项已下线。 */}
-            {onLogin && !user ? (
+            {onLogin && !user && !platformSession.session ? (
               <>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onSelect={onLogin} data-testid={TID_LOGIN_MENU_ITEM}>
@@ -343,6 +356,20 @@ export const WorkspaceSidebarFooter = memo(function WorkspaceSidebarFooterCompon
                 <DropdownMenuItem onSelect={onLogout} data-testid={TID_LOGOUT_BUTTON}>
                   <LogOut className="size-4" />
                   {intl.formatMessage({ id: "app.logout" })}
+                </DropdownMenuItem>
+              </>
+            ) : null}
+            {/* 平台账号退出与 OAuth「断开连接」是两个独立入口：前者只清平台凭据与网关
+                provider（不重启、不打断运行中会话），后者是 App 级重连语义。 */}
+            {platformSession.session ? (
+              <>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onSelect={() => void platformSession.logout()}
+                  data-testid={TID_PLATFORM_LOGOUT_BUTTON}
+                >
+                  <LogOut className="size-4" />
+                  {intl.formatMessage({ id: "platform.signOut" })}
                 </DropdownMenuItem>
               </>
             ) : null}
