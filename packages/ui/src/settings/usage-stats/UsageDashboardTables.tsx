@@ -7,22 +7,48 @@ import { formatUsageUSD } from "./usageDashboardViewModel.js";
 import { UsageClientIcon } from "./UsageClientSelector.js";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip.js";
 
+/** 供应商单元格：显示名来自 Provider Settings；无显示名回退原始 ID，hover 看真实 ID。 */
+function ProviderNameCell({
+  id,
+  providerLabelsById,
+  unknownLabel,
+}: {
+  id: string | null;
+  providerLabelsById: ReadonlyMap<string, string>;
+  unknownLabel: string;
+}) {
+  if (!id) return <>{unknownLabel}</>;
+  const label = providerLabelsById.get(id) ?? id;
+  if (label === id) return <>{id}</>;
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <span className="cursor-help">{label}</span>
+      </TooltipTrigger>
+      <TooltipContent>{id}</TooltipContent>
+    </Tooltip>
+  );
+}
+
 export function UsageDashboardTables({
   dashboard,
   view,
   onPageChange,
   loading,
+  providerLabelsById,
 }: {
   dashboard: AppUsageDashboard;
   view: "logs" | "providers" | "models";
   onPageChange: (page: number, until: number) => void;
   loading: boolean;
+  /** Provider Settings 视图提供的显示名；缺失时回退原始 providerId。 */
+  providerLabelsById: ReadonlyMap<string, string>;
 }) {
   const { intl, locale } = useShucodeIntl();
   const msg = (key: string) => intl.formatMessage({ id: `usageDashboard.${key}` });
   const money = (value: number | null) => formatUsageUSD(locale, value, msg("unpriced"));
   const token = (value: number) => formatCompactTokenUsage(locale, value);
-  const provider = (id: string | null) => id || msg("unknownProvider");
+  const unknownProviderLabel = msg("unknownProvider");
   const headers =
     view === "logs"
       ? [
@@ -84,7 +110,13 @@ export function UsageDashboardTables({
                         </span>
                       </span>
                     </td>
-                    <td>{provider(log.providerId)}</td>
+                    <td>
+                      <ProviderNameCell
+                        id={log.providerId}
+                        providerLabelsById={providerLabelsById}
+                        unknownLabel={unknownProviderLabel}
+                      />
+                    </td>
                     <td className="font-mono">{resolveModelLabel(intl, log.modelId)}</td>
                     <td className="font-mono tabular-nums">
                       {token(
@@ -129,7 +161,13 @@ export function UsageDashboardTables({
                 ))
               : (view === "models" ? dashboard.models : dashboard.providers).map((row) => (
                   <tr key={JSON.stringify([row.providerId, "modelId" in row ? row.modelId : null])}>
-                    <td>{provider(row.providerId)}</td>
+                    <td>
+                      <ProviderNameCell
+                        id={row.providerId}
+                        providerLabelsById={providerLabelsById}
+                        unknownLabel={unknownProviderLabel}
+                      />
+                    </td>
                     {"modelId" in row ? (
                       <td className="font-mono">
                         {resolveModelLabel(

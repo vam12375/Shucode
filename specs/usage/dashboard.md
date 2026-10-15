@@ -13,6 +13,7 @@
 - 首页展示参考费用、模型调用数、真实消耗 Token、缓存命中率。调用数是已持久化 model step 数；内部 HTTP 自动重试不冒充独立调用。记录中展示 retryCount/source/status。
 - 时间范围包含今天、近 24 小时、近 7/14/30 个自然日、全部、自定义日期与时间。自定义结束时间可选择跟随当前时刻。浏览器传 IANA 时区；新仪表盘按真实日历日期归桶，覆盖夏令时；旧查询兼容原 all/7d/30d 参数。
 - provider/model 筛选作用于同一仪表盘的摘要、趋势、供应商/模型汇总与日志。状态筛选作用于日志。趋势可切换 Token/调用/费用，今天按小时，其余按日。
+- 仪表盘供应商单元格与「供应商」筛选下拉选项显示供应商显示名（Provider Settings 视图中的 providerName，经本地 Host 服务读取，不进入用量查询载荷，维持「查询不返回 provider metadata」契约）；表格配置了显示名时以原始 providerId 作为 hover tooltip。无显示名或查不到的 providerId 回退显示原始 ID；providerId 为空仍显示未知。供应商/模型汇总行、请求日志与筛选选项使用同一映射，筛选 value 仍为原始 providerId。
 - 请求日志采用稳定 `(startedAt,id)` 倒序和有界分页，每页默认 20，最多 100；快照时刻固定查询上界，避免刷新期间新数据挤动分页。查询不返回提示词、rawUsage、provider metadata、完整错误消息。
 - 相同时间的 ID 顺序采用 UTF-8 字节的 SQLite BINARY 顺序，联邦合并使用同一比较器，包含 Unicode ID 时游标也不能改用 localeCompare 或 JavaScript UTF-16 字符序。小时趋势显式捕获时区 offset 变化产生的短桶，支持半小时 DST 回拨，不能只按一小时采样而漏掉有真实用量的桶。
 - 未知 provider/model 显示未知；不存在价格或未上报用量的调用显示未计价。摘要明确未计价调用数；未知不等于零费用。费用是当前单价下的参考估算，不是供应商账单。

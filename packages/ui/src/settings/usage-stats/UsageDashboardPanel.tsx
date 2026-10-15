@@ -1,10 +1,12 @@
 import { RefreshCcw, Info } from "lucide-react";
-import { lazy, useCallback, useRef, useState } from "react";
+import { lazy, useCallback, useMemo, useRef, useState } from "react";
 import type { AppUsageRange, UsageCursor } from "@shucode/shared";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs.js";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip.js";
 import { useShucodeIntl } from "@/i18n/IntlProvider.js";
 import { useAppUsageStats } from "@/hooks/useUsageStats.js";
+import { useServices } from "@/hooks/useServices.js";
+import { useProviderSettingsServiceView } from "@/hooks/useProviderSettingsView.js";
 import { AppUsagePanel } from "./AppUsagePanel.js";
 import { UsageChartLoadBoundary } from "./UsageChartLoadBoundary.js";
 import { UsageDashboardTables } from "./UsageDashboardTables.js";
@@ -50,6 +52,20 @@ export function UsageDashboardPanel({
     since: Date.now() - 7 * 24 * 60 * 60 * 1000,
   }));
   const scope = controlledScope ?? internalScope;
+  const { providerSettingsService } = useServices();
+  const providerSettingsRead = useProviderSettingsServiceView(providerSettingsService);
+  // 用量查询契约不返回 provider metadata；显示名从本地 Provider Settings 视图映射，
+  // 无显示名时表格回退原始 providerId（见 specs/usage/dashboard.md 产品规则）。
+  const providerLabelsById = useMemo(() => {
+    const labels = new Map<string, string>();
+    if (providerSettingsRead.state.status === "ready") {
+      for (const provider of providerSettingsRead.state.view.providers) {
+        const name = provider.providerName?.trim();
+        if (name) labels.set(provider.providerId, name);
+      }
+    }
+    return labels;
+  }, [providerSettingsRead.state]);
   const { snapshot, loading, error, refresh, refreshOnNextQuery } = useAppUsageStats(range, {
     since: range === "custom" ? customRange.since : undefined,
     until: range === "custom" ? customRange.until : undefined,
@@ -130,7 +146,7 @@ export function UsageDashboardPanel({
                   ...(providerId ? [providerId] : []),
                   ...(dashboard?.providerOptions ?? []),
                 ]),
-              ].map((value) => ({ value, label: value })),
+              ].map((value) => ({ value, label: providerLabelsById.get(value) ?? value })),
             ]}
           />
           <UsageSelect
@@ -334,6 +350,7 @@ export function UsageDashboardPanel({
             dashboard={dashboard}
             view={view}
             loading={loading}
+            providerLabelsById={providerLabelsById}
             onPageChange={(page, until) => {
               if (page > paging.page) cursors.current.set(page, dashboard.pagination.nextCursor);
               setPaging({ page, until, after: cursors.current.get(page) });

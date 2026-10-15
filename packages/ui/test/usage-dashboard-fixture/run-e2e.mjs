@@ -50,6 +50,22 @@ await overflow();
 await screenshot("desktop-zh-light");
 check("desktop metrics, nonblank chart, 20-row bounded page and no page overflow");
 
+const logsText = await page.locator('[data-testid="usage-table-logs"]').innerText();
+assert.match(logsText, /Fixture Proxy/);
+assert.match(logsText, /secondary-provider/);
+const providerCell = page
+  .locator('[data-testid="usage-table-logs"] tbody tr')
+  .filter({ hasText: "Fixture Proxy" })
+  .first()
+  .locator("td")
+  .nth(2);
+await providerCell.locator("span").hover();
+await page.getByRole("tooltip", { name: "fixture-provider", exact: true }).waitFor();
+await page.keyboard.press("Escape");
+await page.mouse.move(0, 0);
+await page.waitForTimeout(250);
+check("provider column shows display name with raw providerId tooltip and raw-id fallback");
+
 await byId("usage-page-next").click();
 await waitReady();
 assert.ok(await page.evaluate(() => window.usageFixture.requests.at(-1).dashboard.after));
@@ -58,7 +74,8 @@ await byId("usage-page-previous").click();
 await waitReady();
 assert.match(await page.locator('[data-testid="usage-table-logs"]').innerText(), /第 1 \/ 3 页/);
 check("next and previous pagination preserve fixed snapshot");
-await select("usage-provider-filter", "fixture-provider");
+// 供应商筛选选项展示 Provider Settings 显示名，value 仍是原始 providerId。
+await select("usage-provider-filter", "Fixture Proxy");
 assert.match(await byId("usage-summary-requests").innerText(), /25/);
 await select("usage-model-filter", "fixture-model");
 assert.match(await byId("usage-summary-requests").innerText(), /17/);
@@ -66,8 +83,10 @@ await select("usage-status-filter", "失败");
 assert.equal(await page.locator('[data-testid="usage-table-logs"] tbody tr').count(), 9);
 await byId("usage-tab-providers").click();
 await byId("usage-table-providers").waitFor();
+assert.match(await byId("usage-table-providers").innerText(), /Fixture Proxy/);
 await byId("usage-tab-models").click();
 await byId("usage-table-models").waitFor();
+assert.match(await byId("usage-table-models").innerText(), /Fixture Proxy/);
 check("supplier/model/status filters and aggregate tabs");
 
 await open("platform=desktop&locale=zh&theme=light");
@@ -238,7 +257,7 @@ assert.equal(
   true,
 );
 await page.waitForFunction(() => window.usageFixture.pending() === 1);
-await select("usage-provider-filter", "fixture-provider");
+await select("usage-provider-filter", "Fixture Proxy");
 assert.match(await byId("usage-summary-requests").innerText(), /25/);
 await page.evaluate(() => window.usageFixture.release());
 await page.waitForFunction(() => window.usageFixture.pending() === 0);

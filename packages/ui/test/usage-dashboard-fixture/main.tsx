@@ -12,6 +12,7 @@ import {
 } from "../../src/settings/usage-stats/UsageClientSelector.js";
 import { applyTheme } from "../../src/useTheme.js";
 import { usageStatsService, fixtureControls } from "./service.js";
+import { providerSettingsService } from "./provider-settings-stub.js";
 import "../../src/styles.css";
 
 const query = new URLSearchParams(location.search);
@@ -22,7 +23,7 @@ document.documentElement.classList.toggle(
 document.documentElement.setAttribute("data-shucode-browser-theme", "light");
 applyTheme(query.get("theme") === "dark" ? "zai-dark" : "zai-light");
 localStorage.setItem("shucode-theme", query.get("theme") === "dark" ? "zai-dark" : "zai-light");
-const services = { usageStatsService } as IServiceAccessor;
+const services = { usageStatsService, providerSettingsService } as IServiceAccessor;
 const broadcastService: IBroadcastService = {
   send: async () => {},
   acquireClaim: async () => ({ status: "unavailable" }),
