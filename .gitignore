@@ -33,6 +33,7 @@ output/
 z-work/
 openclaw/
 specs/
+design-prototypes/
 .run-logs/
 .worktrees/
 packages/stream-animate/dist-server/
