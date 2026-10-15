@@ -157,7 +157,12 @@ function TurnChatLoadingSlot({
   return (
     <div data-shucode-chat-loading-slot="true" className="min-h-5">
       {visibleRetryStatus ? (
-        <ChatApiRetryStatus apiRetry={visibleRetryStatus} intl={intl} locale={locale} />
+        <ChatApiRetryStatus
+          apiRetry={visibleRetryStatus}
+          nextRetryAt={apiRetry?.nextRetryAt}
+          intl={intl}
+          locale={locale}
+        />
       ) : (
         // running 是 ChatLoading 的权威事实；额外静默计时会让 projection
         // 更新反复重启可见性，并使 UI 晚于真实状态。

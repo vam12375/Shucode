@@ -2,6 +2,7 @@
 import {
   useCallback,
   useMemo,
+  useState,
   type ComponentProps,
   type KeyboardEvent as ReactKeyboardEvent,
   type RefObject,
@@ -45,6 +46,12 @@ import {
   SHUCODE_MODE_OPTION_LABEL_IDS,
 } from "./display-help.js";
 import { RollingToolbarLabel } from "@/chat-input-toolbar/RollingToolbarLabel.js";
+import {
+  ApiRetryDetailRow,
+  formatNextRetryTime,
+  resolveApiRetryRawErrorText,
+  resolveApiRetryReasonText,
+} from "@/chat-input-toolbar/apiRetryDetails.js";
 
 export {
   ChatContextUsage,
@@ -90,13 +97,17 @@ function getConfigSelectItemTestId(
 
 export function ChatApiRetryStatus({
   apiRetry,
+  nextRetryAt,
   intl,
   locale,
 }: {
   apiRetry: ShucodeApiRetryStatus | null;
+  /** v4 时间线路径透传的下次重试绝对时刻；旧 desktop 会话路径无此字段。 */
+  nextRetryAt?: number | null;
   intl: ReturnType<typeof useShucodeIntl>["intl"];
   locale: string;
 }) {
+  const [expanded, setExpanded] = useState(false);
   const retryLabel = useMemo(() => {
     if (!apiRetry) {
       return null;
@@ -115,24 +126,90 @@ export function ChatApiRetryStatus({
     );
   }, [apiRetry, intl, locale]);
 
+  // 原因与详情行所需的派生值必须在 early return 之前计算，保持 hook 顺序稳定。
+  const reasonText = useMemo(
+    () => resolveApiRetryReasonText(apiRetry?.error, intl),
+    [apiRetry?.error, intl],
+  );
+  const rawErrorText = useMemo(
+    () => resolveApiRetryRawErrorText(apiRetry?.error, reasonText),
+    [apiRetry?.error, reasonText],
+  );
+  const nextRetryLabel = useMemo(
+    () => formatNextRetryTime(nextRetryAt, locale),
+    [locale, nextRetryAt],
+  );
+
   if (!apiRetry || !retryLabel) {
     return null;
   }
 
-  const retryTitle =
-    apiRetry.errorStatus == null ? retryLabel : `${retryLabel} · HTTP ${apiRetry.errorStatus}`;
+  const retryTitle = [
+    retryLabel,
+    ...(reasonText ? [reasonText] : []),
+    ...(apiRetry.errorStatus == null ? [] : [`HTTP ${apiRetry.errorStatus}`]),
+  ].join(" · ");
 
   return (
-    <span
-      className="inline-flex h-7 items-center whitespace-nowrap px-1 text-ui-base"
-      title={retryTitle}
-    >
-      {/* Retry 需要保留 ToolCall/Thinking 的字号、扫光节奏和低透明度移动低谷，
-      但作为次级运行状态不应使用同等的纯黑/纯白峰值；这里只将峰值降到 secondary 文本色。 */}
-      <span className="animated-gradient-text animated-gradient-text-subtle font-medium">
-        {retryLabel}
+    <div className="min-w-0">
+      <span
+        className="inline-flex h-7 items-center whitespace-nowrap px-1 text-ui-base"
+        title={retryTitle}
+      >
+        {/* Retry 需要保留 ToolCall/Thinking 的字号、扫光节奏和低透明度移动低谷，
+        但作为次级运行状态不应使用同等的纯黑/纯白峰值；这里只将峰值降到 secondary 文本色。 */}
+        <button
+          type="button"
+          className="inline-flex min-w-0 cursor-pointer items-center gap-1 bg-transparent p-0 text-inherit"
+          aria-expanded={expanded}
+          data-testid="chat-api-retry-toggle"
+          onClick={() => {
+            setExpanded((current) => !current);
+          }}
+        >
+          <span className="animated-gradient-text animated-gradient-text-subtle font-medium">
+            {retryLabel}
+          </span>
+          <ChevronDownIcon
+            className={cn(
+              "size-3.5 shrink-0 text-foreground-subtle transition-transform",
+              expanded && "rotate-180",
+            )}
+          />
+        </button>
       </span>
-    </span>
+      {expanded ? (
+        <div
+          data-testid="chat-api-retry-detail"
+          className="mt-1 ml-1 space-y-0.5 border-l-2 border-border py-0.5 pl-3 text-ui-sm/relaxed text-foreground-subtle"
+        >
+          {reasonText ? (
+            <ApiRetryDetailRow
+              label={intl.formatMessage({ id: "chat.apiRetryDetail.reason" })}
+              value={reasonText}
+            />
+          ) : null}
+          {apiRetry.errorStatus == null ? null : (
+            <ApiRetryDetailRow
+              label={intl.formatMessage({ id: "chat.apiRetryDetail.httpStatus" })}
+              value={`HTTP ${apiRetry.errorStatus}`}
+            />
+          )}
+          {nextRetryLabel ? (
+            <ApiRetryDetailRow
+              label={intl.formatMessage({ id: "chat.apiRetryDetail.nextRetryAt" })}
+              value={nextRetryLabel}
+            />
+          ) : null}
+          {rawErrorText ? (
+            <ApiRetryDetailRow
+              label={intl.formatMessage({ id: "chat.apiRetryDetail.error" })}
+              value={rawErrorText}
+            />
+          ) : null}
+        </div>
+      ) : null}
+    </div>
   );
 }
 
