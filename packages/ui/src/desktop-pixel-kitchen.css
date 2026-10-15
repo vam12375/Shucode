@@ -344,14 +344,21 @@ html.platform-linux-desktop {
     box-shadow: 2px 2px 0 var(--pk-shadow-color);
   }
 
+  /* 用户反馈：新建任务默认带 ink 边框加硬投影会被误读为常驻悬浮/选中态；
+     常态必须与相邻导航行一致（透明底、无边框），悬浮仅变底色。 */
   .pk-new-task {
-    border: 1px solid var(--pk-ink);
+    border: 1px solid transparent;
     border-radius: var(--pk-radius-control);
     min-height: 36px;
     height: auto;
     padding-block: 5px;
-    background-color: var(--pk-panel);
-    box-shadow: 2px 2px 0 var(--pk-shadow-color);
+    background-color: transparent;
+  }
+
+  /* pk CSS 未分层，会压住 Tailwind @layer utilities 的 hover:bg-surface-hover；
+     桌面端悬浮底色必须在此声明，并放行禁用态维持无底色。 */
+  .pk-new-task:hover:not([aria-disabled="true"]) {
+    background-color: var(--pk-selected);
   }
 
   .pk-new-task > div {
