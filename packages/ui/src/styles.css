@@ -2055,3 +2055,51 @@ body {
 .prompt-mention[data-mention-category="plugins"]::before {
   border-radius: var(--radius-sm);
 }
+
+/* 画布首页「最近的画布」活墙：双排无缝滚动。
+   内容复制整数份后位移 -50% 回环；只动 transform（合成线程，不触发布局/重排）；
+   容器 hover 通过 .canvas-marquee:hover 暂停；prefers-reduced-motion 下静止。 */
+@keyframes canvas-marquee-forward {
+  from {
+    translate: 0 0;
+  }
+
+  to {
+    translate: -50% 0;
+  }
+}
+
+@keyframes canvas-marquee-backward {
+  from {
+    translate: -50% 0;
+  }
+
+  to {
+    translate: 0 0;
+  }
+}
+
+.canvas-marquee-lane {
+  width: max-content;
+  will-change: translate;
+}
+
+.canvas-marquee-lane-forward {
+  animation: canvas-marquee-forward var(--canvas-marquee-duration, 40s) linear infinite;
+}
+
+.canvas-marquee-lane-backward {
+  animation: canvas-marquee-backward var(--canvas-marquee-duration, 46s) linear infinite;
+}
+
+.canvas-marquee:hover .canvas-marquee-lane,
+.canvas-marquee:focus-within .canvas-marquee-lane {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .canvas-marquee-lane-forward,
+  .canvas-marquee-lane-backward {
+    animation: none;
+  }
+}

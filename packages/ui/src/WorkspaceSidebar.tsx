@@ -27,6 +27,7 @@ import {
   Minimize2,
   Plus,
   Search,
+  Workflow,
   X,
 } from "lucide-react";
 import {
@@ -51,6 +52,7 @@ import {
   TID_CONVERSATION_NEW_TASK,
   TID_CONVERSATION_SECTION,
   TID_AUTOMATIONS_OPEN,
+  TID_CANVAS_OPEN,
   TID_PROJECT_ADD,
   TID_PROJECT_SECTION,
   TID_SIDEBAR,
@@ -261,6 +263,8 @@ export const WorkspaceSidebar = memo(function WorkspaceSidebarComponent({
   onOpenPluginStore,
   automationsActive = false,
   pluginStoreActive = false,
+  onOpenCanvas,
+  canvasActive = false,
   onFileTreeOpenChange,
 }: {
   workspacePath: string;
@@ -313,6 +317,8 @@ export const WorkspaceSidebar = memo(function WorkspaceSidebarComponent({
   onOpenPluginStore?: () => void;
   automationsActive?: boolean;
   pluginStoreActive?: boolean;
+  onOpenCanvas?: () => void;
+  canvasActive?: boolean;
   onFileTreeOpenChange?: (open: boolean) => void;
 }) {
   const { intl, localePreference, setLocalePreference } = useShucodeIntl();
@@ -753,6 +759,9 @@ export const WorkspaceSidebar = memo(function WorkspaceSidebarComponent({
   const handleOpenAutomationsMain = useCallback(() => {
     onOpenAutomations?.();
   }, [onOpenAutomations]);
+  const handleOpenCanvasMain = useCallback(() => {
+    onOpenCanvas?.();
+  }, [onOpenCanvas]);
   // 二开定制：官方套餐「升级/续期」入口已下线，不再向 footer 透传 onUpgradeClick。
   const activeTaskId = useShucodeSessionStore(
     (state) =>
@@ -1337,6 +1346,21 @@ export const WorkspaceSidebar = memo(function WorkspaceSidebarComponent({
             >
               <Blocks className="size-4" />
               {intl.formatMessage({ id: "workspace.openPluginsSettings" })}
+            </Button>
+            <Button
+              variant="ghost"
+              onClick={handleOpenCanvasMain}
+              data-icon="inline-start"
+              data-testid={TID_CANVAS_OPEN}
+              size="lg"
+              aria-pressed={canvasActive}
+              className={cn(
+                "w-full justify-start gap-2 text-foreground hover:bg-surface-hover hover:text-foreground",
+                canvasActive && "bg-selected text-foreground",
+              )}
+            >
+              <Workflow className="size-4" />
+              {intl.formatMessage({ id: "workspace.openCanvas" })}
             </Button>
           </div>
 

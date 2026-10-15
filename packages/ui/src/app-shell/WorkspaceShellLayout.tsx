@@ -28,6 +28,7 @@ import {
 import { usePaneSessionPersistence } from "@/v4/usePaneSessionPersistence.js";
 import { requestV4ComposerDraftWorkspaceTransfer } from "@/v4/composer/composerDraftWorkspaceTransfer.js";
 import { ChatEmptyWorkspacePreviewMenu } from "@/ChatEmptyState.js";
+import { CanvasWorkspace } from "@/canvas/CanvasWorkspace.js";
 import { DesktopTopOverlay } from "@/DesktopTopOverlay.js";
 import { DesktopWindowFrame } from "@/DesktopWindowFrame.js";
 import { WorkspacePluginPreview } from "@/WorkspacePluginPreview.js";
@@ -352,6 +353,10 @@ export const WorkspaceShellLayout = memo(function WorkspaceShellLayoutComponent(
     null,
   );
   const [isSidebarFileTreeOpen, setIsSidebarFileTreeOpen] = useState(false);
+  // 画布详情页打开态：detail 页不渲染顶部浮层按钮簇（详见画布分支注释）。
+  const [isCanvasEditorOpen, setIsCanvasEditorOpen] = useState(false);
+  // 画布域自动收起侧栏后的恢复哨兵：仅当收起由画布触发时，退出画布域才恢复展开。
+  const sidebarCollapsedByCanvasRef = useRef(false);
   const workspaceKey = workspaceIdentity?.trim() || workspaceAbsPath;
   const screenshotSurfaceRequest = useBrowserScreenshotSurfaceRequest(sidePaneState?.tabs ?? []);
   const screenshotSurfaceTab = screenshotSurfaceRequest
@@ -436,6 +441,25 @@ export const WorkspaceShellLayout = memo(function WorkspaceShellLayoutComponent(
       workspaceKey,
     };
   }, [handleToggleSidebar, handleToggleSidePane, isSidebarVisible, isSidePaneOpen, workspaceKey]);
+
+  useEffect(() => {
+    // 进入画布域视为「离开任务工作台」（点击画布入口或新建画布）：自动收起壳层侧栏，
+    // 详情页有自己的节点/资产面板；退出画布域时若收起由画布触发则恢复展开。
+    const state = conversationAutoCollapseStateRef.current;
+    if (workspaceMainView === "canvas") {
+      if (state.isSidebarVisible) {
+        sidebarCollapsedByCanvasRef.current = true;
+        state.handleToggleSidebar();
+      }
+      return;
+    }
+    if (sidebarCollapsedByCanvasRef.current) {
+      sidebarCollapsedByCanvasRef.current = false;
+      if (!state.isSidebarVisible) {
+        state.handleToggleSidebar();
+      }
+    }
+  }, [workspaceMainView, isCanvasEditorOpen]);
 
   useEffect(() => {
     if (workspaceMainView !== "chat") {
@@ -766,6 +790,13 @@ export const WorkspaceShellLayout = memo(function WorkspaceShellLayoutComponent(
       workspaceSidebarPanelWidthPx,
     ],
   );
+  // 画布详情页工具条并入顶部 48px 拖拽条（真全屏）。画布视图不渲染顶部浮层按钮簇
+  // （进入画布即独立页面），左上只需让出 macOS 红绿灯（仅侧栏收起时落在内容列）；
+  // Windows/Linux 窗控在右上，左上无需让位。
+  const canvasChromeLeftInsetPx =
+    isDesktop && !isSidebarVisible && isMacDesktop ? (macWindowControlsLeftPaddingPx ?? 96) : 0;
+  const canvasChromeRightInsetPx =
+    isDesktop && !isMacDesktop ? windowsWindowControlsRightPaddingPx : 0;
   const activePreviewPath = useMemo(() => {
     const activeSidePaneTab =
       sidePaneState?.tabs.find((tab) => tab.id === sidePaneState.activeTabId) ?? null;
@@ -813,8 +844,13 @@ export const WorkspaceShellLayout = memo(function WorkspaceShellLayoutComponent(
     onWorkspaceMainViewChange("chat");
   }, [onWorkspaceMainViewChange]);
   const primaryNavigationBack =
-    workspaceMainView === "plugin-store" ? handleManageInstalledPlugins : handleTaskNavBack;
-  const canPrimaryNavigationBack = workspaceMainView === "plugin-store" || canTaskNavBack;
+    workspaceMainView === "plugin-store"
+      ? handleManageInstalledPlugins
+      : workspaceMainView === "canvas"
+        ? showChatMainView
+        : handleTaskNavBack;
+  const canPrimaryNavigationBack =
+    workspaceMainView === "plugin-store" || workspaceMainView === "canvas" || canTaskNavBack;
   const handleCreateTaskInChat = useCallback(
     (request?: Parameters<typeof onCreateTask>[0]) => {
       // workspaceReadOnlyReason 判定的是活动 workspace；当 request 显式带 targetWorkspace 时
@@ -1485,7 +1521,9 @@ export const WorkspaceShellLayout = memo(function WorkspaceShellLayoutComponent(
   // 与 Task Header 分叉。桌面端统一复用 WorkspaceHeader，只由 variant 裁剪 task 专属内容；
   // 手机远控无 active task 时仍不渲染桌面 chrome，继续遵守 replayable overlay 边界。
   const shouldRenderMainViewHeader =
-    workspaceMainView !== "automations" && workspaceMainView !== "plugin-store";
+    workspaceMainView !== "automations" &&
+    workspaceMainView !== "plugin-store" &&
+    workspaceMainView !== "canvas";
   const shouldRenderWorkspaceHeader =
     shouldRenderMainViewHeader && (activeTaskId !== null || isDesktop);
   // ErrorBoundary resetKeys 的数组如果每次 render 都重新创建，
@@ -1593,6 +1631,13 @@ export const WorkspaceShellLayout = memo(function WorkspaceShellLayoutComponent(
                     automationsActive={workspaceMainView === "automations"}
                     onOpenPluginStore={handleOpenPluginStore}
                     pluginStoreActive={workspaceMainView === "plugin-store"}
+                    // 画布按钮是 aria-pressed 切换按钮：active 时再点回聊天。
+                    onOpenCanvas={() =>
+                      onWorkspaceMainViewChange(
+                        workspaceMainView === "canvas" ? "chat" : "canvas",
+                      )
+                    }
+                    canvasActive={workspaceMainView === "canvas"}
                     onFileTreeOpenChange={setIsSidebarFileTreeOpen}
                   />
                 </WorkflowRunOpenProvider>
@@ -1814,6 +1859,28 @@ export const WorkspaceShellLayout = memo(function WorkspaceShellLayoutComponent(
                             </div>
                           </AutomationsMainBreadcrumbFrame>
                         </main>
+                      ) : workspaceMainView === "canvas" ? (
+                        <main className="relative flex h-full min-h-0 flex-1 flex-col overflow-hidden">
+                          {/* 画布域铺满主区（画布背景上探到拖拽条后面）；48px 透明拖拽条由
+                              画布域自绘叠加在最上层内容之上，桌面端红绿灯等窗控落在该条内。 */}
+                          <ScopedErrorBoundary
+                            scope="canvas-main"
+                            resetKeys={workspaceOnlyResetKeys}
+                            variant="panel"
+                            className="min-h-0 flex-1"
+                          >
+                            <CanvasWorkspace
+                              workspacePath={workspaceAbsPath}
+                              workspaceIdentity={workspaceIdentity}
+                              projectName={projectName}
+                              isDesktop={Boolean(isDesktop)}
+                              chromeLeftInsetPx={canvasChromeLeftInsetPx}
+                              chromeRightInsetPx={canvasChromeRightInsetPx}
+                              onEditorOpenChange={setIsCanvasEditorOpen}
+                              onExitCanvas={showChatMainView}
+                            />
+                          </ScopedErrorBoundary>
+                        </main>
                       ) : (
                         <main className="relative flex h-full min-h-0 flex-1 flex-col overflow-hidden">
                           {renderChatFindDialog()}
@@ -1892,7 +1959,9 @@ export const WorkspaceShellLayout = memo(function WorkspaceShellLayoutComponent(
                     </div>
                   </section>
                 </ResizablePanel>
-                {workspaceMainView !== "automations" && workspaceMainView !== "plugin-store" ? (
+                {workspaceMainView !== "automations" &&
+                workspaceMainView !== "plugin-store" &&
+                workspaceMainView !== "canvas" ? (
                   <AnimatedTerminalPanel
                     frameClassName={cn(
                       isSidePaneVisible
@@ -1927,40 +1996,44 @@ export const WorkspaceShellLayout = memo(function WorkspaceShellLayoutComponent(
             {sidePanePanel}
           </ResizablePanelGroup>
         </div>
-        <ScopedErrorBoundary
-          scope="desktop-top-overlay"
-          resetKeys={workspaceSidebarVisibilityResetKeys}
-          variant="silent"
-        >
-          <DesktopTopOverlay
-            newTaskDisabledReason={workspaceReadOnlyReason}
-            workspaceAbsPath={workspaceAbsPath}
-            isMacDesktop={isMacDesktop}
-            isMacFullscreen={isMacFullscreen}
-            macWindowControlsLeftPaddingPx={macWindowControlsLeftPaddingPx}
-            windowsWindowControlsRightPaddingPx={windowsWindowControlsRightPaddingPx}
-            isWindowsDesktop={isWindowsDesktop}
-            isDesktop={isDesktop}
-            isSidebarVisible={isSidebarVisible}
-            updateReadyVersion={updateReadyVersion}
-            updateState={updateState}
-            toggleSidebarShortcutLabel={toggleSidebarShortcutLabel}
-            newTaskShortcutLabel={newTaskShortcutLabel}
-            goBackShortcutLabel={goBackShortcutLabel}
-            goForwardShortcutLabel={goForwardShortcutLabel}
-            canTaskNavBack={canPrimaryNavigationBack}
-            canTaskNavForward={canTaskNavForward}
-            canGoBack={canGoBack}
-            canGoForward={canGoForward}
-            showNewTaskButton={showTopOverlayNewTaskButton}
-            appLogoUrl={appLogoUrl}
-            platform={platform}
-            onToggleSidebar={handleToggleSidebar}
-            onCreateTask={handleCreateTaskInChat}
-            onGoBack={primaryNavigationBack}
-            onGoForward={handleTaskNavForward}
-          />
-        </ScopedErrorBoundary>
+        {/* 画布详情页是独立页面：顶部浮层按钮簇（侧栏开关/任务导航/新会话）不随详情页渲染，
+            返回/新建/删除入口由画布 Logo 菜单承接；画布首页保留浮层（含侧栏开关以便回到任务工作台）。 */}
+        {workspaceMainView === "canvas" && isCanvasEditorOpen ? null : (
+          <ScopedErrorBoundary
+            scope="desktop-top-overlay"
+            resetKeys={workspaceSidebarVisibilityResetKeys}
+            variant="silent"
+          >
+            <DesktopTopOverlay
+              newTaskDisabledReason={workspaceReadOnlyReason}
+              workspaceAbsPath={workspaceAbsPath}
+              isMacDesktop={isMacDesktop}
+              isMacFullscreen={isMacFullscreen}
+              macWindowControlsLeftPaddingPx={macWindowControlsLeftPaddingPx}
+              windowsWindowControlsRightPaddingPx={windowsWindowControlsRightPaddingPx}
+              isWindowsDesktop={isWindowsDesktop}
+              isDesktop={isDesktop}
+              isSidebarVisible={isSidebarVisible}
+              updateReadyVersion={updateReadyVersion}
+              updateState={updateState}
+              toggleSidebarShortcutLabel={toggleSidebarShortcutLabel}
+              newTaskShortcutLabel={newTaskShortcutLabel}
+              goBackShortcutLabel={goBackShortcutLabel}
+              goForwardShortcutLabel={goForwardShortcutLabel}
+              canTaskNavBack={canPrimaryNavigationBack}
+              canTaskNavForward={canTaskNavForward}
+              canGoBack={canGoBack}
+              canGoForward={canGoForward}
+              showNewTaskButton={showTopOverlayNewTaskButton}
+              appLogoUrl={appLogoUrl}
+              platform={platform}
+              onToggleSidebar={handleToggleSidebar}
+              onCreateTask={handleCreateTaskInChat}
+              onGoBack={primaryNavigationBack}
+              onGoForward={handleTaskNavForward}
+            />
+          </ScopedErrorBoundary>
+        )}
       </div>
     </DesktopWindowFrame>
   );

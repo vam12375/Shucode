@@ -4,6 +4,7 @@ export interface BrowserReadableStorageLike {
 
 export interface BrowserStorageLike extends BrowserReadableStorageLike {
   setItem(key: string, value: string): void;
+  removeItem(key: string): void;
 }
 
 function getLocalStorageCandidate(): unknown {
@@ -28,7 +29,8 @@ function isBrowserReadableStorageLike(storage: unknown): storage is BrowserReada
 function isBrowserStorageLike(storage: unknown): storage is BrowserStorageLike {
   return (
     isBrowserReadableStorageLike(storage) &&
-    typeof (storage as Partial<BrowserStorageLike>).setItem === "function"
+    typeof (storage as Partial<BrowserStorageLike>).setItem === "function" &&
+    typeof (storage as Partial<BrowserStorageLike>).removeItem === "function"
   );
 }
 
@@ -66,6 +68,14 @@ export function writeSafeLocalStorage(key: string, value: string): void {
   } catch {
     // SSR/测试环境或隐私模式下 localStorage 可能存在但不可写。
     // 写入失败不应阻断 UI 渲染，真实偏好下次仍可从 settingService 或默认值恢复。
+  }
+}
+
+export function removeSafeLocalStorage(key: string): void {
+  try {
+    getSafeLocalStorage()?.removeItem(key);
+  } catch {
+    // 同 writeSafeLocalStorage：删除失败不阻断渲染，残留条目无行为副作用。
   }
 }
 

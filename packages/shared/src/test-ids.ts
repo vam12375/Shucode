@@ -747,3 +747,60 @@ export function testId(base: string, suffix: string): string {
 
 /** 用户反馈的诊断日志授权开关 */
 export const TID_FEEDBACK_LOGS_OPT_IN = "feedback-logs-opt-in";
+
+/** 侧边栏画布入口按钮 */
+export const TID_CANVAS_OPEN = "canvas-open";
+/** 画布首页（Bento 磁贴工作台）容器 */
+export const TID_CANVAS_HOME = "canvas-home";
+/** 画布首页「新建画布创作」大磁贴 */
+export const TID_CANVAS_HOME_NEW = "canvas-home-new";
+/** 画布首页「最近的画布」活墙容器 */
+export const TID_CANVAS_HOME_WALL = "canvas-home-wall";
+/** 活墙上的单个画布卡片（动态后缀为 boardId） */
+export const TID_CANVAS_HOME_WALL_ITEM = "canvas-home-wall-item";
+/** 活墙卡片上的删除按钮（动态后缀为 boardId） */
+export const TID_CANVAS_HOME_WALL_REMOVE = "canvas-home-wall-remove";
+/** 画布主视图容器 */
+export const TID_CANVAS_BOARD = "canvas-board";
+/** 编辑器头部返回首页按钮（现挂详情页 Logo 菜单内的「回到画布首页」项） */
+export const TID_CANVAS_BACK = "canvas-back";
+/** 详情页左上角 Logo 菜单触发按钮 */
+export const TID_CANVAS_MENU = "canvas-board-menu";
+/** Logo 菜单内「新建画布」项 */
+export const TID_CANVAS_MENU_NEW = "canvas-board-menu-new";
+/** Logo 菜单内「删除画布」项（destructive，走确认对话框） */
+export const TID_CANVAS_MENU_DELETE = "canvas-board-menu-delete";
+/** Logo 菜单内「返回聊天」项（退出画布域，仅宿主提供该能力时显示） */
+export const TID_CANVAS_EXIT_CHAT = "canvas-board-exit-chat";
+/** 详情页画布名切换下拉触发按钮 */
+export const TID_CANVAS_SWITCH = "canvas-board-switch";
+/** 画布切换下拉内的单个画布项（动态后缀为 boardId） */
+export const TID_CANVAS_SWITCH_ITEM = "canvas-board-switch-item";
+/** 画布切换下拉内「新建画布」入口 */
+export const TID_CANVAS_SWITCH_NEW = "canvas-board-switch-new";
+/** 详情页左侧节点/资产面板 */
+export const TID_CANVAS_PANEL = "canvas-board-panel";
+/** 面板「画布（节点列表）」Tab */
+export const TID_CANVAS_PANEL_TAB_NODES = "canvas-board-panel-tab-nodes";
+/** 面板「资产」Tab */
+export const TID_CANVAS_PANEL_TAB_ASSETS = "canvas-board-panel-tab-assets";
+/** 面板节点列表条目（动态后缀为节点 id） */
+export const TID_CANVAS_PANEL_NODE_ITEM = "canvas-board-panel-node-item";
+/** 面板底部「收起」按钮 */
+export const TID_CANVAS_PANEL_COLLAPSE = "canvas-board-panel-collapse";
+/** 面板收起后画布左下角「资产管理」重开按钮 */
+export const TID_CANVAS_PANEL_OPEN = "canvas-board-panel-open";
+/** 详情页中央空态提示 + 生成能力占位 chips 容器 */
+export const TID_CANVAS_EMPTY_ACTIONS = "canvas-board-empty-actions";
+/** 详情页左下角缩放百分比标签 */
+export const TID_CANVAS_ZOOM = "canvas-board-zoom";
+/** 添加便签节点按钮 */
+export const TID_CANVAS_ADD_NOTE = "canvas-add-note";
+/** 重置画布视图按钮 */
+export const TID_CANVAS_RESET_VIEW = "canvas-reset-view";
+/** 画布便签节点（动态后缀为节点 id） */
+export const TID_CANVAS_NOTE_NODE = "canvas-note-node";
+/** 便签文本编辑区（动态后缀为节点 id） */
+export const TID_CANVAS_NOTE_EDITOR = "canvas-note-editor";
+/** 便签节点删除按钮（动态后缀为节点 id） */
+export const TID_CANVAS_NOTE_DELETE = "canvas-note-delete";
