@@ -32,6 +32,7 @@ export function BrowserViewportSurface({
   isComposed,
   isResponsiveMode,
   isViewportEmulated = isResponsiveMode,
+  onOpenUrl,
   onRetryGuest,
   onRetryLoad,
   onViewportResize,
@@ -52,6 +53,7 @@ export function BrowserViewportSurface({
   isComposed: boolean;
   isResponsiveMode: boolean;
   isViewportEmulated?: boolean;
+  onOpenUrl: (url: string) => void;
   onRetryGuest: () => void;
   onRetryLoad: () => void;
   onViewportResize: () => void;
@@ -129,6 +131,7 @@ export function BrowserViewportSurface({
             key="empty-state"
             browserState={browserState}
             formatMessage={formatMessage}
+            onOpenUrl={onOpenUrl}
             isGuestStarting={shouldMountWebview && !browserState.isReady}
           />
         ) : null}

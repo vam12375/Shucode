@@ -894,6 +894,14 @@ export function UnifiedBrowserView({
     [addressValue, openUrl],
   );
 
+  // 快速入口与地址栏提交同源：都走 toolbar 来源的 openUrl，复用排队/重建分支。
+  const handleQuickSiteOpen = useCallback(
+    (url: string) => {
+      void openUrl(url, "toolbar");
+    },
+    [openUrl],
+  );
+
   const handleGoBack = useCallback(() => {
     if (!webview || !browserState.canGoBack) return;
     runWebviewAction(() => webview.goBack());
@@ -1061,6 +1069,7 @@ export function UnifiedBrowserView({
         isViewportEmulated={
           effectiveIsResponsiveMode && screenshotSurfaceRequest?.viewportMode !== "natural"
         }
+        onOpenUrl={handleQuickSiteOpen}
         onRetryGuest={handleRetryGuest}
         onRetryLoad={handleRetryLoad}
         onViewportResize={notifyBrowserViewportResize}

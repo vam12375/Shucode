@@ -1,3 +1,5 @@
+/* eslint-disable max-lines -- testid 是全仓 UI/E2E 共用的单一登记源，按功能域集中追加；
+   拆文件会迫使使用方跨文件拼引，集中登记带来的超行由本豁免说明。 */
 /**
  * 统一管理所有 data-testid，UI 组件和 E2E 测试共用此单一来源。
  * 新增 testid 时请在此文件添加，不要在组件中硬编码字符串。
@@ -130,6 +132,10 @@ export const TID_BROWSER_WEBVIEW = "browser-webview";
 export const TID_BROWSER_LOAD_ERROR = "browser-load-error";
 /** 浏览器加载失败错误态里的证书放行指引 */
 export const TID_BROWSER_LOAD_ERROR_CERT_HINT = "browser-load-error-cert-hint";
+/** 浏览器空状态的常用网站入口容器 */
+export const TID_BROWSER_QUICK_SITES = "browser-quick-sites";
+/** 浏览器空状态常用网站单个入口（动态后缀为站点 id） */
+export const TID_BROWSER_QUICK_SITE_ITEM = "browser-quick-site-item";
 /** 预览面板容器 */
 export const TID_PREVIEW_PANE = "preview-pane";
 /** 预览面板关闭按钮 */

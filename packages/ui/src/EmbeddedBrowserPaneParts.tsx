@@ -5,8 +5,6 @@ import {
   ChevronRight,
   Ellipsis,
   ExternalLink,
-  Globe,
-  LoaderIcon,
   MonitorSmartphone,
   MousePointerClick,
   RefreshCw,
@@ -34,6 +32,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu.js";
 import { Input } from "@/components/ui/input.js";
+import { BrowserQuickSitesPanel } from "@/browser-use/BrowserQuickSitesPanel.js";
 import {
   isDefaultBrowserOpenableUrl,
   type BrowserGuestFailure,
@@ -205,27 +204,21 @@ function BrowserToolbarMoreMenu({
 export function BrowserEmptyState({
   browserState,
   formatMessage,
+  onOpenUrl,
   isGuestStarting = !browserState.isReady,
 }: {
   browserState: BrowserState;
   formatMessage: (descriptor: { id: string }) => string;
+  onOpenUrl: (url: string) => void;
   isGuestStarting?: boolean;
 }) {
   return (
-    <div className="absolute inset-0 z-10 flex items-center justify-center bg-background px-6">
-      <div className="flex max-w-sm flex-col pb-10 items-center text-center">
-        {isGuestStarting ? (
-          <LoaderIcon className="mb-6 size-16 animate-spin text-foreground opacity-30" />
-        ) : (
-          <Globe className="mb-6 size-16 text-foreground opacity-30" />
-        )}
-        <h3 className="pk-panel-title text-ui-base font-medium text-foreground">
-          {formatMessage({ id: "browser.title" })}
-        </h3>
-        <p className="mt-2 text-ui-base text-foreground-subtle">
-          {formatMessage({ id: "browser.empty" })}
-        </p>
-      </div>
+    <div className="absolute inset-0 z-10 flex overflow-y-auto bg-background px-6">
+      <BrowserQuickSitesPanel
+        formatMessage={formatMessage}
+        isGuestStarting={isGuestStarting}
+        onOpenUrl={onOpenUrl}
+      />
     </div>
   );
 }
