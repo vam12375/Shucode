@@ -111,6 +111,8 @@ export interface BotConfig {
   webhookUrl?: string;
   webhookAuthHeaderName?: string;
   feishuAppId?: string;
+  /** 企业微信智能机器人 BotID；非密字段，Secret 仍走 credentialRef。 */
+  wecomBotId?: string;
   providerUserId?: string;
   displayName?: string;
   allowedWorkspaces: string[];
@@ -464,6 +466,7 @@ export const botConfigSchema = z
     webhookUrl: z.string().url().optional(),
     webhookAuthHeaderName: z.string().min(1).optional(),
     feishuAppId: z.string().min(1).optional(),
+    wecomBotId: z.string().min(1).optional(),
     providerUserId: z.string().min(1).optional(),
     displayName: z.string().optional(),
     allowedWorkspaces: z.array(z.string().min(1)),

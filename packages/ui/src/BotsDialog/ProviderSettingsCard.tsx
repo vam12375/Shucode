@@ -19,8 +19,14 @@ import { useShucodeIntl } from "@/i18n/IntlProvider.js";
 import { SettingsGroupCard, SettingsRow } from "@/settings/SettingsPageParts.js";
 import { cn } from "@/components/lib/utils.js";
 import { logger } from "@/logger.js";
-import type { BindCodeState, FeishuRegistrationState, WeixinRegistrationState } from "./shared.js";
+import type {
+  BindCodeState,
+  FeishuRegistrationState,
+  WeComRegistrationState,
+  WeixinRegistrationState,
+} from "./shared.js";
 import { TELEGRAM_BOTFATHER_URL, formatBindCountdown } from "./shared.js";
+import { WeComProviderSettings } from "./WeComProviderSettings.js";
 
 function DetailPanel({ children }: { children: ReactNode }) {
   return <div className="rounded-lg bg-background p-3">{children}</div>;
@@ -122,6 +128,8 @@ export function ProviderSettingsCard({
   weixinRegistration,
   weixinRegistrationLoading,
   weixinActivated,
+  wecomRegistration,
+  wecomRegistrationLoading,
   secretSaving,
   onCredentialValueChange,
   onSaveSecret,
@@ -129,6 +137,8 @@ export function ProviderSettingsCard({
   onOpenTelegramBotFather,
   onStartWeixinRegistration,
   onStartFeishuRegistration,
+  onStartWeComRegistration,
+  onSaveWeComManualCredentials,
   onCreateBindCode,
   onUnbind,
   onCopyBindCommand,
@@ -145,6 +155,8 @@ export function ProviderSettingsCard({
   weixinRegistration: WeixinRegistrationState | null;
   weixinRegistrationLoading: boolean;
   weixinActivated: boolean;
+  wecomRegistration: WeComRegistrationState | null;
+  wecomRegistrationLoading: boolean;
   secretSaving: boolean;
   onCredentialValueChange: (value: string) => void;
   onSaveSecret: () => void;
@@ -152,6 +164,8 @@ export function ProviderSettingsCard({
   onOpenTelegramBotFather: () => void;
   onStartWeixinRegistration: () => void;
   onStartFeishuRegistration: () => void;
+  onStartWeComRegistration: () => void;
+  onSaveWeComManualCredentials: (params: { botId: string; secret: string }) => void;
   onCreateBindCode: () => void;
   onUnbind: () => void;
   onCopyBindCommand: () => void;
@@ -163,6 +177,7 @@ export function ProviderSettingsCard({
   const hasSecret = Boolean(bot.credentialRef);
   const isFeishuLike = isFeishuBotProvider(bot.provider);
   const isWeixin = bot.provider === "weixin";
+  const isWeCom = bot.provider === "wecom";
   const isConnected = isWeixin ? hasSecret : Boolean(bot.providerUserId);
   const hasRuntimeError = runtime?.status === "error";
   const descriptionText =
@@ -223,13 +238,23 @@ export function ProviderSettingsCard({
         onSaveSecret={onSaveSecret}
       />
     );
-  } else if ((isFeishuLike && !hasSecret) || (isWeixin && !hasSecret)) {
-    const loading = isWeixin ? weixinRegistrationLoading : feishuRegistrationLoading;
+  } else if ((isFeishuLike && !hasSecret) || (isWeixin && !hasSecret) || (isWeCom && !hasSecret)) {
+    const loading = isWeixin
+      ? weixinRegistrationLoading
+      : isWeCom
+        ? wecomRegistrationLoading
+        : feishuRegistrationLoading;
     control = (
       <Button
         variant="outline"
         size="lg"
-        onClick={isWeixin ? onStartWeixinRegistration : onStartFeishuRegistration}
+        onClick={
+          isWeixin
+            ? onStartWeixinRegistration
+            : isWeCom
+              ? onStartWeComRegistration
+              : onStartFeishuRegistration
+        }
         disabled={loading}
       >
         {loading ? <LoaderCircle className="size-4 animate-spin" /> : <QrCode className="size-4" />}
@@ -403,6 +428,18 @@ export function ProviderSettingsCard({
             </div>
           </div>
         </div>
+      </DetailPanel>
+    );
+  } else if (isWeCom && !hasSecret) {
+    detail = (
+      <DetailPanel>
+        <WeComProviderSettings
+          registration={wecomRegistration?.botId === bot.id ? wecomRegistration : null}
+          registrationLoading={wecomRegistrationLoading}
+          saving={secretSaving}
+          onStartRegistration={onStartWeComRegistration}
+          onSaveManualCredentials={onSaveWeComManualCredentials}
+        />
       </DetailPanel>
     );
   } else if (hasActiveWeixinRegistration) {

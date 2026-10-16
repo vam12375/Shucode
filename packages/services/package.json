@@ -23,6 +23,7 @@
     "@shucode/rpc": "workspace:*",
     "@shucode/shared": "workspace:*",
     "@shucode/shucode-cua": "workspace:*",
+    "@wecom/aibot-node-sdk": "1.0.7",
     "croner": "^10.0.1",
     "ignore": "^5.3.2",
     "node-forge": "^1.4.0",

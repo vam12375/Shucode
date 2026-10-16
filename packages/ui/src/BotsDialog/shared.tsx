@@ -48,6 +48,18 @@ export type WeixinRegistrationState = {
   message?: string;
 };
 
+export type WeComRegistrationState = {
+  botId: string;
+  scode: string;
+  authUrl: string;
+  qrDataUrl: string | null;
+  qrPageUrl: string;
+  interval: number;
+  expiresAt: number;
+  status: "pending" | "success" | "expired" | "error";
+  message?: string;
+};
+
 export const BIND_CODE_TTL_MS = BOT_BIND_CODE_TTL_MS;
 export const TELEGRAM_BOTFATHER_URL = "https://t.me/BotFather";
 

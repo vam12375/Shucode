@@ -70,10 +70,10 @@ export function normalizeBotConfig(bot: BotConfig): BotConfig {
     // Bugfix: Feishu/Lark 的回复颗粒度依赖 Card JSON 2.0 单卡更新，旧配置不能继续保留普通消息模式。
     replyMode: normalizeBotReplyGranularity(bot.provider, bot.replyMode),
   };
-  if (normalized.provider !== "weixin") {
+  if (normalized.provider !== "weixin" && normalized.provider !== "wecom") {
     return normalized;
   }
-  // 微信使用内置 iLink 地址，保存时清理 webhookUrl，避免把其他 provider 的出站字段残留到微信配置。
+  // 微信与企业微信都使用内置长连接（iLink / openws），保存时清理 webhookUrl，避免其他 provider 的出站字段残留。
   delete normalized.webhookUrl;
   return normalized;
 }

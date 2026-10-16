@@ -257,6 +257,13 @@ export function acquireFeishuWebSocketLock(
   return acquireBotRuntimeLock(`${bot.provider}-websocket`, bot.feishuAppId?.trim() ?? "", bot.id);
 }
 
+export function acquireWeComWebSocketLock(
+  bot: Pick<BotConfig, "id" | "wecomBotId">,
+): Promise<BotRuntimeLock | null> {
+  // 企微同一机器人只允许一条长连接，锁 key 用 BotID 保证多窗口下只有一个 Host 订阅。
+  return acquireBotRuntimeLock("wecom-websocket", bot.wecomBotId?.trim() ?? "", bot.id);
+}
+
 export function waitFor(ms: number, signal: AbortSignal): Promise<void> {
   if (signal.aborted) {
     return Promise.resolve();

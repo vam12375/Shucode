@@ -691,7 +691,7 @@ const enUS: Record<string, string> = {
   "bots.newBot.providerDescription.webhook":
     "Receive callbacks from your own system and optionally push replies back.",
   "bots.newBot.providerDescription.discord": "Discord bot integration is planned.",
-  "bots.newBot.providerDescription.wecom": "WeCom bot integration is planned.",
+  "bots.newBot.providerDescription.wecom": "Scan to create a robot, then bind by message.",
   "bots.empty": "No bots configured.",
   "bots.name": "Bot name",
   "bots.provider": "Channel",
@@ -709,7 +709,25 @@ const enUS: Record<string, string> = {
   "bots.providerSettings.webhook":
     "Webhook uses a callback secret for inbound requests and an optional outbound URL for replies.",
   "bots.providerSettings.discord": "Discord support is not available yet.",
-  "bots.providerSettings.wecom": "WeCom support is not available yet.",
+  "bots.providerSettings.wecom":
+    "Scan to create a smart robot, or enter the Bot ID and Secret manually.",
+  "bots.wecomRegistrationButton": "Scan to create",
+  "bots.wecomRegistrationRefresh": "Get a new QR code",
+  "bots.wecomRegistrationQrAlt": "WeCom robot creation QR code",
+  "bots.wecomRegistrationOpenPage": "Open the QR page in a browser",
+  "bots.wecomRegistrationScanHint": "Scan with WeCom and create the robot in one step.",
+  "bots.wecomRegistrationStarted": "WeCom QR creation started",
+  "bots.wecomRegistrationSuccess":
+    "Credentials saved. WeCom does not expose the robot name, so fill in the title with the name shown in WeCom, then send /bind to finish binding.",
+  "bots.wecomRegistrationFailed": "Failed to start WeCom QR creation: {error}",
+  "bots.wecomRegistration.pending": "Waiting for scan",
+  "bots.wecomRegistration.success": "Created",
+  "bots.wecomRegistration.expired": "The QR code expired. Get a new one.",
+  "bots.wecomRegistration.error": "Scan failed. Try again.",
+  "bots.wecomManualToggle": "Enter Bot ID and Secret manually",
+  "bots.wecomManualHint":
+    "In the WeCom client open Workspace → Smart Robot → Create Robot → API mode → Use Long Connection, then copy the generated Bot ID and Secret.",
+  "bots.wecomBotIdPlaceholder": "Bot ID",
   "bots.telegramBotToken": "Link bot",
   "bots.weixinRegistrationTitle": "Weixin QR login",
   "bots.weixinRegistrationDescription":
@@ -742,6 +760,7 @@ const enUS: Record<string, string> = {
   "bots.botTokenDescription.feishu": "Scan to get app credentials.",
   "bots.botTokenDescription.lark": "Scan to get app credentials.",
   "bots.botTokenDescription.weixin": "Credentials are saved after scan.",
+  "bots.botTokenDescription.wecom": "Credentials are saved after the robot is created by scan.",
   "bots.botTokenDescription.webhook": "Used to connect this webhook bot.",
   "bots.telegramBotFatherQrAlt": "Telegram BotFather QR code",
   "bots.telegramBotFatherScanHint": "Scan to open BotFather, create a bot, and paste the token.",
@@ -783,6 +802,11 @@ const enUS: Record<string, string> = {
   "bots.runtime.weixinLongPollingRunning": "Weixin long polling is running.",
   "bots.runtime.weixinLongPollingStarting": "Weixin long polling is starting.",
   "bots.runtime.weixinLongPollingStopped": "Weixin long polling is stopped.",
+  "bots.runtime.wecomWebSocketStarting": "WeCom WebSocket is starting.",
+  "bots.runtime.wecomWebSocketConnecting": "WeCom WebSocket is connecting.",
+  "bots.runtime.wecomWebSocketRunning": "WeCom WebSocket is running.",
+  "bots.runtime.wecomWebSocketStopped": "WeCom WebSocket is stopped.",
+  "bots.runtime.wecomWebSocketHandledElsewhere":
   "bots.runtime.botDisabled": "Bot is disabled.",
   "bots.scanQrCode": "Scan QR code",
   "bots.authorizationQr": "Authorization QR",

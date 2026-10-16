@@ -83,6 +83,33 @@ export type BotWeixinRegistrationPollResult =
       message?: string;
     };
 
+export interface BotWeComRegistrationBeginResult {
+  scode: string;
+  authUrl: string;
+  pageUrl: string;
+  interval: number;
+  expiresAt: number;
+}
+
+export interface BotWeComRegistrationPollParams {
+  scode: string;
+}
+
+export type BotWeComRegistrationPollResult =
+  | {
+      status: "pending";
+      interval: number;
+    }
+  | {
+      status: "success";
+      botId: string;
+      secret: string;
+    }
+  | {
+      status: "expired" | "error";
+      message?: string;
+    };
+
 export interface BotFeishuRegistrationBeginParams {
   domain?: "feishu" | "lark";
 }
@@ -143,6 +170,10 @@ export interface IBotsService {
   pollWeixinRegistration(
     params: BotWeixinRegistrationPollParams,
   ): Promise<BotWeixinRegistrationPollResult>;
+  beginWeComRegistration(): Promise<BotWeComRegistrationBeginResult>;
+  pollWeComRegistration(
+    params: BotWeComRegistrationPollParams,
+  ): Promise<BotWeComRegistrationPollResult>;
   saveConfig(config: BotsConfigFile): Promise<BotsConfigFile>;
   listBots(): Promise<BotConfig[]>;
   saveBot(params: BotSaveBotParams): Promise<BotConfig>;

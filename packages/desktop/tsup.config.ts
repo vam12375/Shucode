@@ -123,6 +123,9 @@ const desktopNodeRuntimeExternals = [
   "ssh2",
   "undici",
   "@larksuiteoapi/node-sdk",
+  // 与飞书 SDK 同因：企微智能机器人 SDK 同样是 CJS 运行时边界，
+  // 内联进 ESM main/host 产物会在 Electron 里报 Dynamic require 崩溃，保留为外部依赖。
+  "@wecom/aibot-node-sdk",
   "yaml",
   // node-forge 内部用动态 require("crypto")，内联进 ESM main/host bundle 后 Electron 会报
   // Dynamic require of "crypto" is not supported。和 undici 同样保留为运行时外部依赖。

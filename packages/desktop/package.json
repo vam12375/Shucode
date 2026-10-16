@@ -48,6 +48,7 @@
     "@shucode/shared": "workspace:*",
     "@shucode/shucode-cua": "workspace:*",
     "@shucode/ui": "workspace:*",
+    "@wecom/aibot-node-sdk": "1.0.7",
     "builder-util-runtime": "^9.5.1",
     "electron-updater": "^6.8.3",
     "module-details-from-path": "^1.0.4",

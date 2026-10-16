@@ -107,6 +107,11 @@ import {
   beginWeixinRegistration as beginWeixinQrRegistration,
   pollWeixinRegistration as pollWeixinQrRegistration,
 } from "./providers/weixinRegistration.js";
+import { createWeComBotProvider } from "./providers/wecomProvider.js";
+import {
+  beginWeComRegistration as beginWeComQrRegistration,
+  pollWeComRegistration as pollWeComQrRegistration,
+} from "./providers/wecomRegistration.js";
 import { createFeishuBotProvider } from "./providers/feishuProvider.js";
 import { formatBotMessage, type BotMessageId } from "./messages.js";
 import {
@@ -156,6 +161,7 @@ import {
 import { createTelegramChannelRuntime } from "./telegramChannelRuntime.js";
 import { createWeixinChannelRuntime } from "./weixinChannelRuntime.js";
 import { createFeishuChannelRuntime } from "./feishuChannelRuntime.js";
+import { createWeComChannelRuntime } from "./wecomChannelRuntime.js";
 import { registerMemoryDiagnosticsProvider } from "#src/memoryDiagnostics.js";
 
 const botsLogger = createServiceLogger("bots");
@@ -209,7 +215,13 @@ const BOT_REPLY_GRANULARITY_OPTIONS = [
   aliases: readonly string[];
 }>;
 
-const BOT_EXCLUSIVE_CREDENTIAL_PROVIDERS = new Set<BotProvider>(["telegram", "feishu", "lark"]);
+// 共用凭据会让两条长连接/轮询互相抢占（企微与飞书同一 Bot 只允许一条连接），必须禁止同时启用。
+const BOT_EXCLUSIVE_CREDENTIAL_PROVIDERS = new Set<BotProvider>([
+  "telegram",
+  "feishu",
+  "lark",
+  "wecom",
+]);
 const FEISHU_STREAMING_CARD_MIN_UPDATE_INTERVAL_MS = 1_000;
 const FEISHU_STREAMING_CARD_REQUEST_TIMEOUT_MS = 15_000;
 const FEISHU_STREAMING_CARD_FAILURE_BACKOFF_BASE_MS = 1_000;
@@ -744,7 +756,10 @@ export function createBotsService(
       loadCredential: (key) => deps.credentialService.load(key),
     }),
     discord: null,
-    wecom: null,
+    wecom: createWeComBotProvider({
+      onDeliveryResult,
+      loadCredential: (key) => deps.credentialService.load(key),
+    }),
   };
   let service: IBotsService & {
     disposeAll(): void;
@@ -801,6 +816,16 @@ export function createBotsService(
     processProviderCallback,
   });
   const feishuRuntime = createFeishuChannelRuntime({
+    runBackgroundTasks: runStartupBackgroundTasks,
+    credentialService: deps.credentialService,
+    logger: botsLogger,
+    statusSink,
+    ensureBotStorageMigrated,
+    readConfig: () => repo.readConfig(),
+    summarizeCallbackPayload,
+    processProviderCallback,
+  });
+  const wecomRuntime = createWeComChannelRuntime({
     runBackgroundTasks: runStartupBackgroundTasks,
     credentialService: deps.credentialService,
     logger: botsLogger,
@@ -5212,12 +5237,19 @@ export function createBotsService(
     pollWeixinRegistration(params) {
       return pollWeixinQrRegistration(params);
     },
+    beginWeComRegistration() {
+      return beginWeComQrRegistration();
+    },
+    pollWeComRegistration(params) {
+      return pollWeComQrRegistration(params);
+    },
     async saveConfig(config) {
       const savedConfig = await repo.writeConfig(normalizeConfigBots(config));
       clearCandidateCaches();
       telegramRuntime.scheduleRefresh(savedConfig);
       weixinRuntime.scheduleRefresh(savedConfig);
       feishuRuntime.scheduleRefresh(savedConfig);
+      wecomRuntime.scheduleRefresh(savedConfig);
       return savedConfig;
     },
     async listBots() {
@@ -5281,6 +5313,7 @@ export function createBotsService(
       telegramRuntime.scheduleRefresh(savedConfig);
       weixinRuntime.scheduleRefresh(savedConfig);
       feishuRuntime.scheduleRefresh(savedConfig);
+      wecomRuntime.scheduleRefresh(savedConfig);
       return bot;
     },
     async removeBotSecret(botId: string) {
@@ -5298,6 +5331,9 @@ export function createBotsService(
       if (bot.provider === "weixin") {
         weixinRuntime.stopPolling(bot.id);
       }
+      if (bot.provider === "wecom") {
+        void wecomRuntime.stopWebSocket(bot.id);
+      }
       // Bugfix: 只移除密钥时如果保留旧绑定身份，UI 会显示“已连通”，但运行时已经没有 token 可用。
       // 这里同步清理绑定状态，让 Bot token 行回到可重新添加的状态。
       const nextBot = normalizeBotConfig({
@@ -5307,6 +5343,8 @@ export function createBotsService(
         providerUserId: undefined,
         displayName: undefined,
         feishuAppId: isFeishuBotProvider(bot.provider) ? undefined : bot.feishuAppId,
+        // 企微 BotID 与 Secret 是同一次扫码/创建拿到的成对凭据，只留 BotID 无法再连上。
+        wecomBotId: bot.provider === "wecom" ? undefined : bot.wecomBotId,
       });
       const savedConfig = await repo.writeConfig({
         ...config,
@@ -5319,6 +5357,7 @@ export function createBotsService(
       telegramRuntime.scheduleRefresh(savedConfig);
       weixinRuntime.scheduleRefresh(savedConfig);
       feishuRuntime.scheduleRefresh(savedConfig);
+      wecomRuntime.scheduleRefresh(savedConfig);
       if (bot.credentialRef) {
         await deps.credentialService.delete(bot.credentialRef);
       }
@@ -5339,6 +5378,9 @@ export function createBotsService(
       if (bot?.provider === "weixin") {
         weixinRuntime.stopPolling(bot.id);
       }
+      if (bot?.provider === "wecom") {
+        void wecomRuntime.stopWebSocket(bot.id);
+      }
       await repo.writeConfig({
         ...config,
         bots: config.bots.filter((item) => item.id !== botId),
@@ -5346,6 +5388,7 @@ export function createBotsService(
       clearCandidateCaches();
       telegramRuntime.scheduleRefresh();
       weixinRuntime.scheduleRefresh();
+      wecomRuntime.scheduleRefresh();
       const state = await repo.readState();
       delete state.bots[botId];
       await repo.writeState(state);
@@ -6346,6 +6389,7 @@ export function createBotsService(
         telegramRuntime.dispose(),
         weixinRuntime.dispose(),
         feishuRuntime.dispose(),
+        wecomRuntime.dispose(),
       ]).then(() => undefined);
       return shutdownPromise;
     },
@@ -6354,6 +6398,7 @@ export function createBotsService(
     void telegramRuntime.refresh();
     void weixinRuntime.refresh();
     void feishuRuntime.refresh();
+    void wecomRuntime.refresh();
     void ensureBotStorageMigrated().catch((error: unknown) => {
       // 首次读取失败必须可见，不能产生未处理 rejection；交互入口仍直接收到该错误。
       botsLogger.error(
