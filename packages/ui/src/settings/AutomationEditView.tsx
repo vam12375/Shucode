@@ -1508,6 +1508,9 @@ export function AutomationEditView({
         teamPlanFallbackLabel: intl.formatMessage({
           id: "settings.modelProvider.connectionMode.teamPlan",
         }),
+        officialBadgeLabel: intl.formatMessage({
+          id: "settings.modelProvider.officialProviderBadge",
+        }),
       },
       registrySelectionView: modelSelectionView,
     });

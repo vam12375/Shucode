@@ -70,6 +70,10 @@ export interface ModelSelectGroup {
   key: string;
   label: string;
   labelBadge?: string;
+  /**
+   * labelBadge 的配色覆写（与默认中性徽标经 tailwind-merge 合并）。
+   * 用于标记有业务语义的分组（如官方平台 provider），组件本身不感知语义。 */
+  labelBadgeClassName?: string;
   directItems?: boolean;
   selectedOptionKey?: string;
   connectionOptions?: ModelSelectConnectionOption[];
@@ -395,7 +399,9 @@ export const ModelConfigSelect = memo(function ModelConfigSelectComponent({
           {group.label}
         </span>
         {group.labelBadge ? (
-          <span className={MODEL_CONFIG_SELECT_BADGE_CLASS_NAME}>{group.labelBadge}</span>
+          <span className={cn(MODEL_CONFIG_SELECT_BADGE_CLASS_NAME, group.labelBadgeClassName)}>
+            {group.labelBadge}
+          </span>
         ) : null}
       </span>
     ),

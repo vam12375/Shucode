@@ -1309,6 +1309,9 @@ export function SubagentsSection({ onManageModels }: SubagentsSectionProps) {
       codingPlanLabel: intl.formatMessage({
         id: "settings.modelProvider.connectionMode.codingPlan",
       }),
+      officialBadgeLabel: intl.formatMessage({
+        id: "settings.modelProvider.officialProviderBadge",
+      }),
     });
   }, [intl, modelSelectionView]);
   const subagentModelSelectGroups = chatModelSelectGroups;

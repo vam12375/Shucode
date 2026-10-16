@@ -1,5 +1,6 @@
 import {
   isShucodeAgentProvider,
+  PLATFORM_GATEWAY_PROVIDER_ID,
   resolveModelProviderFamilySpecByProviderId,
   shucodeProviderAccountAccessSchema,
   type ShucodeProviderAccountAccess,
@@ -19,7 +20,17 @@ export interface ModelProviderGroupLabelOptions {
   startPlanBadgeLabel?: string;
   teamPlanBadgeLabel?: string;
   teamPlanFallbackLabel?: string;
+  /** 官方平台 provider 分组的角标文案；缺省时不加角标（置顶仍然生效）。 */
+  officialBadgeLabel?: string;
 }
+
+/**
+ * 官方平台 provider 分组的品牌色徽标：与默认中性徽标（MODEL_CONFIG_SELECT_BADGE_CLASS_NAME）
+ * 同形不同色，经 tailwind-merge 覆写底色与文字色（亮暗主题都走 --color-brand token）。
+ * 放在本模块而非 ModelConfigSelect.tsx：分组语义是分组构建层的事实，且保证本模块可单测。
+ */
+export const MODEL_SELECT_OFFICIAL_BADGE_CLASS_NAME =
+  "shrink-0 rounded-full border border-brand/30 bg-brand/10 px-1 py-px text-ui-xs font-medium leading-normal text-brand";
 
 function supportsRegistryApiFormat(
   selectedProvider: ShucodeProvider,
@@ -35,7 +46,7 @@ export function buildRegistryModelSelectGroups(
   view: ModelSelectionView,
   labels: ModelProviderGroupLabelOptions = {},
 ): ModelSelectGroup[] {
-  return view.providers.flatMap((provider) => {
+  const groups = view.providers.flatMap((provider) => {
     if (!supportsRegistryApiFormat(selectedProvider, provider.config.api?.type)) {
       return [];
     }
@@ -44,12 +55,20 @@ export function buildRegistryModelSelectGroups(
     const accountPresentation = accountAccess.success
       ? getRegistryAccountProviderGroupPresentation(provider.providerId, accountAccess.data, labels)
       : null;
+    const isOfficialPlatformProvider = provider.providerId === PLATFORM_GATEWAY_PROVIDER_ID;
 
     return [
       {
         key: `registry-provider:${provider.providerId}`,
         label: accountPresentation?.label || provider.providerName?.trim() || provider.providerId,
         ...(accountPresentation?.labelBadge ? { labelBadge: accountPresentation.labelBadge } : {}),
+        // 官方平台 provider 用品牌色角标与本地供应商区分；角标文案由调用方提供（i18n）。
+        ...(isOfficialPlatformProvider && labels.officialBadgeLabel
+          ? {
+              labelBadge: labels.officialBadgeLabel,
+              labelBadgeClassName: MODEL_SELECT_OFFICIAL_BADGE_CLASS_NAME,
+            }
+          : {}),
         ...(accountPresentation ? { directItems: true } : {}),
         items: provider.models.map(({ modelId, config }) => ({
           key: `registry-provider:${provider.providerId}:${modelId}`,
@@ -66,6 +85,26 @@ export function buildRegistryModelSelectGroups(
       },
     ];
   });
+
+  // 登录同步把平台 provider 追加到 personal 层 providerOrder 末尾（见 platformUserConfigApply
+  // 的 mergeProviderOrder）：展示层固定把官方平台 provider 排到第一位，其余保持 Registry 原序。
+  return withOfficialPlatformProviderFirst(groups);
+}
+
+/** 官方平台 provider 分组置顶（稳定性重排：仅移动该组，其余相对顺序不变）。 */
+function withOfficialPlatformProviderFirst(groups: ModelSelectGroup[]): ModelSelectGroup[] {
+  const index = groups.findIndex(
+    (group) => group.key === `registry-provider:${PLATFORM_GATEWAY_PROVIDER_ID}`,
+  );
+  if (index <= 0) {
+    return groups;
+  }
+  const reordered = [...groups];
+  const official = reordered.splice(index, 1)[0];
+  if (official) {
+    reordered.unshift(official);
+  }
+  return reordered;
 }
 
 function getRegistryAccountProviderGroupPresentation(

@@ -2639,6 +2639,7 @@ const zhCN: Record<string, string> = {
   "settings.modelProvider.connectionMode.codingPlanBadge": "个人",
   "settings.modelProvider.connectionMode.startPlanBadge": "免费",
   "settings.modelProvider.connectionMode.teamPlanBadge": "团队",
+  "settings.modelProvider.officialProviderBadge": "官方",
   "settings.modelProvider.connectionMode.noAvailablePlan": "无可用套餐",
   "settings.modelProvider.startPlan.title": "{provider} - 编程套餐",
   "settings.modelProvider.startPlan.meta.today": "Today",

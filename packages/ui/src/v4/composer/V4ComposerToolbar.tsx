@@ -219,6 +219,9 @@ function V4ComposerModelControlsImpl({
       teamPlanFallbackLabel: intl.formatMessage({
         id: "settings.modelProvider.connectionMode.teamPlan",
       }),
+      officialBadgeLabel: intl.formatMessage({
+        id: "settings.modelProvider.officialProviderBadge",
+      }),
     });
   }, [displayProvider, intl, modelSelectionView]);
 

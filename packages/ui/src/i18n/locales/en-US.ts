@@ -807,6 +807,7 @@ const enUS: Record<string, string> = {
   "bots.runtime.wecomWebSocketRunning": "WeCom WebSocket is running.",
   "bots.runtime.wecomWebSocketStopped": "WeCom WebSocket is stopped.",
   "bots.runtime.wecomWebSocketHandledElsewhere":
+    "WeCom WebSocket is handled by another Shucode window.",
   "bots.runtime.botDisabled": "Bot is disabled.",
   "bots.scanQrCode": "Scan QR code",
   "bots.authorizationQr": "Authorization QR",
@@ -2815,6 +2816,7 @@ const enUS: Record<string, string> = {
   "settings.modelProvider.connectionMode.codingPlanBadge": "Individual",
   "settings.modelProvider.connectionMode.startPlanBadge": "Free",
   "settings.modelProvider.connectionMode.teamPlanBadge": "Team",
+  "settings.modelProvider.officialProviderBadge": "Official",
   "settings.modelProvider.connectionMode.noAvailablePlan": "No available plan",
   "settings.modelProvider.startPlan.title": "{provider} - Coding Plan",
   "settings.modelProvider.startPlan.meta.today": "Today",
