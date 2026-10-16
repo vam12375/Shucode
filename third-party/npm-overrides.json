@@ -459,5 +459,23 @@
     "source": "https://registry.npmjs.org/%40arms%2frum-electron%400.0.3",
     "evidenceKind": "publisher-license-identifier-and-standard-terms",
     "license": "MIT"
+  },
+  {
+    "package": "@wecom/aibot-node-sdk@1.0.7",
+    "repo": "WecomTeam/aibot-node-sdk",
+    "refs": ["ea48edf7c99be0609fe9740050f4942f897a5d95"],
+    "file": "third-party/upstream/db1ebc36b02723439f9332c39aff5b7fa81fa00749cfaff7a4506b2ee04adf83.txt",
+    "sha256": "db1ebc36b02723439f9332c39aff5b7fa81fa00749cfaff7a4506b2ee04adf83",
+    "source": "https://registry.npmjs.org/%40wecom%2faibot-node-sdk%401.0.7",
+    "evidenceKind": "publisher-license-identifier-and-standard-terms",
+    "license": "MIT",
+    "reviewEvidence": {
+      "checkedOn": "2026-10-16",
+      "result": "The versioned npm archive contains no standalone complete LICENSE; existing publisher declaration and original README license sections remain preserved. Upstream authorization/copyright material is still required to close this review.",
+      "npmArchiveSha256": "d30794828be97c2bdd1823e31ea835379b23322304a3fbe0d56d9ee46afedcde",
+      "sourceRevision": "ea48edf7c99be0609fe9740050f4942f897a5d95",
+      "sourceTreeUrl": "https://api.github.com/repos/WecomTeam/aibot-node-sdk/git/trees/ea48edf7c99be0609fe9740050f4942f897a5d95?recursive=1",
+      "upstreamLicenseFiles": []
+    }
   }
 ]

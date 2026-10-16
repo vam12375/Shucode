@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "inputHashEncoding": "UTF-8 with CRLF normalized to LF; notice and source snapshot hashes remain byte-exact",
   "scope": "Production dependency union across current workspace projects, copied source/assets and native tools; not a per-installer SBOM or a certification of all licensing obligations.",
-  "noticesSha256": "850d882e2b29bc26b447e5fab84ec5a1985582ea5c6707738f1c0d132abe1ed9",
+  "noticesSha256": "54bda8d404350a5b4e599aa6e632a71308319e4a8dd19aea64500aada0c26b51",
   "inputs": {
     ".agents/skills/agent-browser/references/authentication.md": "b1b921a9be608b1843cf88b5831689e287a3b92fc27b09583c73e477c7c368fd",
     ".agents/skills/agent-browser/references/commands.md": "1db5ff2a837ee9fc335a29f387aeb4621b969fed23b861deb336e6148798432b",
@@ -243,9 +243,9 @@
     "apps/shucode-cli/packages/telemetry/package.json": "d903e2df322096be32929ea87522b0371d2d995980d0de2c4f041338bc5dfd7f",
     "apps/shucode-cli/tools/prompt-trajectory/package.json": "83ed6432015ff45f60fe4441d6af15be8763884f44d289e0bf2545d202411687",
     "apps/shucode-cli/tools/typescript/package.json": "d0577269267629f68c42d6c01ac299d56a3e7c80d7ac17c7860e3cd6b2d09a56",
-    "package.json": "1772befbdd5197edf85b249ed4bcc2092003fe7b3edafe9ae8ed3b709d24f4a6",
+    "package.json": "2ace8780464c76ab3b4ed748c97267a5f0b1322022604eca9eb43675071a65d7",
     "packages/client/package.json": "9eab039cb67225e7a1337d270c0aa82b9db7e54f2b5033af0d8b5488aac9fc0f",
-    "packages/desktop/package.json": "ba3d36b6ff5e7b582b110fbd14c8fd5f360e56d6f94a5d7ebffae06cf92e13c0",
+    "packages/desktop/package.json": "fc31916c84c25d7dcd5afafc30f72ca99c2968e325296fb12ccc3c0281d8de04",
     "packages/desktop/src/renderer/public/material-icons/3d.svg": "9527b849f0fba57ca7640e2717b3a19cb5f5e046712cbbd8b75d73af338c68fb",
     "packages/desktop/src/renderer/public/material-icons/abap.svg": "1335bd7eb9a0ed49deb622330d680c2e97731726a7a5eee8e4f46dc1e5db4de4",
     "packages/desktop/src/renderer/public/material-icons/abc.svg": "d1a68020e8f020ef29dca5f94dc8613b7ae8fb5b212d8b1cc23b0f975ac7acda",
@@ -1418,7 +1418,7 @@
     "packages/rpc/src/remote.ts": "a11e072d5df7e1c1ce64814a68f72afc081246b364f0da409b5c9d22bc815957",
     "packages/rpc/src/serialization.ts": "04c0d167d0bdcee38c34be796d0a9ce4a1920d3fe6f32338145b16dec7b0ecab",
     "packages/server/package.json": "759e80d2c21d9606c74ba5b89c64a4c76724fcd629494a3c257d38d396c4c9eb",
-    "packages/services/package.json": "28c114e22989269d743adf1cef21c0bb5654c144b8fe109bc5522c3b44bc21be",
+    "packages/services/package.json": "1a2f5ff357731f1f44bbbf6ade32a8c0d4a128d68ad3f71b6372f49c2f0da65a",
     "packages/shared/package.json": "e2c53cca11b344782b5f1a3030fe4e02a0c2688456aba9151f0361a8a82867a1",
     "packages/shared/src/shucode-protocol-v4/wire-codec.ts": "fb19762ed71de17d1ca9a946942d87224537aaede3fb892acfea0e23646aef63",
     "packages/shucode-cua/package.json": "3207cac71cb29bdfe16b541d83dd7e2aefdfa8694e053ffe35afe54ca2004224",
@@ -1435,7 +1435,6 @@
     "packages/ui/src/components/ai-elements/confirmation.tsx": "bcfe13c1e19830a3e8808595f4a1943cf4b53a687455ef0d836d0e12a3787856",
     "packages/ui/src/components/ai-elements/connection.tsx": "9435ce52aa13e12e9b01e6dd7a2ddf8d01e4e3afedf5d3e00de92fa0f623a92c",
     "packages/ui/src/components/ai-elements/context.tsx": "5497c1d2099717b41798879206ba9e02249a03396ee3c4142765104eac0130e7",
-    "packages/ui/src/components/ai-elements/controls.tsx": "eab213f79ff3ddc5a1749bb1b8e3e5e51ca8062b2e66e4c302f0ca439c911413",
     "packages/ui/src/components/ai-elements/conversation.tsx": "4f8d5b527b8adcae1944cd005df535e76d4dce9a9461b340b897e810e1e00165",
     "packages/ui/src/components/ai-elements/diagram-preview-dialog.tsx": "4e1e7fdd42fe8ed8574e3d05db795ad1b1ed42a5d670154c1e2b0a58c7a92911",
     "packages/ui/src/components/ai-elements/edge.tsx": "fd9f7550f1db02d492cf0390c76aa1c1e73b5fc31f5e6ffcc1cf0ec13a22a991",
@@ -1516,7 +1515,7 @@
     "packages/ui/src/components/ui/tooltip.tsx": "301dbf3a6f8b1bc496f9bdc6fbc5fe6202ed373182897f39cd1ecd19b00fdfbe",
     "packages/ui/src/components/ui/usePdfZoomOverlay.ts": "c8c91b003ce2fded32c7a2369dc6eac43aa4b9dc9c830a0f5ceccb21d366b610",
     "packages/ui/src/lib/builtinSkillI18n.ts": "59b610e9f3796b8082e1f30684c5f743827f75e9ddc1972aab51b3caa2e8cedf",
-    "packages/ui/src/styles.css": "0b834c5b29c72b7596ad4df924ce8c66c0d0e97dda8221f835625d288155654a",
+    "packages/ui/src/styles.css": "7dd84a2e6dc8d8e27ec3550e38d3dc22846b1c31188f1f2394094f60c6d398b7",
     "packages/web/package.json": "b252d267ce8712efecaa9f4264b4b25770cfa080c95203a11c623977c04154c0",
     "packages/web/public/material-icons/3d.svg": "9527b849f0fba57ca7640e2717b3a19cb5f5e046712cbbd8b75d73af338c68fb",
     "packages/web/public/material-icons/abap.svg": "1335bd7eb9a0ed49deb622330d680c2e97731726a7a5eee8e4f46dc1e5db4de4",
@@ -2667,12 +2666,12 @@
     "patches/@ai-sdk__anthropic@3.0.81.patch": "01ede7f5fd369e7f9aab2966a4087c706ed0a6b3d8e6c04f7720672ae253e3c6",
     "patches/@ai-sdk__openai-compatible@2.0.60.patch": "94344ed3ce96db42490df9647220467829341a28ce3cc0301cc7b07dd2f94a64",
     "patches/@arms__rum-electron@0.0.3.patch": "d41bf9a2232871f935af6006995880b33577606ce8ca65827c5077ea5741d6c6",
-    "pnpm-lock.yaml": "fa5c0338b779946c68e451ddb8fd5ceae1fe6fe2ff4d65b5df5dce339badf586",
+    "pnpm-lock.yaml": "066c48616e2a8202eab761dee36c4106b8521202f852336829255d704a220086",
     "pnpm-workspace.yaml": "a770713295a6daf9b04bec2282e0739a8b866f9b9a749a1bab2c381c532b31cd",
     "scripts/license-texts/Apache-2.0.txt": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
     "scripts/native-search-tools-config.mjs": "872fd9e250758af502bfc7a629ffffd35b25c06d92c5fe3dd2573bb4b495376a",
     "scripts/remote-native-search-tools-config.mjs": "472322a66f84c7452f96aa9e16e9c4e0600f7c2588a03dc6bc869229161b1cb2",
-    "third-party/copied-components.json": "6cf7b38289bde808dd08f5201183be6de8048f33b158de7cc640b0d4f4862a70",
+    "third-party/copied-components.json": "b0aeb78b676e1ee9fcf929716a7bd6281e7548ed9b32f628f434575dc6d7c59d",
     "third-party/embedded-components.json": "9586ccca15897f56d4ca1d703dffe9e02880fedd766c1dff93f7ac1f52ea891a",
     "third-party/native-search/licenses/00373c9bf56a894b2ed67586596bc1e8b0630cabbaf1ab46c75fc754b6bcd1ce.txt": "00373c9bf56a894b2ed67586596bc1e8b0630cabbaf1ab46c75fc754b6bcd1ce",
     "third-party/native-search/licenses/01c266bced4a434da0051174d6bee16a4c82cf634e2679b6155d40d75012390f.txt": "01c266bced4a434da0051174d6bee16a4c82cf634e2679b6155d40d75012390f",
@@ -2789,7 +2788,7 @@
     "third-party/native-search/licenses/f9bc4423732350eb0b3f7ed7e91d530298476f8fec0c6c427a1c04ade22655af.txt": "f9bc4423732350eb0b3f7ed7e91d530298476f8fec0c6c427a1c04ade22655af",
     "third-party/native-search/licenses/f9c375a1be4a41f7b70301dd83c91cb89e41567478859b77eef375a52d782505.txt": "f9c375a1be4a41f7b70301dd83c91cb89e41567478859b77eef375a52d782505",
     "third-party/native-search/sources.json": "054f2f183e580151c0f65f3564429f1a3e426c36419d6ae5045b3b7d38fdaff3",
-    "third-party/npm-overrides.json": "4dceb02c95f8a60c87d73ae9964028dcf5bd28b2fc5092b09234bd0fbda30441",
+    "third-party/npm-overrides.json": "dbc322df5443ab6c430b739a060aa071a34283e89fad21339630c72ee14bf12b",
     "third-party/runtime/node-22.16.0-LICENSE.txt": "1ae62e2015784ba438db7b04ebd33f3c4ff3efdb824c111c4ececd99945fd52d",
     "third-party/runtime/node-24.14.0-LICENSE.txt": "4573185d56580da2b890ba34a85a409257640f1c5632eade4300137266194d18",
     "third-party/runtime/sources.json": "b27bc8d81aeb71108e523602364ffbb6a1b19c2d5d47733fd43094b769006741",
@@ -2858,6 +2857,7 @@
     "third-party/upstream/cf81859d85e99ff2fad83d51d9dfd85ca5189b23c4442aacf1890c54665d92f4.txt": "cf81859d85e99ff2fad83d51d9dfd85ca5189b23c4442aacf1890c54665d92f4",
     "third-party/upstream/cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30.txt": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
     "third-party/upstream/d65ff929f8a373ea16b21d45d5489557d51389ba6583a5c9959d5487c02ce965.txt": "d65ff929f8a373ea16b21d45d5489557d51389ba6583a5c9959d5487c02ce965",
+    "third-party/upstream/db1ebc36b02723439f9332c39aff5b7fa81fa00749cfaff7a4506b2ee04adf83.txt": "db1ebc36b02723439f9332c39aff5b7fa81fa00749cfaff7a4506b2ee04adf83",
     "third-party/upstream/e1cfcc55c325b3f78cf55df9664abaa066e2271dffe8213347d9fccdfbac8f2c.txt": "e1cfcc55c325b3f78cf55df9664abaa066e2271dffe8213347d9fccdfbac8f2c",
     "third-party/upstream/e2b35be49f7284a45b7baca8fc7b3ab7440e7902392b2528a457816b5bb2a15c.txt": "e2b35be49f7284a45b7baca8fc7b3ab7440e7902392b2528a457816b5bb2a15c",
     "third-party/upstream/e49e62397b603438476e0d6b5ca3b6e6d4f23a80594e596aff29ac04fa3e1b1c.txt": "e49e62397b603438476e0d6b5ca3b6e6d4f23a80594e596aff29ac04fa3e1b1c",
@@ -7356,6 +7356,18 @@
         {
           "member": "LICENSE",
           "sha256": "b070d77bfb2c52a1dd6996de0ce5f64c49a0ca55c889b163a963ddf5cb001ee2"
+        }
+      ]
+    },
+    {
+      "name": "@wecom/aibot-node-sdk",
+      "version": "1.0.7",
+      "license": "MIT",
+      "repository": "https://github.com/WecomTeam/aibot-node-sdk.git",
+      "notices": [
+        {
+          "member": "https://registry.npmjs.org/%40wecom%2faibot-node-sdk%401.0.7",
+          "sha256": "db1ebc36b02723439f9332c39aff5b7fa81fa00749cfaff7a4506b2ee04adf83"
         }
       ]
     },
@@ -18884,7 +18896,7 @@
         },
         {
           "file": "packages/ui/src/styles.css",
-          "sha256": "0b834c5b29c72b7596ad4df924ce8c66c0d0e97dda8221f835625d288155654a"
+          "sha256": "7dd84a2e6dc8d8e27ec3550e38d3dc22846b1c31188f1f2394094f60c6d398b7"
         }
       ]
     },
@@ -18912,7 +18924,6 @@
         "packages/ui/src/components/ai-elements/confirmation.tsx",
         "packages/ui/src/components/ai-elements/connection.tsx",
         "packages/ui/src/components/ai-elements/context.tsx",
-        "packages/ui/src/components/ai-elements/controls.tsx",
         "packages/ui/src/components/ai-elements/conversation.tsx",
         "packages/ui/src/components/ai-elements/edge.tsx",
         "packages/ui/src/components/ai-elements/image.tsx",
@@ -19087,10 +19098,6 @@
         {
           "file": "packages/ui/src/components/ai-elements/context.tsx",
           "sha256": "5497c1d2099717b41798879206ba9e02249a03396ee3c4142765104eac0130e7"
-        },
-        {
-          "file": "packages/ui/src/components/ai-elements/controls.tsx",
-          "sha256": "eab213f79ff3ddc5a1749bb1b8e3e5e51ca8062b2e66e4c302f0ca439c911413"
         },
         {
           "file": "packages/ui/src/components/ai-elements/conversation.tsx",
@@ -29730,6 +29737,26 @@
       "source": "https://registry.npmjs.org/%40arms%2frum-electron%400.0.3",
       "evidenceKind": "publisher-license-identifier-and-standard-terms",
       "license": "MIT"
+    },
+    {
+      "package": "@wecom/aibot-node-sdk@1.0.7",
+      "repo": "WecomTeam/aibot-node-sdk",
+      "refs": [
+        "ea48edf7c99be0609fe9740050f4942f897a5d95"
+      ],
+      "file": "third-party/upstream/db1ebc36b02723439f9332c39aff5b7fa81fa00749cfaff7a4506b2ee04adf83.txt",
+      "sha256": "db1ebc36b02723439f9332c39aff5b7fa81fa00749cfaff7a4506b2ee04adf83",
+      "source": "https://registry.npmjs.org/%40wecom%2faibot-node-sdk%401.0.7",
+      "evidenceKind": "publisher-license-identifier-and-standard-terms",
+      "license": "MIT",
+      "reviewEvidence": {
+        "checkedOn": "2026-10-16",
+        "result": "The versioned npm archive contains no standalone complete LICENSE; existing publisher declaration and original README license sections remain preserved. Upstream authorization/copyright material is still required to close this review.",
+        "npmArchiveSha256": "d30794828be97c2bdd1823e31ea835379b23322304a3fbe0d56d9ee46afedcde",
+        "sourceRevision": "ea48edf7c99be0609fe9740050f4942f897a5d95",
+        "sourceTreeUrl": "https://api.github.com/repos/WecomTeam/aibot-node-sdk/git/trees/ea48edf7c99be0609fe9740050f4942f897a5d95?recursive=1",
+        "upstreamLicenseFiles": []
+      }
     }
   ],
   "embedded": [
@@ -30056,6 +30083,10 @@
     },
     {
       "id": "@arms/rum-electron@0.0.3",
+      "reason": "Original version-specific publisher copyright/license material remains incomplete."
+    },
+    {
+      "id": "@wecom/aibot-node-sdk@1.0.7",
       "reason": "Original version-specific publisher copyright/license material remains incomplete."
     },
     {
